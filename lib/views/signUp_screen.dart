@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,6 +10,17 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  bool _isPasswordVisible = false;
+  String? _selectedCategory; // Store the selected category
+
+  // List of categories
+  final List<String> _categories = [
+    "Farmer",
+    "Marketing Officer",
+    "Super Admin",
+
+  ];
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -29,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           double maxWidth = constraints.maxWidth;
-          double padding = maxWidth > 600 ? 50.0 : 16.0; // Adjust padding for larger screens
+          double padding = maxWidth > 600 ? 50.0 : 16.0;
 
           return SingleChildScrollView(
             child: Padding(
@@ -37,18 +49,16 @@ class _SignupScreenState extends State<SignupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Image
                   Image.asset(
                     "assets/images/signup.png",
-                    width: screenWidth * 0.5, // Adjusted width for responsiveness
+                    width: screenWidth * 0.5,
                   ),
                   const SizedBox(height: 10),
 
-                  // Title
                   Text(
                     "Sign-Up",
                     style: GoogleFonts.poppins(
-                      fontSize: maxWidth > 600 ? 26 : 22, // Larger text for tablets
+                      fontSize: maxWidth > 600 ? 26 : 22,
                       fontWeight: FontWeight.normal,
                       color: Colors.black87,
                     ),
@@ -56,12 +66,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Sign-up Category TextField
+                  // **Sign-up Category Dropdown**
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: "Sign-up Category",
+                        labelStyle: GoogleFonts.poppins(fontSize: 15),
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -73,96 +85,31 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
                         ),
                       ),
+                      items: _categories.map((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category, style: GoogleFonts.poppins(fontSize: 15)),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCategory = newValue;
+                        });
+                      },
                     ),
                   ),
 
-                  // Full Name TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: "Full Name",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Mobile Number TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: "Mobile Number",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Password TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Confirm Password TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: "Confirm Password",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // **Other TextFields**
+                  _buildTextField("Full Name"),
+                  _buildTextField("Mobile Number"),
+                  _buildPasswordField("Password"),
+                  _buildPasswordField("Confirm Password"),
 
                   const SizedBox(height: 20),
 
-                  // SignUp Button
+                  // **SignUp Button**
                   SizedBox(
-                    width: maxWidth > 600 ? 400 : double.infinity, // Fixed width for tablets
+                    width: maxWidth > 600 ? 400 : double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF57A45B),
@@ -174,7 +121,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, "/signIn");
                       },
-                      child:  Text(
+                      child: Text(
                         "Sign Up",
                         style: GoogleFonts.poppins(
                           fontSize: 16,
@@ -184,18 +131,85 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                   ),
-                 const  SizedBox(height:8),
-                  Text("Do you Have an account ? SignIn",
-                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.normal,
 
+                  const SizedBox(height: 10),
 
-                 )),
+                  RichText(
+                    text: TextSpan(
+                      text: "Do you have an account? ",
+                      style: GoogleFonts.poppins(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: "Sign-In",
+                          style: GoogleFonts.poppins(color: Color(0xFF57A45B)),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushNamed(context, "/signIn");
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  // **Reusable Text Field**
+  Widget _buildTextField(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // **Reusable Password Field**
+  Widget _buildPasswordField(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        obscureText: !_isPasswordVisible,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+            icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+          ),
+        ),
       ),
     );
   }

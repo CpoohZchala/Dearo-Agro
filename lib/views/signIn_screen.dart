@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,6 +10,8 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignInScreen> {
+  bool _isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -29,26 +32,30 @@ class _SignupScreenState extends State<SignInScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           double maxWidth = constraints.maxWidth;
-          double padding = maxWidth > 600 ? 50.0 : 16.0; // Adjust padding for larger screens
+          double padding =
+              maxWidth > 600 ? 50.0 : 16.0; // Adjust padding for larger screens
 
           return SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
+              padding:
+                  EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Image
                   Image.asset(
-                    "assets/images/signup.png",
-                    width: screenWidth * 0.5, // Adjusted width for responsiveness
+                    "assets/images/SignIn.png",
+                    width:
+                        screenWidth * 0.5, // Adjusted width for responsiveness
                   ),
                   const SizedBox(height: 10),
 
                   // Title
                   Text(
-                    "Sign-Up",
+                    "Sign-In",
                     style: GoogleFonts.poppins(
-                      fontSize: maxWidth > 600 ? 26 : 22, // Larger text for tablets
+                      fontSize:
+                          maxWidth > 600 ? 26 : 22, // Larger text for tablets
                       fontWeight: FontWeight.normal,
                       color: Colors.black87,
                     ),
@@ -56,52 +63,13 @@ class _SignupScreenState extends State<SignInScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Sign-up Category TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: "Sign-up Category",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Full Name TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: "Full Name",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
                   // Mobile Number TextField
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: TextField(
                       decoration: InputDecoration(
                         labelText: "Mobile Number",
+                        labelStyle: GoogleFonts.poppins(fontSize: 15),
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -110,19 +78,37 @@ class _SignupScreenState extends State<SignInScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF57A45B), width: 2),
                         ),
                       ),
                     ),
                   ),
 
                   // Password TextField
+                  // Password TextField
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: TextField(
-                      obscureText: true,
+                      obscureText:
+                          !_isPasswordVisible, // Toggle visibility here
                       decoration: InputDecoration(
                         labelText: "Password",
+                        labelStyle: GoogleFonts.poppins(fontSize: 15),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible =
+                                  !_isPasswordVisible; // Toggle state
+                            });
+                          },
+                        ),
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -131,28 +117,8 @@ class _SignupScreenState extends State<SignInScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Confirm Password TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: "Confirm Password",
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF57A45B), width: 2),
                         ),
                       ),
                     ),
@@ -162,7 +128,9 @@ class _SignupScreenState extends State<SignInScreen> {
 
                   // SignUp Button
                   SizedBox(
-                    width: maxWidth > 600 ? 400 : double.infinity, // Fixed width for tablets
+                    width: maxWidth > 600
+                        ? 400
+                        : double.infinity, // Fixed width for tablets
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF57A45B),
@@ -172,10 +140,10 @@ class _SignupScreenState extends State<SignInScreen> {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, "/signIn");
+                        Navigator.pushNamed(context, "/fdashboard");
                       },
-                      child:  Text(
-                        "Sign Up",
+                      child: Text(
+                        "Sign In",
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -184,13 +152,26 @@ class _SignupScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ),
-                 const  SizedBox(height:8),
-                  Text("Do you Have an account ? SignIn",
-                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.normal,
+                  const SizedBox(height: 8),
 
-
-                 )),
+                  RichText(
+                    text: TextSpan(
+                      text: "Do you haven't an account? ",
+                      style: GoogleFonts.poppins(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: "Sign-Up",
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF57A45B),
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushNamed(context, "/signUp");
+                            },
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
