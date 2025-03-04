@@ -9,12 +9,14 @@ environment:
   sdk: ^3.5.4
 
 dependencies:
+  boxes: ^1.0.2
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
   flutter_custom_clippers: ^2.1.0
   getwidget: ^6.0.0
   google_fonts: ^6.2.1
+  standard_searchbar: ^2.1.1
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -28,6 +30,9 @@ flutter:
     - assets/images/logo.png
     - assets/images/signup.png
     - assets/images/SignIn.png
+    - assets/images/image1.png
+    - assets/icons/man.png
+    - assets/images/image3.png
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/to/resolution-aware-images
     # For details regarding adding assets from package dependencies, see

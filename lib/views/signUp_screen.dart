@@ -82,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+                          borderSide: const BorderSide(color:  Color.fromRGBO(87, 164, 91, 0.8), width: 2),
                         ),
                       ),
                       items: _categories.map((String category) {
@@ -112,7 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     width: maxWidth > 600 ? 400 : double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF57A45B),
+                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -141,7 +141,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       children: [
                         TextSpan(
                           text: "Sign-In",
-                          style: GoogleFonts.poppins(color: Color(0xFF57A45B)),
+                          style: GoogleFonts.poppins(color: const Color.fromRGBO(87, 164, 91, 0.8)),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.pushNamed(context, "/signIn");
@@ -175,7 +175,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+            borderSide: const BorderSide(color:  Color.fromRGBO(87, 164, 91, 0.8), width: 2),
           ),
         ),
       ),
@@ -207,7 +207,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF57A45B), width: 2),
+            borderSide: const BorderSide(color:  Color.fromRGBO(87, 164, 91, 0.8), width: 2),
           ),
         ),
       ),

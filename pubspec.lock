@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  boxes:
+    dependency: "direct main"
+    description:
+      name: boxes
+      sha256: "2987e0c604763a3e12f55490d17a632615ccd32827ef9cb8ac618059ad384034"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   characters:
     dependency: transitive
     description:
@@ -280,6 +288,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
+  standard_searchbar:
+    dependency: "direct main"
+    description:
+      name: standard_searchbar
+      sha256: "37a16251fe1727442c00c7dde053f5ca1ca5b0d93cbe9437ece289d780cf0f99"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   stream_channel:
     dependency: transitive
     description:

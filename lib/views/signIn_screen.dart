@@ -79,13 +79,13 @@ class _SignupScreenState extends State<SignInScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                              color: Color(0xFF57A45B), width: 2),
+                              color:  Color.fromRGBO(87, 164, 91, 0.8), width: 2),
                         ),
                       ),
                     ),
                   ),
 
-                  // Password TextField
+                  
                   // Password TextField
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -118,7 +118,7 @@ class _SignupScreenState extends State<SignInScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                              color: Color(0xFF57A45B), width: 2),
+                              color:  Color.fromRGBO(87, 164, 91, 0.8), width: 2),
                         ),
                       ),
                     ),
@@ -133,7 +133,7 @@ class _SignupScreenState extends State<SignInScreen> {
                         : double.infinity, // Fixed width for tablets
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF57A45B),
+                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -162,7 +162,7 @@ class _SignupScreenState extends State<SignInScreen> {
                         TextSpan(
                           text: "Sign-Up",
                           style: GoogleFonts.poppins(
-                            color: const Color(0xFF57A45B),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
