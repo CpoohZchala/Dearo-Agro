@@ -25,13 +25,17 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
                       onPressed: () {
                         Navigator.pop(context);
                       },
                     ),
                     const SizedBox(width: 270),
-                    Image.asset("assets/icons/man.png", height: 35, width: 35)
+                    Image.asset(
+                      "assets/icons/man.png",
+                      height: 35,
+                      width: 35,
+                    )
                   ],
                 ),
               ),
@@ -42,7 +46,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(color: const Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+                side: const BorderSide(
+                    color: const Color.fromRGBO(87, 164, 91, 0.8), width: 2),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10),
@@ -57,12 +62,19 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                           "Member Id - 0001",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.normal,
-                            fontSize: 15,
+                            fontSize: 14,
                             color: Colors.black,
                           ),
                         ),
-                        const Icon(Icons.edit,
-                            color: Colors.black), // Edit icon at the right
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/addCultivational");
+                          },
+                          icon: const Icon(
+                            Icons.edit,
+                             color: Colors.black,
+                             size: 20),
+                        ), // Edit icon at the right
                       ],
                     ),
                     const SizedBox(height: 5), // Add spacing
@@ -70,34 +82,34 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                       "Crop Category - Vegetable",
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.normal,
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 7),
                     Text(
                       "Crop Name - Carrots",
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.normal,
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 7),
                     Text(
                       "NuwaraEliya",
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.normal,
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 7),
                     Text(
                       "Start Date - 2023/04/01",
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.normal,
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
@@ -105,8 +117,12 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 5),
-            Image.asset("assets/images/image3.png", height: 300, width: 300),
+            const SizedBox(height: 7),
+            Opacity(
+              opacity: 1.0,
+              child: Image.asset("assets/images/image3.png",
+                  height: 300, width: 300),
+            ),
             const SizedBox(height: 30),
             Align(
               alignment: Alignment.center,

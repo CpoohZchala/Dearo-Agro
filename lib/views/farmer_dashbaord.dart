@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 void main() => runApp(const FarmerDashboardApp());
 
@@ -23,42 +24,57 @@ class FarmerDashboard extends StatefulWidget {
 class _FarmerDashboardState extends State<FarmerDashboard> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _widgetOptions = <Widget>[
-    FarmerHome(),
-    const Text('Index 1: Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-    const Text('Index 2:Crop Calender', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-    const Text('Index 3: Account Details', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+  static final List<Widget> _screens = <Widget>[
+    const FarmerHome(),
+    const Text("Notifications",
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const Text("Crop Calendar",
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const Text("Account",
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: _widgetOptions.elementAt(_selectedIndex),),
-      bottomNavigationBar: BottomNavigationBar(
-        
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Crop Calender'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.green,
-        onTap: _onItemTapped,
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(87, 164, 91, 0.8),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(color: Colors.black26, blurRadius: 9, spreadRadius: 3),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: GNav(
+          backgroundColor: Colors.transparent,
+          color: Colors.white,
+          activeColor: Colors.black,
+          tabBackgroundColor: Colors.white.withOpacity(0.2),
+          gap: 10,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          iconSize: 26,
+          onTabChange: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          tabs: const [
+            GButton(icon: Icons.home, text: "Home"),
+            GButton(icon: Icons.notifications, text: "Alerts"),
+            GButton(icon: Icons.calendar_month, text: "Calendar"),
+            GButton(icon: Icons.account_circle, text: "Profile"),
+          ],
+        ),
       ),
     );
   }
 }
 
 class FarmerHome extends StatelessWidget {
+  const FarmerHome({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,39 +119,42 @@ class FarmerHome extends StatelessWidget {
                 mainAxisSpacing: 8,
                 crossAxisCount: 3,
                 children: <Widget>[
-                  _buildGridButton(context, "Cultivational Details", Icons.agriculture, "/cultivational"),
-                  _buildGridButton(context, "Crop Updates", Icons.man, "/crop_updates"),
-                  _buildGridButton(context, "Cultivational Expenses", Icons.attach_money, "/expenses"),
-                  _buildGridButton(context, "Stock Details", Icons.store_mall_directory, "/stock"),
-                  _buildGridButton(context, "Order Details", Icons.book, "/orders"),
-                  _buildGridButton(context, "Inquiries", Icons.forum, "/inqueries"),
+                  _buildGridButton(context, "Cultivational Details",
+                      Icons.agriculture, "/cultivational"),
+                  _buildGridButton(
+                      context, "Crop Updates", Icons.man, "/crop_updates"),
+                  _buildGridButton(context, "Cultivational Expenses",
+                      Icons.attach_money, "/expenses"),
+                  _buildGridButton(context, "Stock Details",
+                      Icons.store_mall_directory, "/stock"),
+                  _buildGridButton(
+                      context, "Order Details", Icons.book, "/orders"),
+                  _buildGridButton(
+                      context, "Inquiries", Icons.forum, "/inqueries"),
                 ],
               ),
             ),
-            const SizedBox(height:20),
+            const SizedBox(height: 20),
             SizedBox(
-            child:Column(
-              children:[
-                Text("Crop Care",
-                textAlign:TextAlign.right,
-                style:GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color:Colors.green,
-
-
-                ),)
-              ]
-            )
-            ),
-          
-           
+                child: Column(children: [
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Text(
+                    "Crop Care",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.green,
+                    ),
+                  )),
+            ])),
             Card(
               color: Colors.white,
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
-                side: const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+                side: const BorderSide(
+                    color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
               ),
               margin: const EdgeInsets.all(15),
               child: Padding(
@@ -147,7 +166,8 @@ class FarmerHome extends StatelessWidget {
                         Expanded(
                           child: RichText(
                             text: TextSpan(
-                              style: GoogleFonts.poppins(fontSize: 15, color: Colors.black),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 15, color: Colors.black),
                               children: const [
                                 TextSpan(text: "Diagnose and treat\n"),
                                 TextSpan(text: "your crop's pest and\n"),
@@ -157,7 +177,8 @@ class FarmerHome extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        Image.asset("assets/images/image1.png", height: 130, width: 130),
+                        Image.asset("assets/images/image1.png",
+                            height: 130, width: 130),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -186,7 +207,8 @@ class FarmerHome extends StatelessWidget {
     );
   }
 
-  Widget _buildGridButton(BuildContext context, String title, IconData icon, String route) {
+  Widget _buildGridButton(
+      BuildContext context, String title, IconData icon, String route) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.grey[300],
