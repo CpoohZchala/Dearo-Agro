@@ -25,7 +25,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                      icon:
+                          const Icon(Icons.arrow_back_ios, color: Colors.black),
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -66,15 +67,6 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                             color: Colors.black,
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/addCultivational");
-                          },
-                          icon: const Icon(
-                            Icons.edit,
-                             color: Colors.black,
-                             size: 20),
-                        ), // Edit icon at the right
                       ],
                     ),
                     const SizedBox(height: 5), // Add spacing
@@ -113,6 +105,32 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                         color: Colors.black,
                       ),
                     ),
+                    const SizedBox(height: 5),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Color.fromRGBO(87, 164, 91, 0.8),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/addCultivational");
+                          },
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Color.fromRGBO(87, 164, 91, 0.8),
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -121,9 +139,9 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
             Opacity(
               opacity: 1.0,
               child: Image.asset("assets/images/image3.png",
-                  height: 300, width: 300),
+                  height: 250, width: 250),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 5),
             Align(
               alignment: Alignment.center,
               child: ElevatedButton(

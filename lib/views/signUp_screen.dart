@@ -65,7 +65,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
 
                   const SizedBox(height: 20),
-
+                  
                   // **Sign-up Category Dropdown**
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),

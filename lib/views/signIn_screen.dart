@@ -85,7 +85,6 @@ class _SignupScreenState extends State<SignInScreen> {
                     ),
                   ),
 
-                  
                   // Password TextField
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
