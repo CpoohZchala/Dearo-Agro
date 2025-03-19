@@ -1,0 +1,41 @@
+name: farmeragriapp
+description: "A new Flutter project."
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  boxes: ^1.0.2
+  cupertino_icons: ^1.0.8
+  flutter:
+    sdk: flutter
+  flutter_custom_clippers: ^2.1.0
+  getwidget: ^6.0.0
+  google_fonts: ^6.2.1
+  google_nav_bar: ^5.0.7
+  standard_searchbar: ^2.1.1
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/logo.png
+    - assets/images/signup.png
+    - assets/images/SignIn.png
+    - assets/images/image1.png
+    - assets/icons/man.png
+    - assets/images/image3.png
+    - assets/images/paddy.png
+    - assets/icons/leaf.png
+    - assets/images/image5.png
+    - assets/icons/dollar.png
+    - assets/images/image4.png
