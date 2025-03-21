@@ -1,16 +1,16 @@
-import 'package:farmeragriapp/screens/Cultivational_expense.dart';
-import 'package:farmeragriapp/screens/crop_details_screen.dart';
-import 'package:farmeragriapp/screens/cultivation_screen.dart';
+import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
+import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
+import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
 import 'package:farmeragriapp/screens/forms/addCultivational.dart';
-import 'package:farmeragriapp/screens/farmer_dashbaord.dart';
-import 'package:farmeragriapp/screens/home_screen.dart';
-import 'package:farmeragriapp/screens/inquiries_screen.dart';
+import 'package:farmeragriapp/screens/views/farmer_dashbaord.dart';
+import 'package:farmeragriapp/screens/views/home_screen.dart';
+import 'package:farmeragriapp/screens/views/inquiries_screen.dart';
 import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
-import 'package:farmeragriapp/screens/orders_screen.dart';
-import 'package:farmeragriapp/screens/predictionscreen.dart';
+import 'package:farmeragriapp/screens/views/orders_screen.dart';
+import 'package:farmeragriapp/screens/views/predictionscreen.dart';
 import 'package:farmeragriapp/screens/forms/signIn_screen.dart';
 import 'package:farmeragriapp/screens/forms/signUp_screen.dart';
-import 'package:farmeragriapp/screens/stock_screen.dart';
+import 'package:farmeragriapp/screens/views/stock_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
