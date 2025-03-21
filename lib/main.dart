@@ -5,6 +5,7 @@ import 'package:farmeragriapp/views/cultivationalDetailsAdd.dart';
 import 'package:farmeragriapp/views/farmer_dashbaord.dart';
 import 'package:farmeragriapp/views/home_screen.dart';
 import 'package:farmeragriapp/views/inquiries_screen.dart';
+import 'package:farmeragriapp/views/newUpdateForm.dart';
 import 'package:farmeragriapp/views/orders_screen.dart';
 import 'package:farmeragriapp/views/predictionscreen.dart';
 import 'package:farmeragriapp/views/signIn_screen.dart';
@@ -41,6 +42,9 @@ class MyApp extends StatelessWidget {
         "/inqueries":(context) => const InqueriesScreen(),
         "/prediction":(context) => const Predictionscreen (),
         "/addCultivational":(context)=> const CultivationalAddScreen(),
+        "/newcropupdate":(context)=> const NewUpdateForm (),
+
+
         },
 
     );

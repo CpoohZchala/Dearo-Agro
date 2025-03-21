@@ -17,6 +17,7 @@ dependencies:
   getwidget: ^6.0.0
   google_fonts: ^6.2.1
   google_nav_bar: ^5.0.7
+  shadcn_flutter: ^0.0.30
   standard_searchbar: ^2.1.1
 
 dev_dependencies:
@@ -38,4 +39,6 @@ flutter:
     - assets/icons/leaf.png
     - assets/images/image5.png
     - assets/icons/dollar.png
-    - assets/images/image4.png
+    - assets/images/man1.png
+    - assets/images/tree.png
+    - assets/icons/leaf.png
