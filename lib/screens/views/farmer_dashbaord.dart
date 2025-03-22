@@ -187,13 +187,14 @@ class FarmerHome extends StatelessWidget {
                         Navigator.pushNamed(context, "/prediction");
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[300],
+                        backgroundColor: Colors.green[400],
                         foregroundColor: Colors.black,
                       ),
                       child: Text(
                         'Continue',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
+                          color:Colors.white
                         ),
                       ),
                     ),

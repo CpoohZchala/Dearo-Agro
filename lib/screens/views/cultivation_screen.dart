@@ -22,23 +22,6 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
               child: Container(
                 height: 190,
                 color: const Color.fromRGBO(87, 164, 91, 0.8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon:
-                          const Icon(Icons.arrow_back_ios, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const SizedBox(width: 270),
-                    Image.asset(
-                      "assets/icons/man.png",
-                      height: 35,
-                      width: 35,
-                    )
-                  ],
-                ),
               ),
             ),
             const SizedBox(height: 10),

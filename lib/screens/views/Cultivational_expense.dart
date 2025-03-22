@@ -72,7 +72,7 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/addCultivational");
+                  Navigator.pushNamed(context, "/addExpenses");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
@@ -157,7 +157,7 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
                 const SizedBox(width: 15),
                 IconButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, "/addCultivational");
+                    Navigator.pushNamed(context, "/addExpenses");
                   },
                   icon: const Icon(
                     Icons.edit,

@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/forms/addExpense.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         "/prediction":(context) => const Predictionscreen (),
         "/addCultivational":(context)=> const CultivationalAddScreen(),
         "/newcropupdate":(context)=> const NewUpdateForm (),
+        "/addExpenses":(context)=> const Addexpense (),
 
 
         },

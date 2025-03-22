@@ -96,7 +96,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                   left: 10,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
                   ),
                 ),
                 Positioned(
@@ -139,7 +139,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                 decoration: InputDecoration(
                   labelText: "Start Date",
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.calendar_today),
+                    icon: const Icon(Icons.calendar_month),
                     onPressed: _pickDate,
                   ),
                   border: OutlineInputBorder(
