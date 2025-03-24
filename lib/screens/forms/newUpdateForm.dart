@@ -15,6 +15,7 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
   final TextEditingController _controller = TextEditingController();
   final int _maxChars = 50;
   int _charCount = 0;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -47,6 +48,15 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
         _dateController.text =
             "\${pickedDate.year}-\${pickedDate.month.toString().padLeft(2, '0')}-\${pickedDate.day.toString().padLeft(2, '0')}";
       });
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      // Proceed with submission
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Crop status updated successfully!")),
+      );
     }
   }
 
@@ -87,70 +97,85 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
             padding: const EdgeInsets.only(top: 180),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(10),
-              child: Column(
-                children: <Widget>[
-                  TextField(
-                    controller: _dateController,
-                    decoration: InputDecoration(
-                      labelText: "Date",
-                      labelStyle: GoogleFonts.poppins(
-                        textStyle: TextStyle(fontSize: 15)
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _dateController,
+                      decoration: InputDecoration(
+                        labelText: "Date",
+                        labelStyle: GoogleFonts.poppins(
+                          textStyle: TextStyle(fontSize: 15),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: _pickDate,
+                          icon: const Icon(Icons.calendar_month),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      suffixIcon: IconButton(
-                        onPressed: _pickDate,
-                        icon: const Icon(Icons.calendar_month),
+                      readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please select a date";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _controller,
+                      maxLength: _maxChars,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: "Description about Crop update ..",
+                        labelStyle: GoogleFonts.poppins(
+                          textStyle: TextStyle(fontSize: 15),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        counterText: "",
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter a description";
+                        }
+                        return null;
+                      },
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Text(
+                        "$_charCount/$_maxChars",
+                        style: GoogleFonts.poppins(
+                          color: Colors.green.shade700,
+                        ),
                       ),
                     ),
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _controller,
-                    maxLength: _maxChars,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: "Description about Crop update ..",
-                      labelStyle: GoogleFonts.poppins(
-                        textStyle: TextStyle(fontSize: 15)
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                        padding: const EdgeInsets.all(15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      child: Text(
+                        "Update Crop Status",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
                       ),
-                      counterText: "",
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Text(
-                      "$_charCount/$_maxChars",
-                      style: GoogleFonts.poppins(
-                        color: Colors.green.shade700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                      padding: const EdgeInsets.all(15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "Update Crop Status",
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),

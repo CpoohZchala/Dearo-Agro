@@ -11,12 +11,14 @@ environment:
 dependencies:
   boxes: ^1.0.2
   cupertino_icons: ^1.0.8
+  file_picker: ^9.2.1
   flutter:
     sdk: flutter
   flutter_custom_clippers: ^2.1.0
   getwidget: ^6.0.0
   google_fonts: ^6.2.1
   google_nav_bar: ^5.0.7
+  open_file: ^3.5.10
   standard_searchbar: ^2.1.1
 
 dev_dependencies:
@@ -41,3 +43,5 @@ flutter:
     - assets/images/man1.png
     - assets/images/tree.png
     - assets/icons/leaf.png
+    - assets/icons/support.png
+    - assets/images/general.png

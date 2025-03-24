@@ -26,12 +26,10 @@ class _InqueriesScreenState extends State<InqueriesScreen> {
 
   static final List<Widget> _screens = <Widget>[
     const FarmerHome(),
-    const Text("Notifications",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const InqueriesScreen(),
     const Text("Crop Calendar",
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-    const Text("Account",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    
   ];
 
   @override
@@ -61,10 +59,10 @@ class _InqueriesScreenState extends State<InqueriesScreen> {
             });
           },
           tabs: const [
-            GButton(icon: Icons.home, text: "Home"),
-            GButton(icon: Icons.notifications, text: "Alerts"),
-            GButton(icon: Icons.calendar_month, text: "Calendar"),
-            GButton(icon: Icons.account_circle, text: "Profile"),
+            GButton(icon: Icons.home, text: "Home",),
+            GButton(icon: Icons.notifications, text: "Inquary"),
+            GButton(icon: Icons.calendar_month, text: "Responses"),
+            
           ],
         ),
       ),
@@ -108,12 +106,22 @@ class FarmerHome extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 40,
+                  top: 50,
+                  left: 50,
+                  child: Text("Get Support",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color:Colors.black
+                  ),)
+                ),
+                Positioned(
+                  top: 50,
                   right: 20,
                   child: Image.asset(
-                    "assets/icons/man.png",
-                    width: 35,
-                    height: 35,
+                    "assets/icons/support.png",
+                    width: 30,
+                    height: 30,
                   ),
                 ),
               ],
@@ -126,30 +134,38 @@ class FarmerHome extends StatelessWidget {
               ),
             ),
 
-            SizedBox(
-              child: Text("Select inquiry type"),
+             SizedBox(
+              height: 30,
+              child: Text(
+                "Select inquiry Type",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+                ),
+              ),
             ),
             SizedBox(
-              height: 235,
+              height: 500,
               child: GridView.count(
                 primary: false,
                 padding: const EdgeInsets.all(20),
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                crossAxisCount: 3,
+                crossAxisCount: 2,
                 children: <Widget>[
-                  _buildGridButton(context, "Cultivational Details",
-                      Icons.agriculture, "/cultivational"),
+                  _buildGridButton(context, "General Inquiry",
+                      Icons.agriculture, "/general"),
                   _buildGridButton(
-                      context, "Crop Updates", Icons.man, "/crop_updates"),
-                  _buildGridButton(context, "Cultivational Expenses",
-                      Icons.attach_money, "/expenses"),
-                  _buildGridButton(context, "Stock Details",
-                      Icons.store_mall_directory, "/stock"),
+                      context, "Market Price & Sales Inquiry ", Icons.man, "/market"),
+                  _buildGridButton(context, "Community & Expert Advice Inquiry",
+                      Icons.attach_money, "/commiunity"),
+                  _buildGridButton(context, "Storage & Preservation Inquiry",
+                      Icons.store_mall_directory, "/storage"),
                   _buildGridButton(
-                      context, "Order Details", Icons.book, "/orders"),
+                    
+                      context, "Financial Support Inquiry", Icons.book, "/finacial"),
                   _buildGridButton(
-                      context, "Inquiries", Icons.forum, "/inqueries"),
+                      context, "Technical Support Inquiry ", Icons.forum, "/technical"),
                 ],
               ),
             ),
@@ -168,7 +184,6 @@ class FarmerHome extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.grey[300],
         foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -179,7 +194,7 @@ class FarmerHome extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 30),
+          Icon(icon, size: 50),
           const SizedBox(height: 8),
           Text(
             title,

@@ -1,4 +1,10 @@
 import 'package:farmeragriapp/screens/forms/addExpense.dart';
+import 'package:farmeragriapp/screens/forms/commiunityIScreen.dart';
+import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
+import 'package:farmeragriapp/screens/forms/storageIScreen.dart';
+import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
+import 'package:farmeragriapp/screens/forms/marketIScreen.dart';
+import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
@@ -26,29 +32,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.green
-      ),
+      theme: ThemeData(primaryColor: Colors.green),
       initialRoute: "/",
       routes: {
-        "/":(context) =>  HomeScreen(),
-        "/signIn":(context) =>  const SignInScreen(),
-        "/signUp":(context) => const SignupScreen(),
-        "/fdashboard":(context) => const FarmerDashboard(),
-        "/cultivational":(context) => const CultivationalScreen(),
-        "/crop_updates":(context) => const CropDetailsScreen(),
-        "/expenses" :(context) => const CultivationalExpense(),
-        "/stock":(context) => const StockScreen(),
-        "/orders":(context) => const Orderscreen(),
-        "/inqueries":(context) => const InqueriesScreen(),
-        "/prediction":(context) => const Predictionscreen (),
-        "/addCultivational":(context)=> const CultivationalAddScreen(),
-        "/newcropupdate":(context)=> const NewUpdateForm (),
-        "/addExpenses":(context)=> const Addexpense (),
-
-
-        },
-
+        "/": (context) => HomeScreen(),
+        "/signIn": (context) => const SignInScreen(),
+        "/signUp": (context) => const SignupScreen(),
+        "/fdashboard": (context) => const FarmerDashboard(),
+        "/cultivational": (context) => const CultivationalScreen(),
+        "/crop_updates": (context) => const CropDetailsScreen(),
+        "/expenses": (context) => const CultivationalExpense(),
+        "/stock": (context) => const StockScreen(),
+        "/orders": (context) => const Orderscreen(),
+        "/inqueries": (context) => const InqueriesScreen(),
+        "/prediction": (context) => const Predictionscreen(),
+        "/addCultivational": (context) => const CultivationalAddScreen(),
+        "/newcropupdate": (context) => const NewUpdateForm(),
+        "/addExpenses": (context) => const Addexpense(),
+        "/general": (context) => const GeneralIScreen(),
+        "/market": (context) => const MarketIScreen(),
+        "/commiunity": (context) => const CommiunityIScreen(),
+        "/storage": (context) => const StorageIScreen(),
+        "/financial": (context) => const FinancialIScreen(),
+        "/technical": (context) => const TechnicalIScreen(),
+      },
     );
   }
 }
+
