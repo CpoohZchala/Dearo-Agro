@@ -11,6 +11,7 @@ class Addexpense extends StatefulWidget {
 
 class _NewUpdateFormState extends State<Addexpense> {
   final _formKey = GlobalKey<FormState>(); // Form Key for Validation
+  // ignore: unused_field
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -131,28 +132,6 @@ class _NewUpdateFormState extends State<Addexpense> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Amount Field
-                    TextFormField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: "Rs.",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter amount";
-                        }
-                        if (double.tryParse(value) == null) {
-                          return "Enter a valid number";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-
                     // Description Field
                     TextFormField(
                       controller: _descriptionController,
@@ -179,6 +158,28 @@ class _NewUpdateFormState extends State<Addexpense> {
                         ),
                       ),
                     ),
+
+                    const SizedBox(height:10),
+                     TextFormField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Rs.",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter amount";
+                        }
+                        if (double.tryParse(value) == null) {
+                          return "Enter a valid number";
+                        }
+                        return null;
+                      },
+                    ),
+                  
                     const SizedBox(height: 30),
 
                     // Submit Button

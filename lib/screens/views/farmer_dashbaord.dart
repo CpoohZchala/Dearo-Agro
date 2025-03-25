@@ -1,3 +1,5 @@
+import 'package:farmeragriapp/screens/views/cropCalender.dart';
+import 'package:farmeragriapp/screens/views/notifications.dart';
 import 'package:farmeragriapp/screens/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
@@ -27,10 +29,9 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
 
   static final List<Widget> _screens = <Widget>[
     const FarmerHome(),
+    const NotificationScreen(),
+    const CropCalenderScreen(),
     const ProfileScreen(),
-    const Text("Crop Calendar",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-   const ProfileScreen(),
   ];
 
   @override
