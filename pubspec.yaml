@@ -18,6 +18,7 @@ dependencies:
   getwidget: ^6.0.0
   google_fonts: ^6.2.1
   google_nav_bar: ^5.0.7
+  image_picker: ^1.1.2
   open_file: ^3.5.10
   standard_searchbar: ^2.1.1
 
@@ -45,3 +46,4 @@ flutter:
     - assets/icons/leaf.png
     - assets/icons/support.png
     - assets/images/general.png
+    - assets/images/general1.png

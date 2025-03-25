@@ -2,7 +2,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:open_file/open_file.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'dart:io';
 
 class GeneralIScreen extends StatefulWidget {
   const GeneralIScreen({super.key});
@@ -13,28 +15,13 @@ class GeneralIScreen extends StatefulWidget {
 
 class _GeneralIScreenState extends State<GeneralIScreen> {
   DateTime? _selectedDate;
-  final TextEditingController _IdescriptionController = TextEditingController();
+  File? _selectedImage;
+  File? _selectedDocument;
+  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _imageController = TextEditingController();
+  final TextEditingController _documentController = TextEditingController();
 
-  final int _ImaxChars = 50;
-  int _IcharCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _IdescriptionController.addListener(() {
-      setState(() {
-        _IcharCount = _IdescriptionController.text.length;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _dateController.dispose();
-    _IdescriptionController.dispose();
-    super.dispose();
-  }
 
   Future<void> _pickDate() async {
     DateTime? pickedDate = await showDatePicker(
@@ -53,7 +40,25 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
     }
   }
 
- 
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+        _imageController.text = path.basename(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _pickDocument() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      setState(() {
+        _selectedDocument = File(result.files.single.path!);
+        _documentController.text = result.files.single.name;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +89,7 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
                   left: 50,
                   child: Text(
                     "General Inquiry",
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 18,
-                        color: Colors.black),
+                    style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.black),
                   ),
                 ),
               ],
@@ -101,83 +103,89 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(10),
-              child: Form(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Title",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "Title",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
                       ),
-                      readOnly: true,
-                      validator: (value) =>
-                          value!.isEmpty ? "Please select a title" : null,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _IdescriptionController,
-                      maxLength: _ImaxChars,
-                      maxLines: 2,
-                      decoration: InputDecoration(
-                        labelText: "Description",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        counterText: "",
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: "Description",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
                       ),
-                      validator: (value) =>
-                          value!.isEmpty ? "Please enter description" : null,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        "$_IcharCount/$_ImaxChars",
-                        style: GoogleFonts.poppins(
-                          color: Colors.green.shade700,
-                        ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _dateController,
+                    decoration: InputDecoration(
+                      labelText: "Date",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _dateController,
-                      decoration: InputDecoration(
-                        labelText: "Date",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
-                        suffixIcon: IconButton(
-                          onPressed: _pickDate,
-                          icon: const Icon(Icons.calendar_month),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                      suffixIcon: IconButton(
+                        onPressed: _pickDate,
+                        icon: const Icon(Icons.calendar_month, color: Color.fromRGBO(87, 164, 91, 0.8)),
                       ),
-                      readOnly: true,
-                      validator: (value) =>
-                          value!.isEmpty ? "Please select a date" : null,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      style:ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(87, 164, 91, 0.8),
-
+                    readOnly: true,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _imageController,
+                    decoration: InputDecoration(
+                      labelText: "Upload Image (optional)",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
                       ),
-                      onPressed: (){
-
-                      },
-                     child: Text("Submit",
-                     style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color:Colors.white
-                     ),
-                     ),
+                      suffixIcon: IconButton(
+                        onPressed: _pickImage,
+                        icon: const Icon(Icons.image, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    
-                  ],
-                ),
+                    readOnly: true,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _documentController,
+                    decoration: InputDecoration(
+                      labelText: "Upload Document (optional)",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 14,
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: _pickDocument,
+                        icon: const Icon(Icons.attach_file, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    readOnly: true,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                    ),
+                    onPressed: () {},
+                    child: Text(
+                      "Submit",
+                      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

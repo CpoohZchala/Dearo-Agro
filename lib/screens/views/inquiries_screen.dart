@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/views/responses.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,10 +26,9 @@ class _InqueriesScreenState extends State<InqueriesScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _screens = <Widget>[
+    
     const FarmerHome(),
-    const InqueriesScreen(),
-    const Text("Crop Calendar",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const ResponsScreen(),
     
   ];
 
@@ -59,9 +59,9 @@ class _InqueriesScreenState extends State<InqueriesScreen> {
             });
           },
           tabs: const [
-            GButton(icon: Icons.home, text: "Home",),
-            GButton(icon: Icons.notifications, text: "Inquary"),
-            GButton(icon: Icons.calendar_month, text: "Responses"),
+            GButton(icon: Icons.help, text: "Inquiry",),
+            GButton(icon: Icons.notifications, text: "Responses"),
+           
             
           ],
         ),
@@ -155,12 +155,10 @@ class FarmerHome extends StatelessWidget {
                 children: <Widget>[
                   _buildGridButton(context, "General Inquiry",
                       Icons.agriculture, "/general"),
-                  _buildGridButton(
-                      context, "Market Price & Sales Inquiry ", Icons.man, "/market"),
-                  _buildGridButton(context, "Community & Expert Advice Inquiry",
+                 
+                  _buildGridButton(context, "Expert Advice Inquiry",
                       Icons.attach_money, "/commiunity"),
-                  _buildGridButton(context, "Storage & Preservation Inquiry",
-                      Icons.store_mall_directory, "/storage"),
+                 
                   _buildGridButton(
                     
                       context, "Financial Support Inquiry", Icons.book, "/finacial"),
