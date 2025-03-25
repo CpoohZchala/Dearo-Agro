@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/views/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,12 +27,10 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
 
   static final List<Widget> _screens = <Widget>[
     const FarmerHome(),
-    const Text("Notifications",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const ProfileScreen(),
     const Text("Crop Calendar",
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-    const Text("Account",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+   const ProfileScreen(),
   ];
 
   @override
@@ -187,13 +186,14 @@ class FarmerHome extends StatelessWidget {
                         Navigator.pushNamed(context, "/prediction");
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[300],
+                        backgroundColor: Colors.green[400],
                         foregroundColor: Colors.black,
                       ),
                       child: Text(
                         'Continue',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
+                          color:Colors.white
                         ),
                       ),
                     ),
