@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,9 +12,48 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Example user data
-  final String userName = "Chalani Jayakodi";
-  final String role = "Farmer";
+  String userName = "Loading...";
+  String role = "Loading...";
+  String profileImage = "";
+  final String userId = "67e6396bf4f7d12245635f0e"; 
+  final String apiUrl = "http://192.168.8.125:5000/api/users";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserProfile();
+  }
+
+  Future<void> fetchUserProfile() async {
+    final response = await http.get(Uri.parse("$apiUrl/$userId"));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        userName = data['fullName'];
+        role = data['userType'];
+        profileImage = data['profileImage'] ?? "";
+      });
+    } else {
+      print("Failed to load user profile");
+    }
+  }
+
+  Future<void> updateProfile(String fullName, String userType, String profileImage) async {
+    final response = await http.put(
+      Uri.parse("$apiUrl/$userId"),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        'fullName': fullName,
+        'userType': userType,
+        'profileImage': profileImage,
+      }),
+    );
+    if (response.statusCode == 200) {
+      fetchUserProfile(); // Reload the profile after update
+    } else {
+      print("Failed to update user profile");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,18 +71,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: const Color.fromRGBO(87, 164, 91, 0.8),
                   ),
                 ),
-                
               ],
             ),
             Column(
               children: [
-                const CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey,
-                  child: Icon(
-                    Icons.account_circle,
-                    size: 80,
-                    color: Colors.white,
+                GestureDetector(
+                  onTap: () {
+                    // Handle profile image change
+                  },
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.grey,
+                    backgroundImage: profileImage.isNotEmpty
+                        ? NetworkImage(profileImage)
+                        : null,
+                    child: profileImage.isEmpty
+                        ? const Icon(Icons.account_circle, size: 80, color: Colors.white)
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -72,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.edit,
                     title: "Edit Profile",
                     onTap: () {
-                      // Handle Edit Profile action
+                      // Navigate to Edit Profile screen
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -114,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Color.fromRGBO(87, 164, 91, 0.8),),
+      leading: Icon(icon, color: Color.fromRGBO(87, 164, 91, 0.8)),
       title: Text(
         title,
         style: GoogleFonts.poppins(fontSize: 15, color: Colors.black),

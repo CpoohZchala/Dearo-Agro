@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/dialogBox/welcomBox.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +18,13 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> signIn() async {
+    if (mobileController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill all fields")),
+      );
+      return;
+    }
+
     var url = Uri.parse('http://192.168.8.125:5000/api/auth/signin');
     var response = await http.post(
       url,
@@ -28,18 +36,30 @@ class _SignInScreenState extends State<SignInScreen> {
     );
 
     if (response.statusCode == 200) {
+      
       var data = json.decode(response.body);
-      String role = data['role'];
+      String? userType = data['userType'];  // Correct field name based on the API response
+      print(data);  // Log the response to check its structure
 
-      if (role == 'Farmer') {
-        Navigator.pushNamed(context, "/fdashboard");
-      } else if (role == 'Marketing Officer') {
-        Navigator.pushNamed(context, "/marketingOfficerDashboard");
-      } else if (role == 'Super Admin') {
-        Navigator.pushNamed(context, "/adminDashboard");
-      }
+     
+
+      if (userType!= null) {
+        if (userType == 'Farmer') {
+          showWelcomeDialog(context);
+        } else if (userType == 'Marketing Officer') {
+          Navigator.pushNamed(context, "/marketingOfficerDashboard");
+        } else if (userType== 'Super Admin') {
+          Navigator.pushNamed(context, "/adminDashboard");
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Invalid role: $userType")),
+          );
+        }
+      } 
     } else {
-      print("Error signing in: ${response.body}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error signing in: ${response.body}")),
+      );
     }
   }
 
@@ -89,68 +109,10 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(height: 20),
 
                   // Mobile Number TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      controller: mobileController,
-                      decoration: InputDecoration(
-                        labelText: "Mobile Number",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: Color.fromRGBO(87, 164, 91, 0.8),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildTextField(mobileController, "Mobile Number"),
 
                   // Password TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: TextField(
-                      controller: passwordController,
-                      obscureText: !_isPasswordVisible,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: Color.fromRGBO(87, 164, 91, 0.8),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildPasswordField(passwordController, "Password"),
 
                   const SizedBox(height: 20),
 
@@ -179,6 +141,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
                   const SizedBox(height: 10),
 
+                  // Sign-Up Navigation
                   RichText(
                     text: TextSpan(
                       text: "Don't have an account? ",
@@ -201,6 +164,65 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: !_isPasswordVisible,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+            icon: Icon(
+                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+          ),
+        ),
       ),
     );
   }

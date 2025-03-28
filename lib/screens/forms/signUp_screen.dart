@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/dialogBox/success_dialog.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,59 +14,56 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
-  String? _selectedCategory; // Store the selected category
+  String? _selectedCategory;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-      TextEditingController(); // New controller for confirm password
+      TextEditingController();
 
-  // List of categories
   final List<String> _categories = [
     "Farmer",
     "Marketing Officer",
     "Super Admin",
   ];
 
-  // Function to handle sign-up
-  // Function to handle sign-up
   Future<void> signUp() async {
-    // Check if password and confirm password match
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
-
-    var url = Uri.parse('http://192.168.8.125:5000/api/auth/signup');
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        'fullName': nameController.text,
-        'mobileNumber': mobileController.text,
-        'password': passwordController.text,
-        'userType': _selectedCategory, // Change this from 'role' to 'userType'
-      }),
+  if (passwordController.text != confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Passwords do not match")),
     );
-
-    if (response.statusCode == 200) {
-      // Successfully signed up
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'User registration successful! Now you can SignIn to the app.')),
-      );
-      Navigator.pushNamed(context, "/signIn");
-    } else {
-      // Error handling
-      print("Error signing up: ${response.body}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error signing up: ${response.body}')),
-      );
-    }
+    return;
   }
+
+  var url = Uri.parse('http://192.168.8.125:5000/api/auth/signup');
+  var response = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: json.encode({
+      'fullName': nameController.text,
+      'mobileNumber': mobileController.text,
+      'password': passwordController.text,
+      'userType': _selectedCategory,
+    }),
+  );
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    showSuccessDialog(context);
+    nameController.clear();
+    mobileController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+    setState(() {
+      _selectedCategory = null;
+    });
+
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error signing up: ${response.body}')),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +99,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     width: screenWidth * 0.5,
                   ),
                   const SizedBox(height: 10),
-
                   Text(
                     "Sign-Up",
                     style: GoogleFonts.poppins(
@@ -110,10 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       color: Colors.black87,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // **Sign-up Category Dropdown**
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: DropdownButtonFormField<String>(
@@ -130,8 +124,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                              color: Color.fromRGBO(87, 164, 91, 0.8),
-                              width: 2),
+                            color: Color.fromRGBO(87, 164, 91, 0.8),
+                            width: 2,
+                          ),
                         ),
                       ),
                       items: _categories.map((String category) {
@@ -148,17 +143,12 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                     ),
                   ),
-
-                  // **Other TextFields**
                   _buildTextField(nameController, "Full Name"),
                   _buildTextField(mobileController, "Mobile Number"),
                   _buildPasswordField(passwordController, "Password"),
-                  _buildPasswordField(confirmPasswordController,
-                      "Confirm Password"), // Use new controller
-
+                  _buildPasswordField(
+                      confirmPasswordController, "Confirm Password"),
                   const SizedBox(height: 20),
-
-                  // **SignUp Button**
                   SizedBox(
                     width: maxWidth > 600 ? 400 : double.infinity,
                     child: ElevatedButton(
@@ -180,9 +170,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   RichText(
                     text: TextSpan(
                       text: "Do you have an account? ",
@@ -191,7 +179,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextSpan(
                           text: "Sign-In",
                           style: GoogleFonts.poppins(
-                              color: const Color.fromRGBO(87, 164, 91, 0.8)),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
+                          ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.pushNamed(context, "/signIn");
@@ -209,7 +198,6 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // **Reusable Text Field**
   Widget _buildTextField(TextEditingController controller, String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -234,7 +222,6 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // **Reusable Password Field**
   Widget _buildPasswordField(TextEditingController controller, String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
