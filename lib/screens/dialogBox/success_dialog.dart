@@ -32,9 +32,7 @@ void showSuccessDialog(BuildContext context) {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
                 foregroundColor: Colors.white),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, "/signIn");
-              },
+              onPressed: () {},
               child: Text("Sign In",
               style: GoogleFonts.poppins(),
             ),

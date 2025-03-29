@@ -36,7 +36,7 @@ void showWelcomeDialog(BuildContext context) {
     },
   );
 
-  // Auto navigate after 2 seconds
+  // Auto navigate to FarmerMain Dashboard after 2 seconds
   Future.delayed(const Duration(seconds: 2), () {
     Navigator.pushReplacementNamed(context, "/fdashboard");
   });

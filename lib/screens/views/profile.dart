@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:farmeragriapp/screens/dialogBox/deleteProfile_dialog.dart';
+import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userName = "Loading...";
   String role = "Loading...";
   String profileImage = "";
-  final String userId = "67e6396bf4f7d12245635f0e"; 
+  final String userId = "67e7780e0b7fee7cf5e87c6c";
   final String apiUrl = "http://192.168.8.125:5000/api/users";
 
   @override
@@ -38,7 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> updateProfile(String fullName, String userType, String profileImage) async {
+  Future<void> updateProfile(
+      String fullName, String userType, String profileImage) async {
     final response = await http.put(
       Uri.parse("$apiUrl/$userId"),
       headers: {"Content-Type": "application/json"},
@@ -76,9 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Column(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    // Handle profile image change
-                  },
+                  onTap: () {},
                   child: CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.grey,
@@ -86,7 +87,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? NetworkImage(profileImage)
                         : null,
                     child: profileImage.isEmpty
-                        ? const Icon(Icons.account_circle, size: 80, color: Colors.white)
+                        ? const Icon(Icons.account_circle,
+                            size: 80, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -118,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.edit,
                     title: "Edit Profile",
                     onTap: () {
-                      // Navigate to Edit Profile screen
+                      Navigator.pushNamed(context, "/editprofile");
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -126,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.delete,
                     title: "Delete Profile",
                     onTap: () {
-                      // Handle Delete Profile action
+                      showDeleteProfileDialog(context);
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -134,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.lock,
                     title: "Change Password",
                     onTap: () {
-                      // Handle Change Password action
+                      Navigator.pushNamed(context, "/changedPassword");
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -142,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.logout,
                     title: "Logout",
                     onTap: () {
-                      // Handle Logout action
+                      showLogOutDialog(context);
                     },
                   ),
                 ],

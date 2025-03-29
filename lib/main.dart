@@ -1,5 +1,7 @@
 import 'package:farmeragriapp/screens/forms/addExpense.dart';
+import 'package:farmeragriapp/screens/forms/changePassword.dart';
 import 'package:farmeragriapp/screens/forms/commiunityIScreen.dart';
+import 'package:farmeragriapp/screens/forms/editProfile.dart';
 import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
 import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
@@ -51,6 +53,10 @@ class MyApp extends StatelessWidget {
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
+        "/editprofile": (context) => const EditProfileScreen(),
+        "/changedPassword": (context) => const ChangePasswordScreen(),
+         
+
       },
     );
   }
