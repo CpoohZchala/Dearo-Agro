@@ -17,25 +17,26 @@ void showSuccessDialog(BuildContext context) {
             const SizedBox(height: 10),
             Align(
               alignment: Alignment.topCenter,
-              child:  Text(
-              "User registration successful!",
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              child: Text(
+                "User registration successful!",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-              
-            ),
-           
             const SizedBox(height: 10),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                foregroundColor: Colors.white),
-              onPressed: () {},
-              child: Text("Sign In",
-              style: GoogleFonts.poppins(),
-            ),
+                  backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                  foregroundColor: Colors.white),
+              onPressed: () {
+                Navigator.pushNamed(context, "/signIn");
+              },
+              child: Text(
+                "Sign In",
+                style: GoogleFonts.poppins(),
+              ),
             )
           ],
         ),
