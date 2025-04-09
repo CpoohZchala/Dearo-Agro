@@ -210,7 +210,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   if (_responseMessage.isNotEmpty)
                     Text(
                       _responseMessage,
-                      style: GoogleFonts.poppins(color: Colors.red),
+                      style: GoogleFonts.poppins(
+                        color: _responseMessage.startsWith("✅")
+                            ? Colors.green
+                            : Colors.red,
+                        fontWeight: FontWeight.w500,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                 ],
