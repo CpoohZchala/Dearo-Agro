@@ -1,34 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 
 Future<void> logoutUser(BuildContext context) async {
-  final String logoutUrl = "http://192.168.51.201:5000/api/users/logout";
-
-  final response = await http.post(
-    Uri.parse(logoutUrl),
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Logged out successfully")),
   );
-
-  if (response.statusCode == 200) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Logged out successfully")),
-    );
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/signIn',
-      (route) => false,
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Logout failed")),
-    );
-  }
+  Navigator.pushNamedAndRemoveUntil(
+    context,
+    '/signIn',
+    (route) => false,
+  );
 }
 
-// This dialog confirms logout and calls the above function
+
 Future<void> showLogOutDialog(BuildContext context, String userId) async {
   return showDialog<void>(
     context: context,
@@ -53,8 +38,8 @@ Future<void> showLogOutDialog(BuildContext context, String userId) async {
           TextButton(
             child: Text('Logout', style: GoogleFonts.poppins(color: Colors.red)),
             onPressed: () async {
-              Navigator.of(context).pop(); // Close dialog
-              await logoutUser(context); // Call backend logout
+              Navigator.of(context).pop(); 
+              await logoutUser(context); 
             },
           ),
         ],

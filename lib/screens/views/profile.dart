@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:farmeragriapp/screens/dialogBox/deleteProfile_dialog.dart';
 import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
+import 'package:farmeragriapp/screens/forms/changePassword.dart';
 import 'package:farmeragriapp/screens/forms/editProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
@@ -19,7 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userName = "Loading...";
   String role = "Loading...";
   String profileImage = "";
-  final String apiUrl = "http://192.168.51.201:5000/api/users";
+  final String apiUrl = "http://192.168.8.125:5000/api/users";
 
   @override
   void initState() {
@@ -69,12 +70,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Profile deleted successfully")),
+        const SnackBar(content: Text("Profile deleted successfully")),
       );
       Navigator.pushReplacementNamed(context, "/signIn");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to delete profile")),
+        const SnackBar(content: Text("Failed to delete profile")),
       );
     }
   }
@@ -163,7 +164,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.lock,
                     title: "Change Password",
                     onTap: () {
-                      Navigator.pushNamed(context, "/changedPassword");
+                       Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                             ChangePasswordScreen(userId: widget.userId),
+                        ),
+                      );
+                      
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),

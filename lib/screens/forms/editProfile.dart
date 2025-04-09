@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   final String userId;
-
-  UpdateProfileScreen({required this.userId});
+  const UpdateProfileScreen({required this.userId});
 
   @override
   _UpdateProfileScreenState createState() => _UpdateProfileScreenState();
@@ -14,26 +14,38 @@ class UpdateProfileScreen extends StatefulWidget {
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  String? _selectedCategory;
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _userTypeController = TextEditingController();
-  final TextEditingController _profileImageController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
+
+  final List<String> _categories = [
+    "Farmer",
+    "Marketing Officer",
+    "Super Admin",
+  ];
 
   bool _isLoading = false;
   String _responseMessage = '';
 
   Future<void> updateProfile() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || _selectedCategory == null) {
+      setState(() {
+        _responseMessage = "Please fill all fields.";
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
       _responseMessage = '';
     });
 
-    final url = Uri.parse('http://192.168.51.201:5000/api/users/${widget.userId}');
+    final url =
+        Uri.parse('http://192.168.8.125:5000/api/users/${widget.userId}');
     final body = json.encode({
       'fullName': _nameController.text.trim(),
-      'userType': _userTypeController.text.trim(),
-      'profileImage': _profileImageController.text.trim(),
+      'userType': _selectedCategory,
+      'mobileNumber': _mobileController.text.trim(),
     });
 
     try {
@@ -61,79 +73,151 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     final labelStyle = GoogleFonts.poppins(fontWeight: FontWeight.w500);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Update Profile', style: GoogleFonts.poppins()),
-        backgroundColor: Colors.green,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Full Name
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Full Name',
-                  labelStyle: labelStyle,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 20, top: 60),
+              child: Text(
+                "Update Profile",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                style: inputStyle,
-                validator: (value) => value == null || value.trim().isEmpty ? 'Enter full name' : null,
               ),
-              const SizedBox(height: 20),
-
-              // User Type
-              TextFormField(
-                controller: _userTypeController,
-                decoration: InputDecoration(
-                  labelText: 'User Type',
-                  labelStyle: labelStyle,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                style: inputStyle,
-                validator: (value) => value == null || value.trim().isEmpty ? 'Enter user type' : null,
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: SafeArea(
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
               ),
-              const SizedBox(height: 20),
-
-              // Profile Image URL
-              TextFormField(
-                controller: _profileImageController,
-                decoration: InputDecoration(
-                  labelText: 'Profile Image URL (optional)',
-                  labelStyle: labelStyle,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                style: inputStyle,
-              ),
-              const SizedBox(height: 30),
-
-              // Submit Button
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton.icon(
-                      onPressed: updateProfile,
-                      icon: Icon(Icons.save),
-                      label: Text('Update Profile', style: GoogleFonts.poppins()),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(
+                top: 190, left: 20, right: 20, bottom: 30),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      labelStyle: labelStyle,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
                       ),
                     ),
-
-              const SizedBox(height: 20),
-
-              if (_responseMessage.isNotEmpty)
-                Text(
-                  _responseMessage,
-                  style: GoogleFonts.poppins(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-            ],
+                    style: inputStyle,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Enter full name'
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: "User Type",
+                      labelStyle: labelStyle,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    items: _categories.map((String category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category, style: inputStyle),
+                      );
+                    }).toList(),
+                    validator: (value) =>
+                        value == null ? 'Select a user type' : null,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCategory = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _mobileController,
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number',
+                      labelStyle: labelStyle,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    style: inputStyle,
+                  ),
+                  const SizedBox(height: 30),
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton.icon(
+                          onPressed: updateProfile,
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          label: Text('Update Profile',
+                              style: GoogleFonts.poppins(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                            backgroundColor:
+                                const Color.fromRGBO(87, 164, 91, 0.8),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                  const SizedBox(height: 20),
+                  if (_responseMessage.isNotEmpty)
+                    Text(
+                      _responseMessage,
+                      style: GoogleFonts.poppins(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

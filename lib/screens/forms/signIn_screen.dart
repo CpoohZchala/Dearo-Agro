@@ -29,7 +29,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return;
   }
 
-  var url = Uri.parse('http://192.168.51.201:5000/api/auth/signin');
+  var url = Uri.parse('http://192.168.8.125:5000/api/auth/signin');
   var response = await http.post(
     url,
     headers: {"Content-Type": "application/json"},
@@ -53,12 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
         print("User ID saved from token: $userId");
 
         if (userType == 'Farmer') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FarmerDashboard(userId: userId),
-            ),
-          );
+          showWelcomeDialog(context, userId);
         } else if (userType == 'Marketing Officer') {
           Navigator.pushNamed(context, "/marketingOfficerDashboard");
         } else if (userType == 'Super Admin') {

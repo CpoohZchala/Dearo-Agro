@@ -38,7 +38,7 @@ Future<void> showDeleteProfileDialog(BuildContext context, String userId) async 
 }
 
 Future<void> deleteUserProfile(BuildContext context, String userId) async {
-  final String apiUrl = "http://192.168.51.201:5000/api/users";
+  final String apiUrl = "http://192.168.8.125:5000/api/users";
 
   final response = await http.delete(Uri.parse("$apiUrl/$userId"));
 

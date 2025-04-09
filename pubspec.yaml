@@ -17,6 +17,7 @@ dependencies:
     sdk: flutter
   flutter_custom_clippers: ^2.1.0
   flutter_secure_storage: ^9.2.4
+  fluttertoast: ^8.2.12
   getwidget: ^6.0.0
   google_fonts: ^6.2.1
   google_nav_bar: ^5.0.7
