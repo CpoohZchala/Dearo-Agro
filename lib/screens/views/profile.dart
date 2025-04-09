@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:farmeragriapp/screens/dialogBox/deleteProfile_dialog.dart';
 import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
+import 'package:farmeragriapp/screens/forms/editProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String userId;
+  const ProfileScreen({super.key, required this.userId});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -17,8 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userName = "Loading...";
   String role = "Loading...";
   String profileImage = "";
-  final String userId = "67e7780e0b7fee7cf5e87c6c";
-  final String apiUrl = "http://192.168.8.125:5000/api/users";
+  final String apiUrl = "http://192.168.51.201:5000/api/users";
 
   @override
   void initState() {
@@ -26,8 +27,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     fetchUserProfile();
   }
 
+//show user profile
   Future<void> fetchUserProfile() async {
-    final response = await http.get(Uri.parse("$apiUrl/$userId"));
+    final response = await http.get(Uri.parse("$apiUrl/${widget.userId}"));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
@@ -36,14 +38,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         profileImage = data['profileImage'] ?? "";
       });
     } else {
-      print("Failed to load user profile");
+      print("Failed to load user profile. Code: ${response.statusCode}");
     }
   }
 
+//Update user Profile
   Future<void> updateProfile(
       String fullName, String userType, String profileImage) async {
     final response = await http.put(
-      Uri.parse("$apiUrl/$userId"),
+      Uri.parse("$apiUrl/${widget.userId}"),
       headers: {"Content-Type": "application/json"},
       body: json.encode({
         'fullName': fullName,
@@ -52,9 +55,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }),
     );
     if (response.statusCode == 200) {
-      fetchUserProfile(); // Reload the profile after update
+      fetchUserProfile();
     } else {
       print("Failed to update user profile");
+    }
+  }
+
+//Delete user profile
+  Future<void> deleteUserProfile() async {
+    final response = await http.delete(
+      Uri.parse("$apiUrl/${widget.userId}"),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Profile deleted successfully")),
+      );
+      Navigator.pushReplacementNamed(context, "/signIn");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete profile")),
+      );
     }
   }
 
@@ -120,7 +141,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.edit,
                     title: "Edit Profile",
                     onTap: () {
-                      Navigator.pushNamed(context, "/editprofile");
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              UpdateProfileScreen(userId: widget.userId),
+                        ),
+                      );
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -128,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.delete,
                     title: "Delete Profile",
                     onTap: () {
-                      showDeleteProfileDialog(context);
+                      showDeleteProfileDialog(context, widget.userId);
                     },
                   ),
                   const Divider(thickness: 1, color: Colors.grey),
@@ -144,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.logout,
                     title: "Logout",
                     onTap: () {
-                      showLogOutDialog(context);
+                      showLogOutDialog(context, widget.userId);
                     },
                   ),
                 ],
@@ -162,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Color.fromRGBO(87, 164, 91, 0.8)),
+      leading: Icon(icon, color: const Color.fromRGBO(87, 164, 91, 0.8)),
       title: Text(
         title,
         style: GoogleFonts.poppins(fontSize: 15, color: Colors.black),

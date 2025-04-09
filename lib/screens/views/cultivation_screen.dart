@@ -26,44 +26,54 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
   }
 
   Future<void> _fetchData() async {
-    const url = "http://192.168.8.125:5000/api/fetch";
+  try {
+    final userId = await storage.read(key: "userId");
 
-    try {
-      final response = await _dio.get(url);
-      
-      if (response.statusCode == 200) {
-        if (response.data != null && response.data is List) {
-          setState(() {
-            _data = response.data;
-            _isLoading = false;
-            _errorMessage = null;
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = "Invalid data format received";
-          });
-        }
+    if (userId == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "User not logged in or ID not found.";
+      });
+      return;
+    }
+
+    final url = "http://192.168.8.125:5000/api/fetch/$userId";
+    final response = await _dio.get(url);
+
+    if (response.statusCode == 200) {
+      if (response.data != null && response.data is List) {
+        setState(() {
+          _data = response.data;
+          _isLoading = false;
+          _errorMessage = null;
+        });
       } else {
         setState(() {
           _isLoading = false;
-          _errorMessage = "Server error: ${response.statusCode}";
+          _errorMessage = "Invalid data format received";
         });
       }
-    } catch (e) {
+    } else {
       setState(() {
         _isLoading = false;
-        _errorMessage = "Failed to fetch data: ${e.toString()}";
+        _errorMessage = "Server error: ${response.statusCode}";
       });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Failed to fetch data"),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
+  } catch (e) {
+    setState(() {
+      _isLoading = false;
+      _errorMessage = "Failed to fetch data: ${e.toString()}";
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Failed to fetch data"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return "Not specified";

@@ -1,9 +1,12 @@
 import 'package:farmeragriapp/screens/dialogBox/welcomBox.dart';
+import 'package:farmeragriapp/screens/views/farmer_dashbaord.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -16,52 +19,66 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isPasswordVisible = false;
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final storage = const FlutterSecureStorage();
 
   Future<void> signIn() async {
-    if (mobileController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill all fields")),
-      );
-      return;
-    }
-
-    var url = Uri.parse('http://192.168.8.125:5000/api/auth/signin');
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        'mobileNumber': mobileController.text,
-        'password': passwordController.text,
-      }),
+  if (mobileController.text.isEmpty || passwordController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please fill all fields")),
     );
+    return;
+  }
 
-    if (response.statusCode == 200) {
-      
-      var data = json.decode(response.body);
-      String? userType = data['userType'];  // Correct field name based on the API response
-      print(data);  // Log the response to check its structure
+  var url = Uri.parse('http://192.168.51.201:5000/api/auth/signin');
+  var response = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: json.encode({
+      'mobileNumber': mobileController.text,
+      'password': passwordController.text,
+    }),
+  );
 
-     
+  if (response.statusCode == 200) {
+    var data = json.decode(response.body);
+    String? token = data['token'];
+    String? userType = data['userType'];
 
-      if (userType!= null) {
+    if (token != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      String? userId = decodedToken['id'];
+
+      if (userId != null) {
+        await storage.write(key: "userId", value: userId);
+        print("User ID saved from token: $userId");
+
         if (userType == 'Farmer') {
-          showWelcomeDialog(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FarmerDashboard(userId: userId),
+            ),
+          );
         } else if (userType == 'Marketing Officer') {
           Navigator.pushNamed(context, "/marketingOfficerDashboard");
-        } else if (userType== 'Super Admin') {
+        } else if (userType == 'Super Admin') {
           Navigator.pushNamed(context, "/adminDashboard");
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Invalid role: $userType")),
           );
         }
-      } 
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error signing in: ${response.body}")),
-      );
+      } else {
+        print("User ID not found in token");
+      }
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error signing in: ${response.body}")),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +113,6 @@ class _SignInScreenState extends State<SignInScreen> {
                     width: screenWidth * 0.5,
                   ),
                   const SizedBox(height: 10),
-
                   Text(
                     "Sign-In",
                     style: GoogleFonts.poppins(
@@ -105,18 +121,10 @@ class _SignInScreenState extends State<SignInScreen> {
                       color: Colors.black87,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Mobile Number TextField
                   _buildTextField(mobileController, "Mobile Number"),
-
-                  // Password TextField
                   _buildPasswordField(passwordController, "Password"),
-
                   const SizedBox(height: 20),
-
-                  // Sign-In Button
                   SizedBox(
                     width: maxWidth > 600 ? 400 : double.infinity,
                     child: ElevatedButton(
@@ -138,10 +146,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // Sign-Up Navigation
                   RichText(
                     text: TextSpan(
                       text: "Don't have an account? ",
@@ -184,8 +189,8 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+            borderSide:
+                const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
           ),
         ),
       ),
@@ -219,8 +224,8 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+            borderSide:
+                const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
           ),
         ),
       ),

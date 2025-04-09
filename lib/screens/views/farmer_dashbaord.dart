@@ -6,19 +6,25 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
-void main() => runApp(const FarmerDashboardApp());
+void main() {
+  runApp(const FarmerDashboardApp());
+}
 
 class FarmerDashboardApp extends StatelessWidget {
   const FarmerDashboardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: FarmerDashboard());
+    return const MaterialApp(
+      home: Placeholder(), // Placeholder to be replaced by navigation after login
+    );
   }
 }
 
 class FarmerDashboard extends StatefulWidget {
-  const FarmerDashboard({super.key});
+  final String userId;
+
+  const FarmerDashboard({super.key, required this.userId});
 
   @override
   State<FarmerDashboard> createState() => _FarmerDashboardState();
@@ -27,15 +33,15 @@ class FarmerDashboard extends StatefulWidget {
 class _FarmerDashboardState extends State<FarmerDashboard> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _screens = <Widget>[
-    const FarmerHome(),
-    const NotificationScreen(),
-    const CropCalenderScreen(),
-    const ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = [
+      const FarmerHome(),
+      const NotificationScreen(),
+      const CropCalenderScreen(),
+      ProfileScreen(userId: widget.userId),
+    ];
+
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
@@ -135,9 +141,9 @@ class FarmerHome extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-                child: Column(children: [
-              Align(
+            Column(
+              children: [
+                Align(
                   alignment: Alignment.bottomCenter,
                   child: Text(
                     "Crop Care",
@@ -146,15 +152,19 @@ class FarmerHome extends StatelessWidget {
                       fontSize: 17,
                       color: Colors.green,
                     ),
-                  )),
-            ])),
+                  ),
+                ),
+              ],
+            ),
             Card(
               color: Colors.white,
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
                 side: const BorderSide(
-                    color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+                  color: Color.fromRGBO(87, 164, 91, 0.8),
+                  width: 2,
+                ),
               ),
               margin: const EdgeInsets.all(15),
               child: Padding(
@@ -167,7 +177,9 @@ class FarmerHome extends StatelessWidget {
                           child: RichText(
                             text: TextSpan(
                               style: GoogleFonts.poppins(
-                                  fontSize: 15, color: Colors.black),
+                                fontSize: 15,
+                                color: Colors.black,
+                              ),
                               children: const [
                                 TextSpan(text: "Diagnose and treat\n"),
                                 TextSpan(text: "your crop's pest and\n"),
@@ -177,8 +189,11 @@ class FarmerHome extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        Image.asset("assets/images/image1.png",
-                            height: 130, width: 130),
+                        Image.asset(
+                          "assets/images/image1.png",
+                          height: 130,
+                          width: 130,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -194,7 +209,7 @@ class FarmerHome extends StatelessWidget {
                         'Continue',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          color:Colors.white
+                          color: Colors.white,
                         ),
                       ),
                     ),

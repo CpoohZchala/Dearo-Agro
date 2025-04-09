@@ -35,7 +35,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return;
   }
 
-  var url = Uri.parse('http://192.168.8.125:5000/api/auth/signup');
+  var url = Uri.parse('http://192.168.51.201:5000/api/auth/signup');
   var response = await http.post(
     url,
     headers: {"Content-Type": "application/json"},
