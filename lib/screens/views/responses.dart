@@ -10,10 +10,11 @@ class ResponsScreen extends StatefulWidget {
 class _ResponsScreenState extends State<ResponsScreen> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      appBar:AppBar(
-        title:const Text("Responses Screen")
-      )
+    return  const Scaffold(
+      backgroundColor: Colors.white,
+      
+    
+     
     );
   }
 }

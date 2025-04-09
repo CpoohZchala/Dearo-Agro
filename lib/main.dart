@@ -7,7 +7,6 @@ import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
 import 'package:farmeragriapp/screens/forms/addCultivational.dart';
-import 'package:farmeragriapp/screens/views/farmer_dashbaord.dart';
 import 'package:farmeragriapp/screens/views/home_screen.dart';
 import 'package:farmeragriapp/screens/views/inquiries_screen.dart';
 import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
@@ -36,7 +35,6 @@ class MyApp extends StatelessWidget {
         "/": (context) => HomeScreen(),
         "/signIn": (context) => const SignInScreen(),
         "/signUp": (context) => const SignupScreen(),
-        "/fdashboard": (context) => const FarmerDashboard(),
         "/cultivational": (context) => const CultivationalScreen(),
         "/crop_updates": (context) => const CropDetailsScreen(),
         "/expenses": (context) => const CultivationalExpense(),
@@ -51,6 +49,8 @@ class MyApp extends StatelessWidget {
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
+         
+
       },
     );
   }
