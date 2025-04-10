@@ -77,7 +77,7 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
                   ),
                 ),
                 Positioned(
-                  top: 40,
+                  top: 30,
                   left: 10,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -85,7 +85,7 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
                   ),
                 ),
                 Positioned(
-                  top: 50,
+                  top: 40,
                   left: 50,
                   child: Text(
                     "General Inquiry",

@@ -57,42 +57,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      appBar: AppBar(
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        title: Text(
+          "Password Change ",
+          style: GoogleFonts.poppins(color: Colors.black,fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+      ),
+      body: Column(
         children: [
           ClipPath(
             clipper: ArcClipper(),
             child: Container(
-              height: 190,
+              height: 100,
               color: const Color.fromRGBO(87, 164, 91, 0.8),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20, top: 60),
-              child: Text(
-                "Change Password",
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
           ),
-          Positioned(
-            top: 40,
-            left: 10,
-            child: SafeArea(
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 190, left: 20, right: 20, bottom: 30),
+          Expanded(child:SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              left: 20, right: 20),
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
-                  // Current Password
                   TextFormField(
                     controller: _currentPasswordController,
                     obscureText: !_showCurrentPassword,
@@ -113,7 +105,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _showCurrentPassword ? Icons.visibility : Icons.visibility_off,
+                          _showCurrentPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -123,8 +117,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     style: inputStyle,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Enter current password' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Enter current password'
+                        : null,
                   ),
 
                   const SizedBox(height: 20),
@@ -150,7 +145,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _showNewPassword ? Icons.visibility : Icons.visibility_off,
+                          _showNewPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -160,8 +157,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     style: inputStyle,
-                    validator: (value) =>
-                        value == null || value.length < 6 ? 'Minimum 6 characters' : null,
+                    validator: (value) => value == null || value.length < 6
+                        ? 'Minimum 6 characters'
+                        : null,
                   ),
 
                   const SizedBox(height: 20),
@@ -187,7 +185,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                          _showConfirmPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -197,8 +197,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     style: inputStyle,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Confirm your password' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Confirm your password'
+                        : null,
                   ),
 
                   const SizedBox(height: 30),
@@ -207,14 +208,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ? const CircularProgressIndicator()
                       : ElevatedButton.icon(
                           onPressed: _changePassword,
-                          icon: const Icon(Icons.lock_reset, color: Colors.white),
+                          icon:
+                              const Icon(Icons.lock_reset, color: Colors.white),
                           label: Text(
                             'Change Password',
                             style: GoogleFonts.poppins(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromRGBO(87, 164, 91, 0.9),
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                            backgroundColor:
+                                const Color.fromRGBO(87, 164, 91, 0.9),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 24),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -237,7 +241,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ],
               ),
             ),
-          ),
+          ), )
+          
         ],
       ),
     );

@@ -100,10 +100,7 @@ Future<void> updateProfileImage(String profileImage) async {
     );
   }
 }
-
-
-
-  // Delete user profile
+ // Delete user profile
   Future<void> deleteUserProfile() async {
     final response = await http.delete(
       Uri.parse("$apiUrl/${widget.userId}"),
@@ -207,7 +204,7 @@ Future<void> updateProfileImage(String profileImage) async {
                     icon: Icons.edit,
                     title: "Edit Profile",
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
@@ -229,7 +226,7 @@ Future<void> updateProfileImage(String profileImage) async {
                     icon: Icons.lock,
                     title: "Change Password",
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
