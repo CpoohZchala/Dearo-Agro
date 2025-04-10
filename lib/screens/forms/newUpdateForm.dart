@@ -1,43 +1,71 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NewUpdateForm extends StatefulWidget {
-  const NewUpdateForm({super.key});
+  const NewUpdateForm({super.key, this.existingData});
+
+  final dynamic existingData;
 
   @override
   State<NewUpdateForm> createState() => _NewUpdateFormState();
 }
 
 class _NewUpdateFormState extends State<NewUpdateForm> {
+  final Dio _dio = Dio();
+  final _storage = const FlutterSecureStorage();
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final int _maxChars = 50;
   int _charCount = 0;
   final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
+    _descriptionController.addListener(() {
       setState(() {
-        _charCount = _controller.text.length;
+        _charCount = _descriptionController.text.length;
       });
     });
+
+    // Initialize with existing data if editing
+    if (widget.existingData != null) {
+      _descriptionController.text = widget.existingData['description'] ?? '';
+      _dateController.text = widget.existingData['addDate'] ?? '';
+      // Parse existing date if available
+      if (widget.existingData['addDate'] != null) {
+        try {
+          final parts = widget.existingData['addDate'].split('-');
+          if (parts.length == 3) {
+            _selectedDate = DateTime(
+              int.parse(parts[0]),
+              int.parse(parts[1]),
+              int.parse(parts[2]),
+            );
+          }
+        } catch (e) {
+          print("Error parsing date: $e");
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _descriptionController.dispose();
     _dateController.dispose();
     super.dispose();
   }
 
   Future<void> _pickDate() async {
-    DateTime? pickedDate = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
@@ -46,17 +74,50 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
       setState(() {
         _selectedDate = pickedDate;
         _dateController.text =
-            "\${pickedDate.year}-\${pickedDate.month.toString().padLeft(2, '0')}-\${pickedDate.day.toString().padLeft(2, '0')}";
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Proceed with submission
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final userId = await _storage.read(key: "userId");
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User not logged in")),
+        );
+        return;
+      }
+
+      final url = widget.existingData != null
+          ? "http://192.168.8.125:5000/api/cropupdate"
+          : "http://192.168.8.125:5000/api/cropsubmit";
+
+      final data = {
+        if (widget.existingData != null) "_id": widget.existingData['_id'],
+        "memberId": userId,
+        "addDate": _dateController.text,
+        "description": _descriptionController.text,
+      };
+
+      final response = widget.existingData != null
+          ? await _dio.put(url, data: data)
+          : await _dio.post(url, data: data);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Crop status updated successfully!")),
+        SnackBar(content: Text(response.data["message"])),
       );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    } finally {
+      setState(() => _isSubmitting = false);
     }
   }
 
@@ -78,9 +139,7 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
             top: 40,
             left: 10,
             child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
             ),
           ),
@@ -91,6 +150,21 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
               "assets/icons/leaf.png",
               height: 35,
               width: 35,
+            ),
+          ),
+          Positioned(
+            top: 80,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                widget.existingData != null ? "Edit Crop Update" : "New Crop Update",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
           Padding(
@@ -106,7 +180,7 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                       decoration: InputDecoration(
                         labelText: "Date",
                         labelStyle: GoogleFonts.poppins(
-                          textStyle: TextStyle(fontSize: 15),
+                          textStyle: const TextStyle(fontSize: 15),
                         ),
                         suffixIcon: IconButton(
                           onPressed: _pickDate,
@@ -126,13 +200,13 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: _controller,
+                      controller: _descriptionController,
                       maxLength: _maxChars,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        labelText: "Description about Crop update ..",
+                        labelText: "Description about Crop update..",
                         labelStyle: GoogleFonts.poppins(
-                          textStyle: TextStyle(fontSize: 15),
+                          textStyle: const TextStyle(fontSize: 15),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -156,22 +230,27 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                        padding: const EdgeInsets.all(15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submitForm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                          padding: const EdgeInsets.all(15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "Update Crop Status",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
+                        child: _isSubmitting
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                widget.existingData != null ? "Update" : "Submit",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
                       ),
                     )
                   ],
