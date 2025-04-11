@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NewUpdateForm extends StatefulWidget {
-  const NewUpdateForm({super.key, this.existingData});
-
   final dynamic existingData;
+
+  const NewUpdateForm({super.key, this.existingData});
 
   @override
   State<NewUpdateForm> createState() => _NewUpdateFormState();
@@ -27,36 +27,44 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
   @override
   void initState() {
     super.initState();
-    _descriptionController.addListener(() {
-      setState(() {
-        _charCount = _descriptionController.text.length;
-      });
-    });
+    _descriptionController.addListener(_updateCharCount);
+    _initializeFormData();
+  }
 
-    // Initialize with existing data if editing
+  void _updateCharCount() {
+    setState(() {
+      _charCount = _descriptionController.text.length;
+    });
+  }
+
+  void _initializeFormData() {
     if (widget.existingData != null) {
       _descriptionController.text = widget.existingData['description'] ?? '';
       _dateController.text = widget.existingData['addDate'] ?? '';
-      // Parse existing date if available
-      if (widget.existingData['addDate'] != null) {
-        try {
-          final parts = widget.existingData['addDate'].split('-');
-          if (parts.length == 3) {
-            _selectedDate = DateTime(
-              int.parse(parts[0]),
-              int.parse(parts[1]),
-              int.parse(parts[2]),
-            );
-          }
-        } catch (e) {
-          print("Error parsing date: $e");
+      _parseExistingDate();
+    }
+  }
+
+  void _parseExistingDate() {
+    if (widget.existingData['addDate'] != null) {
+      try {
+        final parts = widget.existingData['addDate'].split('-');
+        if (parts.length == 3) {
+          _selectedDate = DateTime(
+            int.parse(parts[0]),
+            int.parse(parts[1]),
+            int.parse(parts[2]),
+          );
         }
+      } catch (e) {
+        debugPrint("Error parsing date: $e");
       }
     }
   }
 
   @override
   void dispose() {
+    _descriptionController.removeListener(_updateCharCount);
     _descriptionController.dispose();
     _dateController.dispose();
     super.dispose();
@@ -73,10 +81,13 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     if (pickedDate != null) {
       setState(() {
         _selectedDate = pickedDate;
-        _dateController.text =
-            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        _dateController.text = _formatDate(pickedDate);
       });
     }
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
   Future<void> _submitForm() async {
@@ -112,12 +123,18 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
         SnackBar(content: Text(response.data["message"])),
       );
       Navigator.pop(context, true);
+    } on DioException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.response?.data['error'] ?? e.message}")),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
+        SnackBar(content: Text("Unexpected error: ${e.toString()}")),
       );
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -153,18 +170,18 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
             ),
           ),
           Positioned(
-            top: 80,
-            left: 0,
+            top: 50,
+            left: 50,
             right: 0,
-            child: Center(
+            
               child: Text(
                 widget.existingData != null ? "Edit Crop Update" : "New Crop Update",
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
+              
             ),
           ),
           Padding(
@@ -174,14 +191,12 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  children: <Widget>[
+                  children: [
                     TextFormField(
                       controller: _dateController,
                       decoration: InputDecoration(
                         labelText: "Date",
-                        labelStyle: GoogleFonts.poppins(
-                          textStyle: const TextStyle(fontSize: 15),
-                        ),
+                        labelStyle: GoogleFonts.poppins(fontSize: 15),
                         suffixIcon: IconButton(
                           onPressed: _pickDate,
                           icon: const Icon(Icons.calendar_month),
@@ -191,12 +206,8 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                         ),
                       ),
                       readOnly: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please select a date";
-                        }
-                        return null;
-                      },
+                      validator: (value) => 
+                          value == null || value.isEmpty ? "Please select a date" : null,
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -205,20 +216,14 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: "Description about Crop update..",
-                        labelStyle: GoogleFonts.poppins(
-                          textStyle: const TextStyle(fontSize: 15),
-                        ),
+                        labelStyle: GoogleFonts.poppins(fontSize: 15),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         counterText: "",
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter a description";
-                        }
-                        return null;
-                      },
+                      validator: (value) => 
+                          value == null || value.isEmpty ? "Please enter a description" : null,
                     ),
                     Align(
                       alignment: Alignment.bottomRight,

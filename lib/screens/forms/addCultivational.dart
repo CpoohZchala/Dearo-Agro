@@ -38,7 +38,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
 
   final Map<String, List<String>> districtCities = {
     "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Nugegoda", "Kottawa"],
-     "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Nugegoda", "Kottawa"],
+    "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Nugegoda", "Kottawa"],
     "Gampaha": ["Gampaha", "Negombo", "Kadawatha", "Ja-Ela", "Ragama"],
     "Kalutara": ["Kalutara", "Panadura", "Beruwala", "Horana", "Matugama"],
     "Kandy": ["Kandy", "Peradeniya", "Katugastota", "Gampola", "Nawalapitiya"],
@@ -147,9 +147,6 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
       "Rambukkana",
       "Dehiowita"
     ],
-
-
-   
   };
 
   @override
@@ -159,23 +156,25 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    // Auto-fill user ID
     final userId = await storage.read(key: "userId");
     memberIdController.text = userId ?? '';
 
     // If editing existing data, populate fields
     if (widget.existingData != null) {
       setState(() {
-        _selectedCategory = widget.existingData['cropCategory'] ?? widget.existingData['category'];
-        _selectedCrop = widget.existingData['cropName'] ?? widget.existingData['crop'];
+        _selectedCategory = widget.existingData['cropCategory'] ??
+            widget.existingData['category'];
+        _selectedCrop =
+            widget.existingData['cropName'] ?? widget.existingData['crop'];
         _selectedDistrict = widget.existingData['district'];
         _selectedCity = widget.existingData['city'];
         addressController.text = widget.existingData['address'] ?? '';
-        
+
         if (widget.existingData['startDate'] != null) {
           try {
             _selectedDate = DateTime.parse(widget.existingData['startDate']);
-            _dateController.text = "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
+            _dateController.text =
+                "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
           } catch (e) {
             print("Error parsing date: $e");
           }
@@ -195,7 +194,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     if (pickedDate != null) {
       setState(() {
         _selectedDate = pickedDate;
-        _dateController.text = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        _dateController.text =
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -221,7 +221,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final url = "http://192.168.8.125:5000/api/${widget.existingData != null ? 'update' : 'submit'}";
+      final url =
+          "http://192.168.8.125:5000/api/${widget.existingData != null ? 'update' : 'submit'}";
       final data = {
         "memberId": memberIdController.text,
         "cropCategory": _selectedCategory,
@@ -243,7 +244,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.data["message"])),
       );
-      Navigator.pop(context, true); // Return success
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
@@ -274,7 +275,20 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                   left: 10,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                  ),
+                ),
+                Positioned(
+                  top: 50,
+                  left: 50,
+                  right: 0,
+                  child: Text(
+                    "Edit Your Details",
+                    style: GoogleFonts.poppins(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Positioned(
@@ -292,8 +306,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                   right: 0,
                   child: Center(
                     child: Text(
-                      widget.existingData != null 
-                          ? "Edit Cultivation" 
+                      widget.existingData != null
+                          ? "Edit Cultivation"
                           : "Add Cultivation",
                       style: GoogleFonts.poppins(
                         color: Colors.white,
@@ -309,17 +323,22 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildTextField("Member ID", memberIdController, enabled: false),
+                  _buildTextField("Member ID", memberIdController,
+                      enabled: false),
                   const SizedBox(height: 16),
-                  _buildDropdown("Select Category*", cropCategories.keys.toList(), (val) {
+                  _buildDropdown(
+                      "Select Category*", cropCategories.keys.toList(), (val) {
                     setState(() {
                       _selectedCategory = val;
                       _selectedCrop = null; // Reset crop when category changes
                     });
                   }, value: _selectedCategory),
                   const SizedBox(height: 16),
-                  _buildDropdown("Select Crop*", 
-                      _selectedCategory != null ? cropCategories[_selectedCategory]! : [], 
+                  _buildDropdown(
+                      "Select Crop*",
+                      _selectedCategory != null
+                          ? cropCategories[_selectedCategory]!
+                          : [],
                       (val) => setState(() => _selectedCrop = val),
                       value: _selectedCrop,
                       enabled: _selectedCategory != null),
@@ -339,15 +358,21 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                     readOnly: true,
                   ),
                   const SizedBox(height: 16),
-                  _buildDropdown("Select District*", districtCities.keys.toList(), 
+                  _buildDropdown(
+                      "Select District*",
+                      districtCities.keys.toList(),
                       (val) => setState(() {
-                        _selectedDistrict = val;
-                        _selectedCity = null; // Reset city when district changes
-                      }),
+                            _selectedDistrict = val;
+                            _selectedCity =
+                                null; // Reset city when district changes
+                          }),
                       value: _selectedDistrict),
                   const SizedBox(height: 16),
-                  _buildDropdown("Select City*", 
-                      _selectedDistrict != null ? districtCities[_selectedDistrict]! : [], 
+                  _buildDropdown(
+                      "Select City*",
+                      _selectedDistrict != null
+                          ? districtCities[_selectedDistrict]!
+                          : [],
                       (val) => setState(() => _selectedCity = val),
                       value: _selectedCity,
                       enabled: _selectedDistrict != null),
@@ -387,7 +412,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, 
+  Widget _buildTextField(String label, TextEditingController controller,
       {bool enabled = true}) {
     return TextField(
       controller: controller,
@@ -401,7 +426,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, List<String> items, Function(String?) onChanged,
+  Widget _buildDropdown(
+      String label, List<String> items, Function(String?) onChanged,
       {String? value, bool enabled = true}) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(

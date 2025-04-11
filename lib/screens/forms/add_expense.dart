@@ -1,32 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dio/dio.dart';
 
 class Addexpense extends StatefulWidget {
-  const Addexpense({super.key});
+  final String memberId;
+  final Map<String, dynamic>? expenseData;
+  
+  const Addexpense({
+    super.key,
+    required this.memberId,
+    this.expenseData,
+  });
 
   @override
-  State<Addexpense> createState() => _NewUpdateFormState();
+  State<Addexpense> createState() => _AddexpenseState();
 }
 
-class _NewUpdateFormState extends State<Addexpense> {
-  final _formKey = GlobalKey<FormState>(); // Form Key for Validation
-  // ignore: unused_field
+class _AddexpenseState extends State<Addexpense> {
+  final _formKey = GlobalKey<FormState>();
+  final Dio _dio = Dio();
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final int _maxChars = 50;
   int _charCount = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    
+    // Initialize with existing data if in edit mode
+    if (widget.expenseData != null) {
+      _dateController.text = widget.expenseData!['date'];
+      _descriptionController.text = widget.expenseData!['description'];
+      _amountController.text = widget.expenseData!['amount'].toString();
+      _selectedDate = DateTime.parse(widget.expenseData!['date']);
+    }
+    
     _descriptionController.addListener(() {
       setState(() {
         _charCount = _descriptionController.text.length;
       });
     });
+
+    // Configure Dio
+    _dio.options.baseUrl = 'http://your-server-ip:3000/api/expenses';
+    _dio.options.connectTimeout = const Duration(seconds: 5);
+    _dio.options.receiveTimeout = const Duration(seconds: 5);
   }
 
   @override
@@ -38,9 +61,9 @@ class _NewUpdateFormState extends State<Addexpense> {
   }
 
   Future<void> _pickDate() async {
-    DateTime? pickedDate = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
@@ -54,20 +77,50 @@ class _NewUpdateFormState extends State<Addexpense> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Form is valid, proceed with expense submission
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final expenseData = {
+        'memberId': widget.memberId,
+        'date': _dateController.text,
+        'description': _descriptionController.text,
+        'amount': _amountController.text,
+      };
+
+      Response response;
+      
+      if (widget.expenseData == null) {
+        // Create new expense
+        response = await _dio.post('/submit', data: expenseData);
+      } else {
+        // Update existing expense
+        response = await _dio.put(
+          '/update/${widget.expenseData!['_id']}',
+          data: expenseData,
+        );
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(widget.expenseData == null 
+              ? "Expense added successfully!" 
+              : "Expense updated successfully!")),
+        );
+        Navigator.pop(context, true);
+      }
+    } on DioException catch (e) {
+      String errorMessage = "An error occurred";
+      if (e.response != null) {
+        errorMessage = e.response?.data['error'] ?? e.response?.statusMessage ?? errorMessage;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Expense Added Successfully")),
+        SnackBar(content: Text(errorMessage)),
       );
-      // Reset Form
-      _dateController.clear();
-      _amountController.clear();
-      _descriptionController.clear();
-      setState(() {
-        _charCount = 0;
-        _selectedDate = null;
-      });
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -89,9 +142,7 @@ class _NewUpdateFormState extends State<Addexpense> {
             top: 40,
             left: 10,
             child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
             ),
           ),
@@ -109,10 +160,9 @@ class _NewUpdateFormState extends State<Addexpense> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(10),
               child: Form(
-                key: _formKey, // Assign Form Key
+                key: _formKey,
                 child: Column(
-                  children: <Widget>[
-                    // Date Picker Field
+                  children: [
                     TextFormField(
                       controller: _dateController,
                       decoration: InputDecoration(
@@ -131,8 +181,6 @@ class _NewUpdateFormState extends State<Addexpense> {
                           value!.isEmpty ? "Please select a date" : null,
                     ),
                     const SizedBox(height: 10),
-
-                    // Description Field
                     TextFormField(
                       controller: _descriptionController,
                       maxLength: _maxChars,
@@ -148,7 +196,6 @@ class _NewUpdateFormState extends State<Addexpense> {
                       validator: (value) =>
                           value!.isEmpty ? "Please enter description" : null,
                     ),
-
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Text(
@@ -158,9 +205,8 @@ class _NewUpdateFormState extends State<Addexpense> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height:10),
-                     TextFormField(
+                    const SizedBox(height: 10),
+                    TextFormField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -179,12 +225,9 @@ class _NewUpdateFormState extends State<Addexpense> {
                         return null;
                       },
                     ),
-                  
                     const SizedBox(height: 30),
-
-                    // Submit Button
                     ElevatedButton(
-                      onPressed: _submitForm,
+                      onPressed: _isLoading ? null : _submitForm,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
                         padding: const EdgeInsets.all(10),
@@ -192,14 +235,16 @@ class _NewUpdateFormState extends State<Addexpense> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        "Add",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              widget.expenseData == null ? "Add" : "Update",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
+                            ),
                     ),
                   ],
                 ),

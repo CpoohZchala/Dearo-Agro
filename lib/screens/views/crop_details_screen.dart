@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -52,26 +53,42 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
         _errorMessage = "Error: ${e.toString()}";
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to fetch crop updates")),
+        const SnackBar(content: Text("Failed to fetch crop updates")),
       );
     }
   }
 
   Future<void> _deleteCropUpdate(String id) async {
-    try {
-      final response = await _dio.delete("http://192.168.8.125:5000/api/cropdelete/$id");
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.data["message"])),
-        );
-        _fetchCropUpdates(); // Refresh the list
-      }
-    } catch (e) {
+  try {
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+    
+    final response = await _dio.delete("http://192.168.8.125:5000/api/cropdelete/$id");
+    
+    if (response.statusCode == 200) {
+      // Remove the item from local state immediately
+      setState(() {
+        _cropUpdates.removeWhere((update) => update['_id'] == id);
+        _isLoading = false;
+      });
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to delete: ${e.toString()}")),
+        SnackBar(content: Text(response.data["message"])),
       );
+      
+      // Optional: Refresh from server to confirm
+      await _fetchCropUpdates();
     }
+  } catch (e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to delete: ${e.toString()}")),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +96,10 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.pushNamed(context, "/newcropupdate");
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewUpdateForm()),
+          );
           if (result == true) {
             _fetchCropUpdates();
           }
@@ -146,7 +166,7 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
                               height: 250,
                               width: 250,
                             ),
-                            const SizedBox(height: 80), // Space for FAB
+                            const SizedBox(height: 80),
                           ],
                         ),
                       ),
@@ -201,20 +221,16 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () {
-                    _showDeleteConfirmationDialog(id);
-                  },
+                  onPressed: () => _showDeleteConfirmationDialog(id),
                   icon: const Icon(
                     Icons.delete,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
+                    color: Colors.red,
                     size: 20,
                   ),
                 ),
                 const SizedBox(width: 15),
                 IconButton(
-                  onPressed: () {
-                    _navigateToEditScreen(id);
-                  },
+                  onPressed: () => _navigateToEditScreen(id),
                   icon: const Icon(
                     Icons.edit,
                     color: Color.fromRGBO(87, 164, 91, 0.8),
@@ -233,22 +249,25 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title:  Text("Confirm Delete",style: GoogleFonts.poppins(color:Colors.black,fontWeight: FontWeight.bold)),
-        content: Text("Are you sure you want to delete this crop update?",style: GoogleFonts.poppins(color:Colors.black)),
+        title: Text("Confirm Delete", style: GoogleFonts.poppins(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        )),
+        content: Text("Are you sure you want to delete this crop update?", 
+          style: GoogleFonts.poppins(color: Colors.black)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:  Text("Cancel",style: GoogleFonts.poppins(color:const Color.fromRGBO(87, 164, 91, 0.8),)),
+            child: Text("Cancel", style: GoogleFonts.poppins(
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+            )),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteCropUpdate(id);
             },
-            child:  Text(
-              "Delete",
-              style: GoogleFonts.poppins(color:Colors.red)
-            ),
+            child: Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
           ),
         ],
       ),
@@ -257,10 +276,11 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
 
   Future<void> _navigateToEditScreen(String id) async {
     final updateToEdit = _cropUpdates.firstWhere((update) => update['_id'] == id);
-    final result = await Navigator.pushNamed(
+    final result = await Navigator.push(
       context,
-      "/newcropupdate",
-      arguments: updateToEdit,
+      MaterialPageRoute(
+        builder: (context) => NewUpdateForm(existingData: updateToEdit),
+      ),
     );
     if (result == true) {
       _fetchCropUpdates();

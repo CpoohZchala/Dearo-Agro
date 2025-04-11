@@ -1,4 +1,4 @@
-import 'package:farmeragriapp/screens/forms/addExpense.dart';
+import 'package:farmeragriapp/screens/forms/add_expense.dart';
 import 'package:farmeragriapp/screens/forms/commiunityIScreen.dart';
 import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
 import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
@@ -37,14 +37,14 @@ class MyApp extends StatelessWidget {
         "/signUp": (context) => const SignupScreen(),
         "/cultivational": (context) => const CultivationalScreen(),
         "/crop_updates": (context) => const CropDetailsScreen(),
-        "/expenses": (context) => const CultivationalExpense(),
+        "/expenses": (context) => CultivationalExpense(),
         "/stock": (context) => const StockScreen(),
         "/orders": (context) => const Orderscreen(),
         "/inqueries": (context) => const InqueriesScreen(),
         "/prediction": (context) => const Predictionscreen(),
         "/addCultivational": (context) => const CultivationalAddScreen(),
         "/newcropupdate": (context) => const NewUpdateForm(),
-        "/addExpenses": (context) => const Addexpense(),
+        "/addExpenses": (context) => const Addexpense(memberId: '',),
         "/general": (context) => const GeneralIScreen(),
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
