@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:farmeragriapp/screens/forms/add_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:farmeragriapp/screens/forms/addexpense.dart';
 
 class CultivationalExpense extends StatefulWidget {
   const CultivationalExpense({super.key});
@@ -15,9 +15,8 @@ class CultivationalExpense extends StatefulWidget {
 class _CultivationalExpenseState extends State<CultivationalExpense> {
   final Dio _dio = Dio();
   final _storage = const FlutterSecureStorage();
-  List<dynamic> _expenses = [];
+  List<dynamic> _cropExpenses = [];
   bool _isLoading = true;
-  bool _hasError = false;
 
   @override
   void initState() {
@@ -27,92 +26,147 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
 
   Future<void> _fetchExpenses() async {
     try {
-      setState(() {
-        _isLoading = true;
-        _hasError = false;
-      });
-
       final userId = await _storage.read(key: "userId");
       if (userId == null) {
-        throw Exception("User ID not found");
+        setState(() => _isLoading = false);
+        return;
       }
 
-      final response = await _dio.get(
-        "http://192.168.8.125:5000/api/efetch/$userId",
-        options: Options(
-          receiveTimeout: const Duration(seconds: 10),
-          sendTimeout: const Duration(seconds: 10),
-        ),
-      );
+      final response =
+          await _dio.get("http://192.168.8.125:5000/api/efetch/$userId");
 
       if (response.statusCode == 200) {
         setState(() {
-          _expenses = response.data is List ? response.data : [];
+          _cropExpenses = response.data is List ? response.data : [];
           _isLoading = false;
         });
       } else {
-        throw Exception("Failed to load expenses: ${response.statusCode}");
+        throw Exception("Failed to load expenses");
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-      });
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to fetch expenses: ${e.toString()}")),
+        const SnackBar(content: Text("Failed to fetch crop expenses")),
       );
     }
   }
 
   Future<void> _deleteExpense(String id) async {
     try {
-      final itemToRemove = _expenses.firstWhere((exp) => exp['_id'] == id);
-      setState(() => _expenses.removeWhere((exp) => exp['_id'] == id));
+      final response =
+          await _dio.delete("http://192.168.8.125:5000/api/edelete/$id");
 
-      final response = await _dio.delete(
-        "http://192.168.8.125:5000/api/edelete/$id",
-        options: Options(
-          receiveTimeout: const Duration(seconds: 10),
-          sendTimeout: const Duration(seconds: 10),
-        ),
-      );
-
-      if (response.statusCode != 200) {
-        setState(() => _expenses.add(itemToRemove));
-        throw Exception("Server deletion failed");
+      if (response.statusCode == 200) {
+        setState(() {
+          _cropExpenses.removeWhere((e) => e['_id'] == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data["message"] ?? "Deleted")),
+        );
+      } else {
+        throw Exception("Failed to delete");
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.data["message"] ?? "Expense deleted")),
-      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to delete: ${e.toString()}")),
+        SnackBar(content: Text("Error: ${e.toString()}")),
       );
     }
   }
 
-  Future<void> _navigateToAddExpense() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Addexpense()),
-    );
-    if (result == true) {
-      await _fetchExpenses();
-    }
-  }
-
-  Future<void> _navigateToEditExpense(Map<String, dynamic> expense) async {
+  void _navigateToForm({Map<String, dynamic>? data}) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Addexpense(),
+        builder: (context) => AddExpense(existingData: data),
       ),
     );
     if (result == true) {
-      await _fetchExpenses();
-      
+      _fetchExpenses();
     }
+  }
+
+  void _confirmDelete(String id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm Delete",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text("Are you sure you want to delete this expense?",
+            style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: GoogleFonts.poppins()),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteExpense(id);
+            },
+            child:
+                Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpenseCard(Map<String, dynamic> expense) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              expense['addDate'] ?? 'Date not available',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              expense['description'] ?? 'No Description',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "Rs.${expense['expense'] ?? '0'}",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () => _confirmDelete(expense['_id']),
+                  icon: const Icon(Icons.delete,
+                      color: Colors.red),
+                ),
+                IconButton(
+                  onPressed: () => _navigateToForm(data: expense),
+                  icon: const Icon(Icons.edit,
+                      color: Color.fromRGBO(87, 164, 91, 0.8)),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -120,23 +174,22 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddExpense,
+        onPressed: () => _navigateToForm(),
         backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Column(
         children: [
-          // Header
           ClipPath(
             clipper: ArcClipper(),
             child: Container(
-              height: 170,
+              height: 190,
               color: const Color.fromRGBO(87, 164, 91, 0.8),
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 40),
                   child: Text(
-                    "Cultivation Expenses",
+                    "Cultivational Expenses",
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 20,
@@ -147,180 +200,26 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
               ),
             ),
           ),
-          // Expense List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _hasError
+                : _cropExpenses.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error, size: 50, color: Colors.red),
-                            const SizedBox(height: 16),
-                            Text(
-                              "Failed to load expenses",
-                              style: GoogleFonts.poppins(fontSize: 16),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _fetchExpenses,
-                              child: Text("Retry", style: GoogleFonts.poppins()),
-                            ),
-                          ],
+                        child: Text(
+                          "No cultivation expenses recorded",
+                          style: GoogleFonts.poppins(fontSize: 16),
                         ),
                       )
-                    : _expenses.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.receipt_long, size: 50, color: Colors.grey),
-                                const SizedBox(height: 16),
-                                Text(
-                                  "No expenses recorded",
-                                  style: GoogleFonts.poppins(fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: _fetchExpenses,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                              itemCount: _expenses.length,
-                              itemBuilder: (context, index) {
-                                final expense = _expenses[index];
-                                return _buildExpenseCard(
-                                  expense['date'] ?? 'No date',
-                                  expense['description'] ?? 'No description',
-                                  expense['amount']?.toDouble() ?? 0.0,
-                                  expense['_id'],
-                                  expense,
-                                );
-                              },
-                            ),
-                          ),
+                    : ListView.builder(
+                        itemCount: _cropExpenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = _cropExpenses[index];
+                          return _buildExpenseCard(expense);
+                        },
+                      ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpenseCard(String date, String description, double amount, String id, Map<String, dynamic> expense) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 15),
-      color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(
-          color: Color.fromRGBO(87, 164, 91, 0.8),
-          width: 2,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  date,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 14,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  "Rs. ${amount.toStringAsFixed(2)}",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.green[700],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal,
-                fontSize: 14,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Divider(height: 1),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () => _showDeleteConfirmation(id),
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () => _navigateToEditExpense(expense), // ✅ FIXED
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(String id) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          "Confirm Delete",
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          "Are you sure you want to delete this expense?",
-          style: GoogleFonts.poppins(color: Colors.black),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: GoogleFonts.poppins(
-                color: const Color.fromRGBO(87, 164, 91, 0.8),
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              _deleteExpense(id);
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Delete",
-              style: GoogleFonts.poppins(
-                color: Colors.red,
-              ),
-            ),
-          ),
+          const SizedBox(height: 10),
+          Image.asset("assets/images/image2.png", height: 200, width: 200)
         ],
       ),
     );

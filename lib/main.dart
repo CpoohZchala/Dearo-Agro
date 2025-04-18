@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         "/prediction": (context) => const Predictionscreen(),
         "/addCultivational": (context) => const CultivationalAddScreen(),
         "/newcropupdate": (context) => const NewUpdateForm(),
-        "/addExpenses": (context) => const Addexpense(memberId: '',),
+        "/addExpenses": (context) => const AddExpense(),
         "/general": (context) => const GeneralIScreen(),
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),

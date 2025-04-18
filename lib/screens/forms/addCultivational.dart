@@ -159,7 +159,6 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     final userId = await storage.read(key: "userId");
     memberIdController.text = userId ?? '';
 
-    // If editing existing data, populate fields
     if (widget.existingData != null) {
       setState(() {
         _selectedCategory = widget.existingData['cropCategory'] ??
@@ -364,7 +363,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                       (val) => setState(() {
                             _selectedDistrict = val;
                             _selectedCity =
-                                null; // Reset city when district changes
+                                null; 
                           }),
                       value: _selectedDistrict),
                   const SizedBox(height: 16),

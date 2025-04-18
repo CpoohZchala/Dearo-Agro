@@ -38,8 +38,9 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
         return;
       }
 
-      final response = await _dio.get("http://192.168.8.125:5000/api/fetch/$userId");
-      
+      final response =
+          await _dio.get("http://192.168.8.125:5000/api/fetch/$userId");
+
       if (response.statusCode == 200) {
         setState(() {
           _data = response.data is List ? response.data : [];
@@ -68,8 +69,9 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
         _data.removeWhere((item) => item['_id'] == id);
       });
 
-      final response = await _dio.delete("http://192.168.8.125:5000/api/delete/$id");
-      
+      final response =
+          await _dio.delete("http://192.168.8.125:5000/api/delete/$id");
+
       if (response.statusCode != 200) {
         // If deletion fails on server, add the item back
         setState(() {
@@ -160,15 +162,25 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                               const SizedBox(height: 20),
                               ..._data.map((cultivation) {
                                 final id = cultivation['_id'];
-                                final memberId = cultivation['memberId']?.toString() ?? 'N/A';
-                                final cropCategory = cultivation['cropCategory'] ?? cultivation['category'] ?? 'N/A';
-                                final cropName = cultivation['cropName'] ?? cultivation['crop'] ?? 'N/A';
-                                final district = cultivation['district'] ?? 'N/A';
+                                final memberId =
+                                    cultivation['memberId']?.toString() ??
+                                        'N/A';
+                                final cropCategory =
+                                    cultivation['cropCategory'] ??
+                                        cultivation['category'] ??
+                                        'N/A';
+                                final cropName = cultivation['cropName'] ??
+                                    cultivation['crop'] ??
+                                    'N/A';
+                                final district =
+                                    cultivation['district'] ?? 'N/A';
                                 final city = cultivation['city'] ?? 'N/A';
-                                final startDate = _formatDate(cultivation['startDate']?.toString());
+                                final startDate = _formatDate(
+                                    cultivation['startDate']?.toString());
 
                                 return Card(
-                                  margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 8),
                                   elevation: 3,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -180,10 +192,12 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(15),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Member ID: $memberId",
@@ -228,29 +242,61 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 12),
-                                        const Divider(height: 1, color: Colors.grey),
+                                        const Divider(
+                                            height: 1, color: Colors.grey),
                                         const SizedBox(height: 10),
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: [
                                             IconButton(
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (context) => AlertDialog(
-                                                    title: Text("Confirm Delete", style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.bold)),
-                                                    content: Text("Are you sure you want to delete this cultivation?", style: GoogleFonts.poppins(color: Colors.black)),
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                    title: Text(
+                                                        "Confirm Delete",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .black,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold)),
+                                                    content: Text(
+                                                        "Are you sure you want to delete this cultivation?",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .black)),
                                                     actions: [
                                                       TextButton(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: Text("Cancel", style: GoogleFonts.poppins(color: const Color.fromRGBO(87, 164, 91, 0.8))),
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                context),
+                                                        child: Text("Cancel",
+                                                            style: GoogleFonts
+                                                                .poppins(
+                                                                    color: const Color
+                                                                        .fromRGBO(
+                                                                        87,
+                                                                        164,
+                                                                        91,
+                                                                        0.8))),
                                                       ),
                                                       TextButton(
                                                         onPressed: () {
-                                                          Navigator.pop(context);
-                                                          _deleteCultivation(id);
+                                                          Navigator.pop(
+                                                              context);
+                                                          _deleteCultivation(
+                                                              id);
                                                         },
-                                                        child: Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
+                                                        child: Text("Delete",
+                                                            style: GoogleFonts
+                                                                .poppins(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ),
                                                     ],
                                                   ),
@@ -265,19 +311,23 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                             const SizedBox(width: 10),
                                             IconButton(
                                               onPressed: () async {
-                                                final result = await Navigator.push(
+                                                final result =
+                                                    await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (context) => CultivationalAddScreen(
+                                                    builder: (context) =>
+                                                        CultivationalAddScreen(
                                                       existingData: cultivation,
                                                     ),
                                                   ),
                                                 );
-                                                if (result == true) _fetchData();
+                                                if (result == true)
+                                                  _fetchData();
                                               },
                                               icon: const Icon(
                                                 Icons.edit,
-                                                color: Color.fromRGBO(87, 164, 91, 0.8),
+                                                color: Color.fromRGBO(
+                                                    87, 164, 91, 0.8),
                                                 size: 24,
                                               ),
                                             ),
@@ -289,7 +339,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                 );
                               }).toList(),
                               const SizedBox(height: 10),
-                              Image.asset("assets/images/image3.png", height: 200, width: 200)
+                              Image.asset("assets/images/image3.png",
+                                  height: 200, width: 200)
                             ],
                           ),
                         ),
@@ -301,7 +352,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CultivationalAddScreen()),
+            MaterialPageRoute(
+                builder: (context) => const CultivationalAddScreen()),
           );
           if (result == true) _fetchData();
         },
