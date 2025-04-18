@@ -1,9 +1,11 @@
+import 'package:farmeragriapp/api/auth_api.dart';
+import 'package:farmeragriapp/models/user_model.dart';
 import 'package:farmeragriapp/screens/dialogBox/success_dialog.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -15,11 +17,11 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
   String? _selectedCategory;
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   final List<String> _categories = [
     "Farmer",
@@ -28,42 +30,37 @@ class _SignupScreenState extends State<SignupScreen> {
   ];
 
   Future<void> signUp() async {
-  if (passwordController.text != confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Passwords do not match")),
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
+
+    User newUser = User(
+      fullName: nameController.text,
+      mobileNumber: mobileController.text,
+      password: passwordController.text,
+      userType: _selectedCategory,
     );
-    return;
+
+    final response = await AuthApi.signUp(newUser);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showSuccessDialog(context);
+      nameController.clear();
+      mobileController.clear();
+      passwordController.clear();
+      confirmPasswordController.clear();
+      setState(() {
+        _selectedCategory = null;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing up: ${response.body}')),
+      );
+    }
   }
-
-  var url = Uri.parse('http://192.168.8.125:5000/api/auth/signup');
-  var response = await http.post(
-    url,
-    headers: {"Content-Type": "application/json"},
-    body: json.encode({
-      'fullName': nameController.text,
-      'mobileNumber': mobileController.text,
-      'password': passwordController.text,
-      'userType': _selectedCategory,
-    }),
-  );
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    showSuccessDialog(context);
-    nameController.clear();
-    mobileController.clear();
-    passwordController.clear();
-    confirmPasswordController.clear();
-    setState(() {
-      _selectedCategory = null;
-    });
-
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error signing up: ${response.body}')),
-    );
-  }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +86,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
           return SingleChildScrollView(
             child: Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -132,8 +128,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       items: _categories.map((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
-                          child: Text(category,
-                              style: GoogleFonts.poppins(fontSize: 15)),
+                          child: Text(category, style: GoogleFonts.poppins(fontSize: 15)),
                         );
                       }).toList(),
                       onChanged: (String? newValue) {
@@ -146,8 +141,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   _buildTextField(nameController, "Full Name"),
                   _buildTextField(mobileController, "Mobile Number"),
                   _buildPasswordField(passwordController, "Password"),
-                  _buildPasswordField(
-                      confirmPasswordController, "Confirm Password"),
+                  _buildPasswordField(confirmPasswordController, "Confirm Password"),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: maxWidth > 600 ? 400 : double.infinity,
@@ -215,7 +209,9 @@ class _SignupScreenState extends State<SignupScreen> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(
-                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+              color: Color.fromRGBO(87, 164, 91, 0.8),
+              width: 2,
+            ),
           ),
         ),
       ),
@@ -238,7 +234,8 @@ class _SignupScreenState extends State<SignupScreen> {
               });
             },
             icon: Icon(
-                _isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            ),
           ),
           filled: true,
           fillColor: Colors.grey[200],
@@ -249,7 +246,9 @@ class _SignupScreenState extends State<SignupScreen> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(
-                color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+              color: Color.fromRGBO(87, 164, 91, 0.8),
+              width: 2,
+            ),
           ),
         ),
       ),

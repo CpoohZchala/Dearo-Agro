@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:farmeragriapp/api/cultivation_api.dart';
+import 'package:farmeragriapp/data/cultivation_data.dart';
+import 'package:farmeragriapp/models/cultivation_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +18,6 @@ class CultivationalAddScreen extends StatefulWidget {
 
 class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
   final storage = const FlutterSecureStorage();
-  final Dio _dio = Dio();
   String? _selectedCategory;
   String? _selectedCrop;
   String? _selectedDistrict;
@@ -26,128 +27,6 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
   final TextEditingController memberIdController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   bool _isSubmitting = false;
-
-  final Map<String, List<String>> cropCategories = {
-    "Cereal Crops": ["Rice", "Wheat", "Maize (Corn)", "Barley"],
-    "Root and Tuber Crops": ["Potato", "Cassava", "Carrot"],
-    "Fruit Crops": ["Apple", "Banana", "Mango", "Grapes"],
-    "Vegetable Crops": ["Tomato", "Cabbage", "Cucumber", "Onion"],
-    "Beverage Crops": ["Tea", "Coffee", "Cocoa"],
-    "Medicinal and Aromatic Crops": ["Aloe Vera", "Neem", "Lavender"]
-  };
-
-  final Map<String, List<String>> districtCities = {
-    "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Nugegoda", "Kottawa"],
-    "Colombo": ["Colombo", "Dehiwala", "Moratuwa", "Nugegoda", "Kottawa"],
-    "Gampaha": ["Gampaha", "Negombo", "Kadawatha", "Ja-Ela", "Ragama"],
-    "Kalutara": ["Kalutara", "Panadura", "Beruwala", "Horana", "Matugama"],
-    "Kandy": ["Kandy", "Peradeniya", "Katugastota", "Gampola", "Nawalapitiya"],
-    "Matale": ["Matale", "Dambulla", "Galewela", "Ukuwela", "Rattota"],
-    "Nuwara Eliya": [
-      "Nuwara Eliya",
-      "Hatton",
-      "Talawakelle",
-      "Watawala",
-      "Ginigathhena"
-    ],
-    "Galle": ["Galle", "Hikkaduwa", "Ambalangoda", "Karapitiya", "Baddegama"],
-    "Matara": ["Matara", "Weligama", "Deniyaya", "Akurassa", "Kamburupitiya"],
-    "Hambantota": [
-      "Hambantota",
-      "Tangalle",
-      "Tissamaharama",
-      "Beliatta",
-      "Weeraketiya"
-    ],
-    "Jaffna": [
-      "Jaffna",
-      "Nallur",
-      "Chavakachcheri",
-      "Point Pedro",
-      "Kodikamam"
-    ],
-    "Kilinochchi": [
-      "Kilinochchi",
-      "Pallai",
-      "Paranthan",
-      "Mulankavil",
-      "Tharmapuram"
-    ],
-    "Mannar": ["Mannar", "Pesalai", "Murunkan", "Adampan", "Madhu"],
-    "Vavuniya": [
-      "Vavuniya",
-      "Cheddikulam",
-      "Nedunkeni",
-      "Omanthai",
-      "Pampaimadu"
-    ],
-    "Mullaitivu": [
-      "Mullaitivu",
-      "Puthukudiyiruppu",
-      "Oddusuddan",
-      "Thunukkai",
-      "Maritimepattu"
-    ],
-    "Batticaloa": [
-      "Batticaloa",
-      "Eravur",
-      "Kattankudy",
-      "Kaluwanchikudy",
-      "Vakarai"
-    ],
-    "Ampara": [
-      "Ampara",
-      "Kalmunai",
-      "Sainthamaruthu",
-      "Akkaraipattu",
-      "Sammanthurai"
-    ],
-    "Trincomalee": ["Trincomalee", "Kinniya", "Mutur", "Kantale", "Nilaveli"],
-    "Kurunegala": [
-      "Kurunegala",
-      "Kuliyapitiya",
-      "Wariyapola",
-      "Mawathagama",
-      "Narammala"
-    ],
-    "Puttalam": ["Puttalam", "Chilaw", "Wennappuwa", "Anamaduwa", "Nattandiya"],
-    "Anuradhapura": [
-      "Anuradhapura",
-      "Kekirawa",
-      "Medawachchiya",
-      "Thambuttegama",
-      "Nochchiyagama"
-    ],
-    "Polonnaruwa": [
-      "Polonnaruwa",
-      "Hingurakgoda",
-      "Medirigiriya",
-      "Dimbulagala",
-      "Elahera"
-    ],
-    "Badulla": [
-      "Badulla",
-      "Bandarawela",
-      "Haputale",
-      "Welimada",
-      "Mahiyanganaya"
-    ],
-    "Monaragala": ["Monaragala", "Wellawaya", "Bibila", "Medagama", "Buttala"],
-    "Ratnapura": [
-      "Ratnapura",
-      "Embilipitiya",
-      "Balangoda",
-      "Pelmadulla",
-      "Godakawela"
-    ],
-    "Kegalle": [
-      "Kegalle",
-      "Mawanella",
-      "Warakapola",
-      "Rambukkana",
-      "Dehiowita"
-    ],
-  };
 
   @override
   void initState() {
@@ -161,10 +40,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
 
     if (widget.existingData != null) {
       setState(() {
-        _selectedCategory = widget.existingData['cropCategory'] ??
-            widget.existingData['category'];
-        _selectedCrop =
-            widget.existingData['cropName'] ?? widget.existingData['crop'];
+        _selectedCategory = widget.existingData['cropCategory'] ?? widget.existingData['category'];
+        _selectedCrop = widget.existingData['cropName'] ?? widget.existingData['crop'];
         _selectedDistrict = widget.existingData['district'];
         _selectedCity = widget.existingData['city'];
         addressController.text = widget.existingData['address'] ?? '';
@@ -172,8 +49,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
         if (widget.existingData['startDate'] != null) {
           try {
             _selectedDate = DateTime.parse(widget.existingData['startDate']);
-            _dateController.text =
-                "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
+            _dateController.text = "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
           } catch (e) {
             print("Error parsing date: $e");
           }
@@ -220,29 +96,24 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final url =
-          "http://192.168.8.125:5000/api/${widget.existingData != null ? 'update' : 'submit'}";
-      final data = {
-        "memberId": memberIdController.text,
-        "cropCategory": _selectedCategory,
-        "cropName": _selectedCrop,
-        "address": addressController.text,
-        "startDate": _selectedDate?.toIso8601String(),
-        "district": _selectedDistrict,
-        "city": _selectedCity,
-      };
-
-      Response response;
-      if (widget.existingData != null) {
-        data['id'] = widget.existingData['_id'];
-        response = await _dio.put(url, data: data);
-      } else {
-        response = await _dio.post(url, data: data);
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.data["message"])),
+      final cultivation = Cultivation(
+        memberId: memberIdController.text,
+        cropCategory: _selectedCategory!,
+        cropName: _selectedCrop!,
+        address: addressController.text,
+        startDate: _selectedDate!.toIso8601String(),
+        district: _selectedDistrict!,
+        city: _selectedCity!,
+        id: widget.existingData?['_id'],
       );
+
+      final api = CultivationApi();
+      final message = await api.submitOrUpdateCultivation(
+        cultivation,
+        isUpdate: widget.existingData != null,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -305,9 +176,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                   right: 0,
                   child: Center(
                     child: Text(
-                      widget.existingData != null
-                          ? "Edit Cultivation"
-                          : "Add Cultivation",
+                      widget.existingData != null ? "Edit Cultivation" : "Add Cultivation",
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 22,
@@ -322,25 +191,26 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildTextField("Member ID", memberIdController,
-                      enabled: false),
+                  _buildTextField("Member ID", memberIdController, enabled: false),
                   const SizedBox(height: 16),
                   _buildDropdown(
-                      "Select Category*", cropCategories.keys.toList(), (val) {
-                    setState(() {
-                      _selectedCategory = val;
-                      _selectedCrop = null; // Reset crop when category changes
-                    });
-                  }, value: _selectedCategory),
+                    "Select Category*", cropCategories.keys.toList(), 
+                    (val) {
+                      setState(() {
+                        _selectedCategory = val;
+                        _selectedCrop = null;
+                      });
+                    }, 
+                    value: _selectedCategory
+                  ),
                   const SizedBox(height: 16),
                   _buildDropdown(
-                      "Select Crop*",
-                      _selectedCategory != null
-                          ? cropCategories[_selectedCategory]!
-                          : [],
-                      (val) => setState(() => _selectedCrop = val),
-                      value: _selectedCrop,
-                      enabled: _selectedCategory != null),
+                    "Select Crop*",
+                    _selectedCategory != null ? cropCategories[_selectedCategory]! : [],
+                    (val) => setState(() => _selectedCrop = val),
+                    value: _selectedCrop,
+                    enabled: _selectedCategory != null,
+                  ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _dateController,
@@ -358,23 +228,22 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildDropdown(
-                      "Select District*",
-                      districtCities.keys.toList(),
-                      (val) => setState(() {
-                            _selectedDistrict = val;
-                            _selectedCity =
-                                null; 
-                          }),
-                      value: _selectedDistrict),
+                    "Select District*",
+                    districtCities.keys.toList(),
+                    (val) => setState(() {
+                      _selectedDistrict = val;
+                      _selectedCity = null;
+                    }),
+                    value: _selectedDistrict,
+                  ),
                   const SizedBox(height: 16),
                   _buildDropdown(
-                      "Select City*",
-                      _selectedDistrict != null
-                          ? districtCities[_selectedDistrict]!
-                          : [],
-                      (val) => setState(() => _selectedCity = val),
-                      value: _selectedCity,
-                      enabled: _selectedDistrict != null),
+                    "Select City*",
+                    _selectedDistrict != null ? districtCities[_selectedDistrict]! : [],
+                    (val) => setState(() => _selectedCity = val),
+                    value: _selectedCity,
+                    enabled: _selectedDistrict != null,
+                  ),
                   const SizedBox(height: 16),
                   _buildTextField("Location Address*", addressController),
                   const SizedBox(height: 24),
@@ -411,8 +280,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool enabled = true}) {
+  Widget _buildTextField(String label, TextEditingController controller, {bool enabled = true}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -425,8 +293,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     );
   }
 
-  Widget _buildDropdown(
-      String label, List<String> items, Function(String?) onChanged,
+  Widget _buildDropdown(String label, List<String> items, Function(String?) onChanged,
       {String? value, bool enabled = true}) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(

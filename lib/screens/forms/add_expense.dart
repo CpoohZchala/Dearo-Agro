@@ -1,8 +1,10 @@
-import 'package:dio/dio.dart';
+import 'package:farmeragriapp/api/expense_api.dart';
+import 'package:farmeragriapp/models/expense_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 
 class AddExpense extends StatefulWidget {
   final dynamic existingData;
@@ -14,7 +16,6 @@ class AddExpense extends StatefulWidget {
 }
 
 class _AddExpenseState extends State<AddExpense> {
-  final Dio _dio = Dio();
   final _storage = const FlutterSecureStorage();
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
@@ -43,7 +44,8 @@ class _AddExpenseState extends State<AddExpense> {
     if (widget.existingData != null) {
       _descriptionController.text = widget.existingData['description'] ?? '';
       _dateController.text = widget.existingData['addDate'] ?? '';
-      _expenseController.text = widget.existingData['expense']?.toString() ?? '';
+      _expenseController.text =
+          widget.existingData['expense']?.toString() ?? '';
       _parseExistingDate();
     }
   }
@@ -108,33 +110,27 @@ class _AddExpenseState extends State<AddExpense> {
         return;
       }
 
-      final url = widget.existingData != null
-          ? "http://192.168.8.125:5000/api/eupdate"
-          : "http://192.168.8.125:5000/api/esubmit";
-
-      final data = {
-        if (widget.existingData != null) "_id": widget.existingData['_id'],
-        "memberId": userId,
-        "addDate": _dateController.text,
-        "description": _descriptionController.text,
-        "expense": _expenseController.text,
-      };
-
-      final response = widget.existingData != null
-          ? await _dio.put(url, data: data)
-          : await _dio.post(url, data: data);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.data["message"])),
+      final expense = Expense(
+        id: widget.existingData?['_id'],
+        memberId: userId,
+        addDate: _dateController.text,
+        description: _descriptionController.text,
+        expense: _expenseController.text,
       );
+
+      final api = ExpenseApi();
+
+      final message = widget.existingData != null
+          ? await api.updateExpense(expense)
+          : await api.submitExpense(expense);
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+
       Navigator.pop(context, true);
-    } on DioException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.response?.data['error'] ?? e.message}")),
-      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Unexpected error: ${e.toString()}")),
+        SnackBar(content: Text("Error: ${e.toString()}")),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -167,7 +163,9 @@ class _AddExpenseState extends State<AddExpense> {
             top: 50,
             left: 50,
             child: Text(
-              widget.existingData != null ? "Edit Cultivational Expense" : "New Cultivational Expense",
+              widget.existingData != null
+                  ? "Edit Cultivational Expense"
+                  : "New Cultivational Expense",
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -187,14 +185,23 @@ class _AddExpenseState extends State<AddExpense> {
                       readOnly: true,
                       decoration: InputDecoration(
                         labelText: "Date",
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_month),
                           onPressed: _pickDate,
                         ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
+                        ),
                       ),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? "Please select a date" : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Please select a date"
+                          : null,
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -203,15 +210,25 @@ class _AddExpenseState extends State<AddExpense> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: "Description about crop expense",
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
                         counterText: "",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
+                        ),
                       ),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? "Please enter description" : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Please enter description"
+                          : null,
                     ),
                     Align(
                       alignment: Alignment.bottomRight,
-                      child: Text("$_charCount/$_maxChars", style: GoogleFonts.poppins()),
+                      child: Text("$_charCount/$_maxChars",
+                          style: GoogleFonts.poppins()),
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -219,11 +236,21 @@ class _AddExpenseState extends State<AddExpense> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: "Expense Amount (Rs.)",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
+                        ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Please enter an amount";
-                        if (double.tryParse(value) == null) return "Enter a valid number";
+                        if (value == null || value.isEmpty)
+                          return "Please enter an amount";
+                        if (double.tryParse(value) == null)
+                          return "Enter a valid number";
                         return null;
                       },
                     ),
@@ -233,17 +260,23 @@ class _AddExpenseState extends State<AddExpense> {
                       child: ElevatedButton(
                         onPressed: _isSubmitting ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                          backgroundColor:
+                              const Color.fromRGBO(87, 164, 91, 0.8),
                           padding: const EdgeInsets.all(15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: _isSubmitting
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : Text(
-                                widget.existingData != null ? "Update" : "Submit",
-                                style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+                                widget.existingData != null
+                                    ? "Update"
+                                    : "Submit",
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                               ),
                       ),
                     ),

@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
+import 'package:farmeragriapp/api/crop_update_api.dart';
+import 'package:farmeragriapp/models/crop_update_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NewUpdateForm extends StatefulWidget {
@@ -14,8 +14,6 @@ class NewUpdateForm extends StatefulWidget {
 }
 
 class _NewUpdateFormState extends State<NewUpdateForm> {
-  final Dio _dio = Dio();
-  final _storage = const FlutterSecureStorage();
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -96,40 +94,23 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     setState(() => _isSubmitting = true);
 
     try {
-      final userId = await _storage.read(key: "userId");
-      if (userId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User not logged in")),
-        );
-        return;
-      }
-
-      final url = widget.existingData != null
-          ? "http://192.168.8.125:5000/api/cropupdate"
-          : "http://192.168.8.125:5000/api/cropsubmit";
-
-      final data = {
-        if (widget.existingData != null) "_id": widget.existingData['_id'],
-        "memberId": userId,
-        "addDate": _dateController.text,
-        "description": _descriptionController.text,
-      };
-
-      final response = widget.existingData != null
-          ? await _dio.put(url, data: data)
-          : await _dio.post(url, data: data);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.data["message"])),
+      final update = CropUpdate(
+        id: widget.existingData != null ? widget.existingData['_id'] : null,
+        memberId: "", // will be set inside API class
+        addDate: _dateController.text,
+        description: _descriptionController.text,
       );
+
+      final message = await CropUpdateApi().submitCropUpdate(
+        update,
+        isUpdate: widget.existingData != null,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       Navigator.pop(context, true);
-    } on DioException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.response?.data['error'] ?? e.message}")),
-      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Unexpected error: ${e.toString()}")),
+        SnackBar(content: Text("Error: ${e.toString()}")),
       );
     } finally {
       if (mounted) {
@@ -173,15 +154,15 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
             top: 50,
             left: 50,
             right: 0,
-            
-              child: Text(
-                widget.existingData != null ? "Edit Crop Update" : "New Crop Update",
-                style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              
+            child: Text(
+              widget.existingData != null
+                  ? "Edit Crop Update"
+                  : "New Crop Update",
+              style: GoogleFonts.poppins(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Padding(
@@ -204,10 +185,18 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromRGBO(87, 164, 91, 0.8),
+                            width: 2,
+                          ),
+                        ),
                       ),
                       readOnly: true,
-                      validator: (value) => 
-                          value == null || value.isEmpty ? "Please select a date" : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Please select a date"
+                          : null,
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -220,10 +209,18 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromRGBO(87, 164, 91, 0.8),
+                            width: 2,
+                          ),
+                        ),
                         counterText: "",
                       ),
-                      validator: (value) => 
-                          value == null || value.isEmpty ? "Please enter a description" : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Please enter a description"
+                          : null,
                     ),
                     Align(
                       alignment: Alignment.bottomRight,
@@ -240,7 +237,8 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                       child: ElevatedButton(
                         onPressed: _isSubmitting ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                          backgroundColor:
+                              const Color.fromRGBO(87, 164, 91, 0.8),
                           padding: const EdgeInsets.all(15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

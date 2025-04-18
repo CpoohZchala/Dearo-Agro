@@ -96,7 +96,7 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: GoogleFonts.poppins()),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: const Color.fromRGBO(87, 164, 91, 0.8))),
           ),
           TextButton(
             onPressed: () {
