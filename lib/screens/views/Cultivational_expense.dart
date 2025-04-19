@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
+import 'package:farmeragriapp/screens/forms/add_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CultivationalExpense extends StatefulWidget {
@@ -10,135 +13,137 @@ class CultivationalExpense extends StatefulWidget {
 }
 
 class _CultivationalExpenseState extends State<CultivationalExpense> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // Fixed ArcClipper
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ClipPath(
-              clipper: ArcClipper(),
-              child: Container(
-                height: 170,
-                color: const Color.fromRGBO(87, 164, 91, 0.8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon:
-                          const Icon(Icons.arrow_back_ios, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Spacer(),
-                    Image.asset(
-                      "assets/icons/leaf.png",
-                      height: 35,
-                      width: 35,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Scrollable Cards List
-          Padding(
-            padding:
-                const EdgeInsets.only(top: 180), // Avoid overlapping ArcClipper
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                  bottom: 70), // To avoid overlap with button
-              child: Column(
-                children: <Widget>[
-                  _buildCard("2023/04/01", "Land Preparation is Done.", 12000),
-                  const SizedBox(height: 10),
-                  _buildCard("2023/04/20", "Fertilization is Done.", 15000),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ),
+  final Dio _dio = Dio();
+  final _storage = const FlutterSecureStorage();
+  List<dynamic> _cropExpenses = [];
+  bool _isLoading = true;
 
-          // Fixed Button
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "/addExpenses");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  "+ Add Expenses",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+  @override
+  void initState() {
+    super.initState();
+    _fetchExpenses();
+  }
+
+  Future<void> _fetchExpenses() async {
+    try {
+      final userId = await _storage.read(key: "userId");
+      if (userId == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final response =
+          await _dio.get("http://192.168.8.125:5000/api/efetch/$userId");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _cropExpenses = response.data is List ? response.data : [];
+          _isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load expenses");
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to fetch crop expenses")),
+      );
+    }
+  }
+
+  Future<void> _deleteExpense(String id) async {
+    try {
+      final response =
+          await _dio.delete("http://192.168.8.125:5000/api/edelete/$id");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _cropExpenses.removeWhere((e) => e['_id'] == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data["message"] ?? "Deleted")),
+        );
+      } else {
+        throw Exception("Failed to delete");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
+
+  void _navigateToForm({Map<String, dynamic>? data}) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddExpense(existingData: data),
+      ),
+    );
+    if (result == true) {
+      _fetchExpenses();
+    }
+  }
+
+  void _confirmDelete(String id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm Delete",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text("Are you sure you want to delete this expense?",
+            style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: const Color.fromRGBO(87, 164, 91, 0.8))),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteExpense(id);
+            },
+            child:
+                Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String date, String description, double expense) {
+  Widget _buildExpenseCard(Map<String, dynamic> expense) {
     return Card(
-      color: Colors.white,
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side:
-            const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color.fromRGBO(87, 164, 91, 0.8)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  date,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 14,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
             Text(
-              description,
+              expense['addDate'] ?? 'Date not available',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.normal,
                 fontSize: 14,
-                color: Colors.black,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Text(
-              "Rs. $expense",
+              expense['description'] ?? 'No Description',
               style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.green[700],
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "Rs.${expense['expense'] ?? '0'}",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
               ),
             ),
             const SizedBox(height: 10),
@@ -147,28 +152,75 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
-                    size: 20,
-                  ),
+                  onPressed: () => _confirmDelete(expense['_id']),
+                  icon: const Icon(Icons.delete,
+                      color: Colors.red),
                 ),
-                const SizedBox(width: 15),
                 IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/addExpenses");
-                  },
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
-                    size: 20,
-                  ),
+                  onPressed: () => _navigateToForm(data: expense),
+                  icon: const Icon(Icons.edit,
+                      color: Color.fromRGBO(87, 164, 91, 0.8)),
                 ),
               ],
             )
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToForm(),
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: Column(
+        children: [
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Text(
+                    "Cultivational Expenses",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _cropExpenses.isEmpty
+                    ? Center(
+                        child: Text(
+                          "No cultivation expenses recorded",
+                          style: GoogleFonts.poppins(fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: _cropExpenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = _cropExpenses[index];
+                          return _buildExpenseCard(expense);
+                        },
+                      ),
+          ),
+          const SizedBox(height: 10),
+          Image.asset("assets/images/image2.png", height: 200, width: 200)
+        ],
       ),
     );
   }

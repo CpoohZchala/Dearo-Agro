@@ -5,7 +5,8 @@ import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
 import 'package:farmeragriapp/screens/forms/changePassword.dart';
 import 'package:farmeragriapp/screens/forms/editProfile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart' as custom_clippers;
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
+    as custom_clippers;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -47,61 +48,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Pick image from gallery
   Future<void> _pickImage() async {
-  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) {
-    File selected = File(pickedFile.path);
-    setState(() {
-      _imageFile = selected;
-    });
-
-    // Convert to base64 string
-    final bytes = await selected.readAsBytes();
-    String base64Image = base64Encode(bytes);
-
-    // Update profile image
-    await updateProfileImage(base64Image);
-  }
-}
-
-// This method ONLY updates profile image
-Future<void> updateProfileImage(String profileImage) async {
-  final url = Uri.parse("$apiUrl/${widget.userId}");
-  final body = jsonEncode({'profileImage': profileImage});
-
-  try {
-    final response = await http.put(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      await fetchUserProfile();
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      File selected = File(pickedFile.path);
       setState(() {
-        _imageFile = null;
+        _imageFile = selected;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile image updated")),
+
+      final bytes = await selected.readAsBytes();
+      String base64Image = base64Encode(bytes);
+
+      await updateProfileImage(base64Image);
+    }
+  }
+
+  Future<void> updateProfileImage(String profileImage) async {
+    final url = Uri.parse("$apiUrl/${widget.userId}");
+    final body = jsonEncode({'profileImage': profileImage});
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
       );
-    } else {
-      print("Error response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        await fetchUserProfile();
+        setState(() {
+          _imageFile = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile image updated")),
+        );
+      } else {
+        print("Error response: ${response.body}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to update image")),
+        );
+      }
+    } catch (e) {
+      print("Error updating image: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to update image")),
+        const SnackBar(content: Text("Something went wrong")),
       );
     }
-  } catch (e) {
-    print("Error updating image: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Something went wrong")),
-    );
   }
-}
-
-
 
   // Delete user profile
   Future<void> deleteUserProfile() async {
@@ -141,44 +136,47 @@ Future<void> updateProfileImage(String profileImage) async {
             ),
             Column(
               children: [
-               Stack(
-  alignment: Alignment.bottomRight,
-  children: [
-    GestureDetector(
-      onTap: _pickImage,
-      child: CircleAvatar(
-        radius: 50,
-        backgroundColor: Colors.grey[300],
-        backgroundImage: _imageFile != null
-            ? FileImage(_imageFile!)
-            : (profileImage.isNotEmpty
-                ? MemoryImage(base64Decode(
-                    profileImage.contains(',') ? profileImage.split(',').last : profileImage))
-                : null),
-        child: _imageFile == null && profileImage.isEmpty
-            ? const Icon(Icons.account_circle, size: 100, color: Colors.white)
-            : null,
-      ),
-    ),
-    Positioned(
-      bottom: 0,
-      right: 0,
-      child: GestureDetector(
-        onTap: _pickImage,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.green,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          padding: const EdgeInsets.all(6),
-          child: const Icon(Icons.edit, size: 16, color: Colors.white),
-        ),
-      ),
-    ),
-  ],
-),
-
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _imageFile != null
+                            ? FileImage(_imageFile!)
+                            : (profileImage.isNotEmpty
+                                ? MemoryImage(base64Decode(
+                                    profileImage.contains(',')
+                                        ? profileImage.split(',').last
+                                        : profileImage))
+                                : null),
+                        child: _imageFile == null && profileImage.isEmpty
+                            ? const Icon(Icons.account_circle,
+                                size: 100, color: Colors.white)
+                            : null,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.green,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: const Icon(Icons.edit,
+                              size: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 Text(
                   userName,
@@ -207,7 +205,7 @@ Future<void> updateProfileImage(String profileImage) async {
                     icon: Icons.edit,
                     title: "Edit Profile",
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
@@ -229,7 +227,7 @@ Future<void> updateProfileImage(String profileImage) async {
                     icon: Icons.lock,
                     title: "Change Password",
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>

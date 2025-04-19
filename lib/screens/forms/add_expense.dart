@@ -1,22 +1,27 @@
-import 'package:farmeragriapp/api/crop_update_api.dart';
-import 'package:farmeragriapp/models/crop_update_model.dart';
+import 'package:farmeragriapp/api/expense_api.dart';
+import 'package:farmeragriapp/models/expense_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class NewUpdateForm extends StatefulWidget {
+
+class AddExpense extends StatefulWidget {
   final dynamic existingData;
 
-  const NewUpdateForm({super.key, this.existingData});
+  const AddExpense({super.key, this.existingData});
 
   @override
-  State<NewUpdateForm> createState() => _NewUpdateFormState();
+  State<AddExpense> createState() => _AddExpenseState();
 }
 
-class _NewUpdateFormState extends State<NewUpdateForm> {
+class _AddExpenseState extends State<AddExpense> {
+  final _storage = const FlutterSecureStorage();
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _expenseController = TextEditingController();
+
   final int _maxChars = 50;
   int _charCount = 0;
   final _formKey = GlobalKey<FormState>();
@@ -39,6 +44,8 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     if (widget.existingData != null) {
       _descriptionController.text = widget.existingData['description'] ?? '';
       _dateController.text = widget.existingData['addDate'] ?? '';
+      _expenseController.text =
+          widget.existingData['expense']?.toString() ?? '';
       _parseExistingDate();
     }
   }
@@ -65,6 +72,7 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     _descriptionController.removeListener(_updateCharCount);
     _descriptionController.dispose();
     _dateController.dispose();
+    _expenseController.dispose();
     super.dispose();
   }
 
@@ -94,28 +102,38 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     setState(() => _isSubmitting = true);
 
     try {
-      final update = CropUpdate(
-        id: widget.existingData != null ? widget.existingData['_id'] : null,
-        memberId: "", // will be set inside API class
+      final userId = await _storage.read(key: "userId");
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User not logged in")),
+        );
+        return;
+      }
+
+      final expense = Expense(
+        id: widget.existingData?['_id'],
+        memberId: userId,
         addDate: _dateController.text,
         description: _descriptionController.text,
+        expense: _expenseController.text,
       );
 
-      final message = await CropUpdateApi().submitCropUpdate(
-        update,
-        isUpdate: widget.existingData != null,
-      );
+      final api = ExpenseApi();
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      final message = widget.existingData != null
+          ? await api.updateExpense(expense)
+          : await api.submitExpense(expense);
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+
       Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
       );
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -142,26 +160,15 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
             ),
           ),
           Positioned(
-            top: 40,
-            right: 20,
-            child: Image.asset(
-              "assets/icons/leaf.png",
-              height: 35,
-              width: 35,
-            ),
-          ),
-          Positioned(
             top: 50,
             left: 50,
-            right: 0,
             child: Text(
               widget.existingData != null
-                  ? "Edit Crop Update"
-                  : "New Crop Update",
+                  ? "Edit Cultivational Expense"
+                  : "New Cultivational Expense",
               style: GoogleFonts.poppins(
-                color: Colors.black,
-                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
           ),
@@ -175,25 +182,23 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                   children: [
                     TextFormField(
                       controller: _dateController,
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: "Date",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
                         suffixIcon: IconButton(
-                          onPressed: _pickDate,
                           icon: const Icon(Icons.calendar_month),
+                          onPressed: _pickDate,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                            borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(87, 164, 91, 0.8),
-                            width: 2,
-                          ),
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
                         ),
                       ),
-                      readOnly: true,
                       validator: (value) => value == null || value.isEmpty
                           ? "Please select a date"
                           : null,
@@ -204,34 +209,52 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                       maxLength: _maxChars,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        labelText: "Description about Crop update..",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
+                        labelText: "Description about crop expense",
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
+                        counterText: "",
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                            borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(87, 164, 91, 0.8),
-                            width: 2,
-                          ),
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
                         ),
-                        counterText: "",
                       ),
                       validator: (value) => value == null || value.isEmpty
-                          ? "Please enter a description"
+                          ? "Please enter description"
                           : null,
                     ),
                     Align(
                       alignment: Alignment.bottomRight,
-                      child: Text(
-                        "$_charCount/$_maxChars",
-                        style: GoogleFonts.poppins(
-                          color: Colors.green.shade700,
+                      child: Text("$_charCount/$_maxChars",
+                          style: GoogleFonts.poppins()),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _expenseController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Expense Amount (Rs.)",
+                        labelStyle: GoogleFonts.poppins(color: Colors.black),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color.fromRGBO(87, 164, 91, 0.8),
+                              width: 2),
                         ),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return "Please enter an amount";
+                        if (double.tryParse(value) == null)
+                          return "Enter a valid number";
+                        return null;
+                      },
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -245,17 +268,18 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
                           ),
                         ),
                         child: _isSubmitting
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : Text(
-                                widget.existingData != null ? "Update" : "Submit",
+                                widget.existingData != null
+                                    ? "Update"
+                                    : "Submit",
                                 style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                ),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                               ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

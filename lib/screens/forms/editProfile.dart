@@ -6,7 +6,7 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   final String userId;
-  const UpdateProfileScreen({required this.userId});
+  const UpdateProfileScreen({super.key, required this.userId});
 
   @override
   _UpdateProfileScreenState createState() => _UpdateProfileScreenState();
@@ -74,151 +74,127 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      appBar: AppBar(
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        title: Text(
+          "Edit Profile",
+          style: GoogleFonts.poppins(color: Colors.black,fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+      ),
+      body: Column(
         children: [
           ClipPath(
             clipper: ArcClipper(),
             child: Container(
-              height: 190,
+              height: 100,
               color: const Color.fromRGBO(87, 164, 91, 0.8),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20, top: 60),
-              child: Text(
-                "Update Profile",
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
           ),
-          Positioned(
-            top: 40,
-            left: 10,
-            child: SafeArea(
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(
-                top: 190, left: 20, right: 20, bottom: 30),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      labelStyle: labelStyle,
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        labelStyle: labelStyle,
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(87, 164, 91, 0.8),
-                          width: 2,
+                      style: inputStyle,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? 'Enter full name'
+                              : null,
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: "User Type",
+                        labelStyle: labelStyle,
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      items: _categories.map((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category, style: inputStyle),
+                        );
+                      }).toList(),
+                      validator: (value) =>
+                          value == null ? 'Select a user type' : null,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCategory = newValue;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _mobileController,
+                      decoration: InputDecoration(
+                        labelText: 'Mobile Number',
+                        labelStyle: labelStyle,
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      style: inputStyle,
+                      keyboardType: TextInputType.phone,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? 'Enter mobile number'
+                              : null,
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton.icon(
+                      onPressed: _isLoading ? null : updateProfile,
+                      icon: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Icon(Icons.update, color: Colors.white),
+                      label: Text(
+                        "Update",
+                        style: GoogleFonts.poppins(
+                            fontSize: 16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
-                    style: inputStyle,
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Enter full name'
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: "User Type",
-                      labelStyle: labelStyle,
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(87, 164, 91, 0.8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    items: _categories.map((String category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category, style: inputStyle),
-                      );
-                    }).toList(),
-                    validator: (value) =>
-                        value == null ? 'Select a user type' : null,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedCategory = newValue;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _mobileController,
-                    decoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      labelStyle: labelStyle,
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(87, 164, 91, 0.8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    style: inputStyle,
-                  ),
-                  const SizedBox(height: 30),
-                  _isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton.icon(
-                          onPressed: updateProfile,
-                          icon: const Icon(Icons.save, color: Colors.white),
-                          label: Text('Update Profile',
-                              style: GoogleFonts.poppins(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            backgroundColor:
-                                const Color.fromRGBO(87, 164, 91, 0.8),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
-                  const SizedBox(height: 20),
-                  if (_responseMessage.isNotEmpty)
+                    const SizedBox(height: 15),
                     Text(
                       _responseMessage,
                       style: GoogleFonts.poppins(
-                        color: _responseMessage.startsWith("✅")
+                        color: _responseMessage.contains('✅')
                             ? Colors.green
                             : Colors.red,
-                        fontWeight: FontWeight.w500,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

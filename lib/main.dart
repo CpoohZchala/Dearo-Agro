@@ -1,7 +1,8 @@
-import 'package:farmeragriapp/screens/forms/addExpense.dart';
+import 'package:farmeragriapp/screens/forms/add_expense.dart';
 import 'package:farmeragriapp/screens/forms/commiunityIScreen.dart';
 import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
 import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
+import 'package:farmeragriapp/screens/forms/general_inq_crud.dart';
 import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
@@ -24,7 +25,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,11 +45,12 @@ class MyApp extends StatelessWidget {
         "/prediction": (context) => const Predictionscreen(),
         "/addCultivational": (context) => const CultivationalAddScreen(),
         "/newcropupdate": (context) => const NewUpdateForm(),
-        "/addExpenses": (context) => const Addexpense(),
+        "/addExpenses": (context) => const AddExpense(),
         "/general": (context) => const GeneralIScreen(),
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
+        "/myGeneral": (context) => const GeneralInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
          
 
       },

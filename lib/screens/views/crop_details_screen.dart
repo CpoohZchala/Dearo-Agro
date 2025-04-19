@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
+import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CropDetailsScreen extends StatefulWidget {
@@ -10,103 +13,186 @@ class CropDetailsScreen extends StatefulWidget {
 }
 
 class _CropDetailsScreenState extends State<CropDetailsScreen> {
+  final Dio _dio = Dio();
+  final _storage = const FlutterSecureStorage();
+  List<dynamic> _cropUpdates = [];
+  bool _isLoading = true;
+  // ignore: unused_field
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCropUpdates();
+  }
+
+  Future<void> _fetchCropUpdates() async {
+    try {
+      final userId = await _storage.read(key: "userId");
+      if (userId == null) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "User not logged in";
+        });
+        return;
+      }
+
+      final response = await _dio.get("http://192.168.8.125:5000/api/cropfetch/$userId");
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          _cropUpdates = response.data is List ? response.data : [];
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      } else {
+        throw Exception("Failed to load data");
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Error: ${e.toString()}";
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to fetch crop updates")),
+      );
+    }
+  }
+
+  Future<void> _deleteCropUpdate(String id) async {
+  try {
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+    
+    final response = await _dio.delete("http://192.168.8.125:5000/api/cropdelete/$id");
+    
+    if (response.statusCode == 200) {
+      // Remove the item from local state immediately
+      setState(() {
+        _cropUpdates.removeWhere((update) => update['_id'] == id);
+        _isLoading = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.data["message"])),
+      );
+      
+      // Optional: Refresh from server to confirm
+      await _fetchCropUpdates();
+    }
+  } catch (e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to delete: ${e.toString()}")),
+    );
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewUpdateForm()),
+          );
+          if (result == true) {
+            _fetchCropUpdates();
+          }
+        },
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: Column(
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0, 
-             child: ClipPath(
-                  clipper: ArcClipper(),
-                  child: Container(
-                    height: 170,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        const Spacer(),
-                        Image.asset(
-                          "assets/icons/leaf.png",
-                          height: 35,
-                          width: 35,
-                        )
-                      ],
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Text(
+                    "Crop Updates",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-          ),
-
-          // Scrollable Cards List
-          Padding(
-            padding: const EdgeInsets.only(top: 180), // Avoid overlapping ArcClipper
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 70), // To avoid overlap with button
-              child: Column(
-                children: <Widget>[
-                  
-                  _buildCard("2023/04/01", "Land Preparation is Done."),
-                  const SizedBox(height: 10),
-                  _buildCard("2023/04/20", "Fertilization is Done."),
-                  const SizedBox(height: 10),
-                ],
               ),
             ),
           ),
-          
-              
-          Positioned(    //it is used to fixed button in one place at all time
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "/newcropupdate");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  "+ New Update",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _cropUpdates.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "No crop updates available",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Image.asset(
+                              "assets/images/image5.png",
+                              height: 250,
+                              width: 250,
+                            ),
+                          ],
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ..._cropUpdates.map((update) => _buildCropUpdateCard(
+                                  update['addDate'],
+                                  update['description'],
+                                  update['_id'],
+                                )),
+                            const SizedBox(height: 20),
+                            Image.asset(
+                              "assets/images/image5.png",
+                              height: 250,
+                              width: 250,
+                            ),
+                            const SizedBox(height: 80),
+                          ],
+                        ),
+                      ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String date, String description) {
+  Widget _buildCropUpdateCard(String date, String description, String id) {
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: const BorderSide(
-            color: Color.fromRGBO(87, 164, 91, 0.8), width: 2),
+          color: Color.fromRGBO(87, 164, 91, 0.8),
+          width: 2,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align text to left
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,18 +222,16 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => _showDeleteConfirmationDialog(id),
                   icon: const Icon(
                     Icons.delete,
-                    color: Color.fromRGBO(87, 164, 91, 0.8),
+                    color: Colors.red,
                     size: 20,
                   ),
                 ),
                 const SizedBox(width: 15),
                 IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/addCultivational");
-                  },
+                  onPressed: () => _navigateToEditScreen(id),
                   icon: const Icon(
                     Icons.edit,
                     color: Color.fromRGBO(87, 164, 91, 0.8),
@@ -160,5 +244,47 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _showDeleteConfirmationDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm Delete", style: GoogleFonts.poppins(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        )),
+        content: Text("Are you sure you want to delete this crop update?", 
+          style: GoogleFonts.poppins(color: Colors.black)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: GoogleFonts.poppins(
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+            )),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteCropUpdate(id);
+            },
+            child: Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _navigateToEditScreen(String id) async {
+    final updateToEdit = _cropUpdates.firstWhere((update) => update['_id'] == id);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NewUpdateForm(existingData: updateToEdit),
+      ),
+    );
+    if (result == true) {
+      _fetchCropUpdates();
+    }
   }
 }

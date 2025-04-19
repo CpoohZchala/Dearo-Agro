@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:farmeragriapp/screens/forms/addCultivational.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +18,9 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
   final Dio _dio = Dio();
   List<dynamic> _data = [];
   bool _isLoading = true;
+  // ignore: unused_field
   String? _errorMessage;
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -26,69 +29,82 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
   }
 
   Future<void> _fetchData() async {
-  try {
-    final userId = await storage.read(key: "userId");
-
-    if (userId == null) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "User not logged in or ID not found.";
-      });
-      return;
-    }
-
-    final url = "http://192.168.8.125:5000/api/fetch/$userId";
-    final response = await _dio.get(url);
-
-    if (response.statusCode == 200) {
-      if (response.data != null && response.data is List) {
+    try {
+      final userId = await storage.read(key: "userId");
+      if (userId == null) {
         setState(() {
-          _data = response.data;
+          _isLoading = false;
+          _errorMessage = "User not logged in";
+        });
+        return;
+      }
+
+      final response =
+          await _dio.get("http://192.168.8.125:5000/api/fetch/$userId");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _data = response.data is List ? response.data : [];
           _isLoading = false;
           _errorMessage = null;
         });
       } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = "Invalid data format received";
-        });
+        throw Exception("Failed to load data");
       }
-    } else {
+    } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = "Server error: ${response.statusCode}";
+        _errorMessage = "Error: ${e.toString()}";
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to fetch data")),
+      );
     }
-  } catch (e) {
-    setState(() {
-      _isLoading = false;
-      _errorMessage = "Failed to fetch data: ${e.toString()}";
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Failed to fetch data"),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
 
+  Future<void> _deleteCultivation(String id) async {
+    try {
+      // Optimistically remove the item from local state
+      final itemToRemove = _data.firstWhere((item) => item['_id'] == id);
+      setState(() {
+        _data.removeWhere((item) => item['_id'] == id);
+      });
+
+      final response =
+          await _dio.delete("http://192.168.8.125:5000/api/delete/$id");
+
+      if (response.statusCode != 200) {
+        // If deletion fails on server, add the item back
+        setState(() {
+          _data.add(itemToRemove);
+        });
+        throw Exception("Server deletion failed");
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.data["message"])),
+      );
+
+      // Optional: Refresh from server to confirm
+      await _fetchData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete: ${e.toString()}")),
+      );
+    }
+  }
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return "Not specified";
-    
     try {
       return DateFormat('yyyy/MM/dd').format(DateTime.parse(dateString));
     } catch (e) {
-      return dateString; // Return raw string if parsing fails
+      return dateString;
     }
   }
 
   Future<void> _handleRefresh() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
     await _fetchData();
   }
 
@@ -96,239 +112,254 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _errorMessage != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _errorMessage!,
-                            style: GoogleFonts.poppins(
-                              color: Colors.red,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _fetchData,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                            ),
-                            child: Text(
-                              "Retry",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+      body: Column(
+        children: [
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Text(
+                    "Cultivation Details",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  )
-                : _data.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "No cultivation data available",
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: _fetchData,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                              ),
-                              child: Text(
-                                "Refresh",
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: _handleRefresh,
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _data.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "No cultivation data available",
                                 style: GoogleFonts.poppins(
-                                  color: Colors.white,
+                                  fontSize: 16,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          children: [
-                            ClipPath(
-                              clipper: ArcClipper(),
-                              child: Container(
-                                height: 190,
-                                color: const Color.fromRGBO(87, 164, 91, 0.8),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 40),
-                                    child: Text(
-                                      "Cultivation Details",
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            
-                            // Display cultivation cards
-                            ..._data.map((cultivation) {
-                              final memberId = cultivation['memberId']?.toString() ?? 'N/A';
-                              final cropCategory = cultivation['cropCategory']?.toString() ?? cultivation['category']?.toString() ?? 'N/A';
-                              final cropName = cultivation['cropName']?.toString() ?? cultivation['crop']?.toString() ?? 'N/A';
-                              final district = cultivation['district']?.toString() ?? 'N/A';
-                              final city = cultivation['city']?.toString() ?? 'N/A';
-                              final startDate = _formatDate(cultivation['startDate']?.toString());
+                              const SizedBox(height: 20),
+                              Image.asset("assets/images/image3.png")
+                            ],
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              ..._data.map((cultivation) {
+                                final id = cultivation['_id'];
+                                final memberId =
+                                    cultivation['memberId']?.toString() ??
+                                        'N/A';
+                                final cropCategory =
+                                    cultivation['cropCategory'] ??
+                                        cultivation['category'] ??
+                                        'N/A';
+                                final cropName = cultivation['cropName'] ??
+                                    cultivation['crop'] ??
+                                    'N/A';
+                                final district =
+                                    cultivation['district'] ?? 'N/A';
+                                final city = cultivation['city'] ?? 'N/A';
+                                final startDate = _formatDate(
+                                    cultivation['startDate']?.toString());
 
-                              return Card(
-                                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: const BorderSide(
-                                    color: Color.fromRGBO(87, 164, 91, 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Member ID: $memberId",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        "Category: $cropCategory",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        "Crop: $cropName",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        "Location: $district, $city",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        "Start Date: $startDate",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      const Divider(height: 1, color: Colors.grey),
-                                      const SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              // Add delete functionality
-                                            },
-                                            icon: const Icon(
-                                              Icons.delete_outline,
-                                              color: Colors.red,
-                                              size: 24,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.pushNamed(
-                                                context,
-                                                "/addCultivational",
-                                                arguments: cultivation,
-                                              ).then((_) => _fetchData());
-                                            },
-                                            icon: const Icon(
-                                              Icons.edit_outlined,
-                                              color: Color.fromRGBO(87, 164, 91, 0.8),
-                                              size: 24,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-
-                            const SizedBox(height: 20),
-                            Image.asset(
-                              "assets/images/image3.png",
-                              height: 200,
-                              width: 200,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 20),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, "/addCultivational")
-                                      .then((_) => _fetchData());
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                                  minimumSize: const Size(double.infinity, 50),
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 8),
+                                  elevation: 3,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
+                                    side: const BorderSide(
+                                      color: Color.fromRGBO(87, 164, 91, 0.3),
+                                      width: 1,
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  "+ Add New Cultivation",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Member ID: $memberId",
+                                              style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          "Category: $cropCategory",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Crop: $cropName",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Location: $district, $city",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Start Date: $startDate",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        const Divider(
+                                            height: 1, color: Colors.grey),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                    title: Text(
+                                                        "Confirm Delete",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .black,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold)),
+                                                    content: Text(
+                                                        "Are you sure you want to delete this cultivation?",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .black)),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                context),
+                                                        child: Text("Cancel",
+                                                            style: GoogleFonts
+                                                                .poppins(
+                                                                    color: const Color
+                                                                        .fromRGBO(
+                                                                        87,
+                                                                        164,
+                                                                        91,
+                                                                        0.8))),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          _deleteCultivation(
+                                                              id);
+                                                        },
+                                                        child: Text("Delete",
+                                                            style: GoogleFonts
+                                                                .poppins(
+                                                                    color: Colors
+                                                                        .red)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                                size: 24,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            IconButton(
+                                              onPressed: () async {
+                                                final result =
+                                                    await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CultivationalAddScreen(
+                                                      existingData: cultivation,
+                                                    ),
+                                                  ),
+                                                );
+                                                if (result == true)
+                                                  _fetchData();
+                                              },
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                color: Color.fromRGBO(
+                                                    87, 164, 91, 0.8),
+                                                size: 24,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-                          ],
+                                );
+                              }).toList(),
+                              const SizedBox(height: 10),
+                              Image.asset("assets/images/image3.png",
+                                  height: 200, width: 200)
+                            ],
+                          ),
                         ),
-                      ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const CultivationalAddScreen()),
+          );
+          if (result == true) _fetchData();
+        },
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
