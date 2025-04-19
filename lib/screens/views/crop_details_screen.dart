@@ -17,6 +17,7 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
   final _storage = const FlutterSecureStorage();
   List<dynamic> _cropUpdates = [];
   bool _isLoading = true;
+  // ignore: unused_field
   String? _errorMessage;
 
   @override

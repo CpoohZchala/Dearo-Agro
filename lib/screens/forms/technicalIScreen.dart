@@ -14,8 +14,11 @@ class TechnicalIScreen extends StatefulWidget {
 }
 
 class _TechnicalIScreenState extends State<TechnicalIScreen> {
+  // ignore: unused_field
   DateTime? _selectedDate;
+  // ignore: unused_field
   File? _selectedImage;
+  // ignore: unused_field
   File? _selectedDocument;
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();

@@ -48,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Pick image from gallery
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -57,16 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _imageFile = selected;
       });
 
-      // Convert to base64 string
       final bytes = await selected.readAsBytes();
       String base64Image = base64Encode(bytes);
 
-      // Update profile image
       await updateProfileImage(base64Image);
     }
   }
 
-// This method ONLY updates profile image
   Future<void> updateProfileImage(String profileImage) async {
     final url = Uri.parse("$apiUrl/${widget.userId}");
     final body = jsonEncode({'profileImage': profileImage});

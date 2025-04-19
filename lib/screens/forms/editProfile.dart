@@ -6,7 +6,7 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   final String userId;
-  const UpdateProfileScreen({required this.userId});
+  const UpdateProfileScreen({super.key, required this.userId});
 
   @override
   _UpdateProfileScreenState createState() => _UpdateProfileScreenState();

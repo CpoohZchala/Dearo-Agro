@@ -18,6 +18,7 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
   final Dio _dio = Dio();
   List<dynamic> _data = [];
   bool _isLoading = true;
+  // ignore: unused_field
   String? _errorMessage;
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 

@@ -14,8 +14,11 @@ class FinancialIscreen extends StatefulWidget {
 }
 
 class _FinancialIscreenState extends State<FinancialIscreen> {
+  // ignore: unused_field
   DateTime? _selectedDate;
+  // ignore: unused_field
   File? _selectedImage;
+  // ignore: unused_field
   File? _selectedDocument;
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();

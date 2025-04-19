@@ -14,13 +14,16 @@ class CommiunityIscreen extends StatefulWidget {
 }
 
 class _GeneralIScreenState extends State<CommiunityIscreen> {
+  // ignore: unused_field
   DateTime? _selectedDate;
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _documentController = TextEditingController();
 
+  // ignore: unused_field
   File? _selectedImage;
+  // ignore: unused_field
   File? _selectedDocument;
 
   Future<void> _pickDate() async {
