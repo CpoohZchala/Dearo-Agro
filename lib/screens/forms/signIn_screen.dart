@@ -178,7 +178,7 @@ class _SignInScreenState extends State<SignInScreen> {
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -205,7 +205,7 @@ class _SignInScreenState extends State<SignInScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

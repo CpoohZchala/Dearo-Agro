@@ -15,8 +15,7 @@ void showSuccessDialog(BuildContext context) {
               size: 50,
             ),
             const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.topCenter,
+            Center(
               child: Text(
                 "User registration successful!",
                 style: GoogleFonts.poppins(

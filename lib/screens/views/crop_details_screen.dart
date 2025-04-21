@@ -62,13 +62,13 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
   Future<void> _deleteCropUpdate(String id) async {
   try {
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true; 
     });
     
     final response = await _dio.delete("http://192.168.8.125:5000/api/cropdelete/$id");
     
     if (response.statusCode == 200) {
-      // Remove the item from local state immediately
+      
       setState(() {
         _cropUpdates.removeWhere((update) => update['_id'] == id);
         _isLoading = false;

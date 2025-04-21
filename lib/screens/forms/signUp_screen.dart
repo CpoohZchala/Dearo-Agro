@@ -110,7 +110,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       value: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: "Sign-up Category",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15),
+                        labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -199,7 +199,7 @@ class _SignupScreenState extends State<SignupScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -226,7 +226,7 @@ class _SignupScreenState extends State<SignupScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15),
+          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

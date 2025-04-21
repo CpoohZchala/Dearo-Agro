@@ -4,6 +4,7 @@ import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
 import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/general_inq_crud.dart';
 import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
+import 'package:farmeragriapp/screens/forms/technical_inq_crud.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
@@ -51,6 +52,8 @@ class MyApp extends StatelessWidget {
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
         "/myGeneral": (context) => const GeneralInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
+        "/myTechnical": (context) => const TechnicalInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
+
          
 
       },
