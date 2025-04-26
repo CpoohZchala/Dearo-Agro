@@ -62,6 +62,8 @@ class _GeneralIScreenState extends State<GeneralIScreen> {
       setState(() {
         _selectedDocument = File(result.files.single.path!);
         _documentController.text = result.files.single.name;
+        print('Picked file name: ${result.files.single.name}'); 
+
       });
     }
   }

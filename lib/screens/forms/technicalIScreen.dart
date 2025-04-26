@@ -16,7 +16,6 @@ class TechnicalIScreen extends StatefulWidget {
 }
 
 class _TechnicalIScreenState extends State<TechnicalIScreen> {
-  // ignore: unused_field
   DateTime? _selectedDate;
   File? _selectedImage;
   File? _selectedDocument;
@@ -29,7 +28,7 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
   bool _isLoading = false;
 
   Future<void> _pickDate() async {
-    DateTime? pickedDate = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
@@ -49,10 +48,10 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
     try {
       final pickedFile = await ImagePicker().pickImage(
         source: ImageSource.gallery,
-        imageQuality: 70, 
-        maxWidth: 800,   
+        imageQuality: 70,
+        maxWidth: 800,
       );
-      
+
       if (pickedFile != null) {
         final file = File(pickedFile.path);
         if (await file.exists()) {
@@ -60,24 +59,20 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
             _selectedImage = file;
             _imageController.text = path.basename(pickedFile.path);
           });
-        } else {
-          throw Exception('Selected image file does not exist');
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Image picker error: ${e.toString()}')),
-      );
+      _showSnackBar('Image picker error: ${e.toString()}');
     }
   }
 
   Future<void> _pickDocument() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx'],
       );
-      
+
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
         if (await file.exists()) {
@@ -85,14 +80,10 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
             _selectedDocument = file;
             _documentController.text = result.files.single.name;
           });
-        } else {
-          throw Exception('Selected document file does not exist');
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Document picker error: ${e.toString()}')),
-      );
+      _showSnackBar('Document picker error: ${e.toString()}');
     }
   }
 
@@ -100,58 +91,51 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
     if (_titleController.text.isEmpty ||
         _descriptionController.text.isEmpty ||
         _dateController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
+      _showSnackBar('Please fill all required fields');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/tinquiry'))
-        ..fields['title'] = _titleController.text
-        ..fields['description'] = _descriptionController.text
-        ..fields['date'] = _dateController.text;
+      final request =
+          http.MultipartRequest('POST', Uri.parse('$_baseUrl/tinquiry'))
+            ..fields['title'] = _titleController.text
+            ..fields['description'] = _descriptionController.text
+            ..fields['date'] = _dateController.text;
 
-      // Add image if selected
       if (_selectedImage != null && await _selectedImage!.exists()) {
         request.files.add(
           await http.MultipartFile.fromPath(
-            'imagePath',  // Make sure this matches your API endpoint expectation
+            'imagePath',
             _selectedImage!.path,
             filename: path.basename(_selectedImage!.path),
           ),
         );
       }
 
-      // Add document if selected
       if (_selectedDocument != null && await _selectedDocument!.exists()) {
         request.files.add(
           await http.MultipartFile.fromPath(
-            'documentPath',  // Make sure this matches your API endpoint expectation
+            'documentPath',
             _selectedDocument!.path,
             filename: path.basename(_selectedDocument!.path),
           ),
         );
       }
 
-      var response = await request.send();
+      final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inquiry submitted successfully')),
-        );
+        _showSnackBar('Inquiry submitted successfully');
         _resetForm();
       } else {
         final errorData = json.decode(responseBody);
         throw Exception(errorData['message'] ?? 'Unknown server error');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Submission error: ${e.toString()}')),
-      );
+      _showSnackBar('Submission error: ${e.toString()}');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -170,6 +154,12 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
     });
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -177,45 +167,7 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              children: [
-                ClipPath(
-                  clipper: ArcClipper(),
-                  child: Container(
-                    height: 190,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 10,
-                  child: IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 50,
-                  child: Text(
-                    "Technical Support Inquiry",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  right: 20,
-                  child: IconButton(
-                    onPressed: () => Navigator.pushNamed(context, "/myTechnical"),
-                    icon: const Icon(Icons.collections_bookmark, color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
+            _buildHeader(),
             const SizedBox(height: 10),
             Image.asset(
               "assets/images/general.png",
@@ -225,108 +177,170 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: InputDecoration(
-                      labelText: "Title",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _descriptionController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      labelText: "Description",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _dateController,
-                    decoration: InputDecoration(
-                      labelText: "Date",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14),
-                      suffixIcon: IconButton(
-                        onPressed: _pickDate,
-                        icon: const Icon(Icons.calendar_month,
-                            color: Color.fromRGBO(87, 164, 91, 0.8)),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _imageController,
-                    decoration: InputDecoration(
-                      labelText: "Upload Image (optional)",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14),
-                      suffixIcon: IconButton(
-                        onPressed: _pickImage,
-                        icon: const Icon(Icons.image,
-                            color: Color.fromRGBO(87, 164, 91, 0.8)),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _documentController,
-                    decoration: InputDecoration(
-                      labelText: "Upload Document (optional)",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14),
-                      suffixIcon: IconButton(
-                        onPressed: _pickDocument,
-                        icon: const Icon(Icons.attach_file,
-                            color: Color.fromRGBO(87, 164, 91, 0.8)),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: _isLoading ? null : _submitInquiry,
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            "Submit",
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                ],
-              ),
+              child: _buildForm(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Stack(
+      children: [
+        ClipPath(
+          clipper: ArcClipper(),
+          child: Container(
+            height: 190,
+            color: const Color.fromRGBO(87, 164, 91, 0.8),
+          ),
+        ),
+        Positioned(
+          top: 30,
+          left: 10,
+          child: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          ),
+        ),
+        Positioned(
+          top: 40,
+          left: 50,
+          child: Text(
+            "Technical Support Inquiry",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Positioned(
+          top: 30,
+          right: 20,
+          child: IconButton(
+            onPressed: () => Navigator.pushNamed(context, "/myTechnical"),
+            icon: const Icon(Icons.collections_bookmark, color: Colors.black),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildForm() {
+    return Column(
+      children: [
+        _buildTextField(_titleController, "Title"),
+        const SizedBox(height: 10),
+        _buildTextField(_descriptionController, "Description", maxLines: 2),
+        const SizedBox(height: 10),
+        _buildDateField(),
+        const SizedBox(height: 10),
+        _buildFileField(_imageController, "Upload Image (optional)",
+            Icons.image, _pickImage),
+        const SizedBox(height: 10),
+        _buildFileField(_documentController, "Upload Document (optional)",
+            Icons.attach_file, _pickDocument),
+        const SizedBox(height: 20),
+        _buildSubmitButton(),
+      ],
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      {int maxLines = 1}) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(87, 164, 91, 0.8),
+            width: 2,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateField() {
+    return TextFormField(
+      controller: _dateController,
+      decoration: InputDecoration(
+        labelText: "Date",
+        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        suffixIcon: IconButton(
+          onPressed: _pickDate,
+          icon: const Icon(Icons.calendar_month,
+              color: Color.fromRGBO(87, 164, 91, 0.8)),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(87, 164, 91, 0.8),
+            width: 2,
+          ),
+        ),
+      ),
+      readOnly: true,
+    );
+  }
+
+  Widget _buildFileField(TextEditingController controller, String label,
+      IconData icon, VoidCallback onPressed) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        suffixIcon: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, color: const Color.fromRGBO(87, 164, 91, 0.8)),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(87, 164, 91, 0.8),
+            width: 2,
+          ),
+        ),
+      ),
+      readOnly: true,
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onPressed: _isLoading ? null : _submitInquiry,
+      child: _isLoading
+          ? const CircularProgressIndicator(color: Colors.white)
+          : Text(
+              "Submit",
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
     );
   }
 }

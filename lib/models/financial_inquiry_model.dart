@@ -1,4 +1,4 @@
-class GeneralInquiry {
+class FinancialInquiry {
   final String id;
   final String title;
   final String description;
@@ -7,7 +7,7 @@ class GeneralInquiry {
   final String? documentPath;
   final String? status;
 
-  GeneralInquiry({
+  FinancialInquiry({
     required this.id,
     required this.title,
     required this.description,
@@ -17,8 +17,8 @@ class GeneralInquiry {
     this.status,
   });
 
-  factory GeneralInquiry.fromJson(Map<String, dynamic> json) {
-    return GeneralInquiry(
+  factory FinancialInquiry.fromJson(Map<String, dynamic> json) {
+    return FinancialInquiry(
       id: json['_id'] ?? json['id'],
       title: json['title'],
       description: json['description'],

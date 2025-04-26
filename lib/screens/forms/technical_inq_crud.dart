@@ -31,7 +31,7 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
       final inquiries = await _tapi.getInquiries();
       setState(() => _inquiries = inquiries);
     } catch (e) {
-      _showErrorSnackbar('Error loading inquiries: ${e.toString()}');
+      _showSnackBar('Error loading inquiries: ${e.toString()}', isError: true);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -41,10 +41,10 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
     setState(() => _isLoading = true);
     try {
       await _tapi.deleteInquiry(id);
-      _showSuccessSnackbar('Inquiry deleted successfully');
+      _showSnackBar('Inquiry deleted successfully');
       _loadInquiries();
     } catch (e) {
-      _showErrorSnackbar('Failed to delete inquiry');
+      _showSnackBar('Failed to delete inquiry', isError: true);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -63,21 +63,111 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
     );
   }
 
-  void _showSuccessSnackbar(String message) {
+  void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: isError ? Colors.red : Colors.green,
       ),
     );
   }
 
-  void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          SliverToBoxAdapter(
+            child: _isLoading && _inquiries.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _loadInquiries,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 16),
+                          _buildInquiryList(),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+        ],
       ),
+    );
+  }
+
+  SliverAppBar _buildAppBar() {
+    return SliverAppBar(
+      expandedHeight: 150,
+      flexibleSpace: Stack(
+        children: [
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+            ),
+          ),
+          Positioned(
+            top: 30,
+            left: 16, 
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'My Technical Inquiries',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      pinned: true,
+      elevation: 0,
+      automaticallyImplyLeading: false, 
+    );
+  }
+
+  Widget _buildInquiryList() {
+    if (_inquiries.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'No inquiries found',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _inquiries.length,
+      itemBuilder: (context, index) => _buildInquiryCard(_inquiries[index]),
     );
   }
 
@@ -191,102 +281,6 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
         return Colors.blue;
     }
   }
-
-  Widget _buildInquiryList() {
-    if (_inquiries.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'No inquiries found',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _inquiries.length,
-      itemBuilder: (context, index) => _buildInquiryCard(_inquiries[index]),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 150,
-            flexibleSpace: Stack(
-              children: [
-                ClipPath(
-                  clipper: ArcClipper(),
-                  child: Container(
-                    height: 190,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 16, 
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Text(
-                      'My Technical Inquiries',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            pinned: true,
-            elevation: 0,
-            automaticallyImplyLeading: false, 
-          ),
-          SliverToBoxAdapter(
-            child: _isLoading && _inquiries.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: _loadInquiries,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          _buildInquiryList(),
-                        ],
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class EditInquiryScreen extends StatefulWidget {
@@ -356,54 +350,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            expandedHeight: 150,
-            flexibleSpace: Stack(
-              children: [
-                ClipPath(
-                  clipper: ArcClipper(),
-                  child: Container(
-                    height: 190,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 16,  
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Text(
-                      'Edit Inquiry',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  right: 16,
-                  child: IconButton(
-                    icon: const Icon(Icons.save, color: Colors.white),
-                    onPressed: _isLoading ? null : _updateInquiry,
-                  ),
-                ),
-              ],
-            ),
-            pinned: true,
-            elevation: 0,
-            automaticallyImplyLeading: false, 
-          ),
+          _buildAppBar(),
           SliverToBoxAdapter(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -411,53 +358,103 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        TextFormField(
-                          controller: _titleController,
-                          decoration: InputDecoration(
-                            labelText: "Title",
-                            labelStyle: GoogleFonts.poppins(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
+                        _buildTextField(_titleController, "Title"),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _descriptionController,
-                          maxLines: 5,
-                          decoration: InputDecoration(
-                            labelText: "Description",
-                            labelStyle: GoogleFonts.poppins(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
+                        _buildTextField(_descriptionController, "Description", maxLines: 5),
                         const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: _updateInquiry,
-                            child: Text(
-                              'Save Changes',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildSaveButton(),
                       ],
                     ),
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  SliverAppBar _buildAppBar() {
+    return SliverAppBar(
+      expandedHeight: 150,
+      flexibleSpace: Stack(
+        children: [
+          ClipPath(
+            clipper: ArcClipper(),
+            child: Container(
+              height: 190,
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
+            ),
+          ),
+          Positioned(
+            top: 30,
+            left: 16,  
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'Edit Inquiry',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.save, color: Colors.white),
+              onPressed: _isLoading ? null : _updateInquiry,
+            ),
+          ),
+        ],
+      ),
+      pinned: true,
+      elevation: 0,
+      automaticallyImplyLeading: false, 
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1}) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onPressed: _updateInquiry,
+        child: Text(
+          'Save Changes',
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
