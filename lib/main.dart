@@ -25,8 +25,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,9 +51,6 @@ class MyApp extends StatelessWidget {
         "/technical": (context) => const TechnicalIScreen(),
         "/myGeneral": (context) => const GeneralInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
         "/myTechnical": (context) => const TechnicalInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
-
-         
-
       },
     );
   }

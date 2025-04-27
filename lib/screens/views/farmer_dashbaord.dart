@@ -39,7 +39,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
       const FarmerHome(),
       const NotificationScreen(),
       const CropCalenderScreen(),
-      ProfileScreen(userId: widget.userId),
+      ProfileScreen(userId: widget.userId, userType:"Farmer",),
     ];
 
     return Scaffold(

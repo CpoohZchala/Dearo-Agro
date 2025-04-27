@@ -27,11 +27,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   bool _isLoading = false;
   String _responseMessage = '';
 
+  // Modify updateProfile to include userType in the GET request
   Future<void> updateProfile() async {
-    if (!_formKey.currentState!.validate() || _selectedCategory == null) {
-      setState(() {
-        _responseMessage = "Please fill all fields.";
-      });
+    if (_nameController.text.trim().isEmpty &&
+        _mobileController.text.trim().isEmpty &&
+        _selectedCategory == null) {
+      setState(() => _responseMessage = "Please fill at least one field.");
       return;
     }
 
@@ -40,27 +41,56 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       _responseMessage = '';
     });
 
-    final url =
-        Uri.parse('http://192.168.8.125:5000/api/users/${widget.userId}');
-    final body = json.encode({
-      'fullName': _nameController.text.trim(),
-      'userType': _selectedCategory,
-      'mobileNumber': _mobileController.text.trim(),
-    });
-
     try {
+      // Fetch current user type
+      final userResponse = await http.get(Uri.parse(
+          'http://192.168.8.125:5000/api/users/Farmer/${widget.userId}'));
+
+      if (userResponse.statusCode != 200) {
+        print("Failed to fetch user info: ${userResponse.body}");
+        throw Exception("Failed to get user info");
+      }
+
+      final userData = jsonDecode(userResponse.body);
+      final currentUserType = userData['userType'];
+      if (currentUserType == null) {
+        throw Exception("User type is null or invalid");
+      }
+
+      final newUserType = _selectedCategory ?? currentUserType;
+
+      final url = Uri.parse(
+          'http://192.168.8.125:5000/api/users/$currentUserType/${widget.userId}');
+      final body = json.encode({
+        if (_nameController.text.trim().isNotEmpty)
+          'fullName': _nameController.text.trim(),
+        if (_selectedCategory != null) 'userType': newUserType,
+        if (_mobileController.text.trim().isNotEmpty)
+          'mobileNumber': _mobileController.text.trim(),
+      });
+
       final response = await http.put(
         url,
         headers: {'Content-Type': 'application/json'},
         body: body,
       );
 
+      print("API Response Code: ${response.statusCode}");
+      print("API Response Body: ${response.body}");
+
       if (response.statusCode == 200) {
+        if (currentUserType != newUserType) {
+          print("User type changed from $currentUserType to $newUserType");
+          // Handle user type change if needed
+        }
         setState(() => _responseMessage = '✅ Profile updated successfully!');
       } else {
-        setState(() => _responseMessage = '❌ Update failed. Try again.');
+        final errorData = jsonDecode(response.body);
+        setState(() => _responseMessage =
+            '❌ Update failed: ${errorData['message'] ?? 'Unknown error'}');
       }
     } catch (error) {
+      print("Error during profile update: $error");
       setState(() => _responseMessage = '❗ Error: $error');
     } finally {
       setState(() => _isLoading = false);
@@ -78,7 +108,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
         title: Text(
           "Edit Profile",
-          style: GoogleFonts.poppins(color: Colors.black,fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(
+              color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),

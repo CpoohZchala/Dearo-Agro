@@ -13,7 +13,10 @@ import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
-  const ProfileScreen({super.key, required this.userId});
+  final String userType;
+
+  const ProfileScreen(
+      {super.key, required this.userId, required this.userType});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -30,21 +33,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    print(
+        "ProfileScreen initialized with userId: ${widget.userId}, userType: ${widget.userType}");
     fetchUserProfile();
   }
 
   // Show user profile
   Future<void> fetchUserProfile() async {
-    final response = await http.get(Uri.parse("$apiUrl/${widget.userId}"));
-    if (response.statusCode == 200) {
+    try {
+      print(
+          "Fetching user info for userId: ${widget.userId}, userType: ${widget.userType}");
+
+      final response = await http
+          .get(Uri.parse("$apiUrl/${widget.userType}/${widget.userId}"));
+
+      if (response.statusCode == 404) {
+        setState(() {
+          userName = "User not found";
+          role = "Unknown";
+        });
+        return;
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            "Failed to load user info. Code: ${response.statusCode}");
+      }
+
       final data = jsonDecode(response.body);
       setState(() {
-        userName = data['fullName'];
-        role = data['userType'];
+        userName = data['fullName'] ?? "No Name";
+        role = data['userType'] ?? "Unknown";
         profileImage = data['profileImage'] ?? "";
       });
-    } else {
-      print("Failed to load user profile. Code: ${response.statusCode}");
+      print(
+          "Updated state: userName=$userName, role=$role, profileImage=$profileImage");
+    } catch (e) {
+      print("Error fetching profile: $e");
+      setState(() {
+        userName = "Error loading profile";
+        role = "Unknown";
+      });
     }
   }
 
@@ -63,35 +92,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Update updateProfileImage to include userType
   Future<void> updateProfileImage(String profileImage) async {
-    final url = Uri.parse("$apiUrl/${widget.userId}");
-    final body = jsonEncode({'profileImage': profileImage});
-
     try {
+      final userResponse =
+          await http.get(Uri.parse("$apiUrl/${widget.userId}"));
+      if (userResponse.statusCode != 200) {
+        throw Exception("Failed to get user type");
+      }
+
+      final userData = jsonDecode(userResponse.body);
+      final userType = userData['userType'];
+
+      final url = Uri.parse("$apiUrl/$userType/${widget.userId}");
+      final body = jsonEncode({'profileImage': profileImage});
+
       final response = await http.put(
         url,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
         body: body,
       );
 
       if (response.statusCode == 200) {
         await fetchUserProfile();
-        setState(() {
-          _imageFile = null;
-        });
+        setState(() => _imageFile = null);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profile image updated")),
         );
       } else {
-        print("Error response: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Failed to update image")),
         );
       }
     } catch (e) {
-      print("Error updating image: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Something went wrong")),
       );
@@ -230,8 +263,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ChangePasswordScreen(userId: widget.userId),
+                          builder: (context) => ChangePasswordScreen(
+                            userId: widget.userId,
+                            userType: '',
+                          ),
                         ),
                       );
                     },

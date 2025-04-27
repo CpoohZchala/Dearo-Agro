@@ -20,11 +20,20 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController passwordController = TextEditingController();
   final storage = const FlutterSecureStorage();
   bool _isPasswordVisible = false;
+  String? _selectedUserType;
+
+  final List<String> _userTypes = [
+    "Farmer",
+    "Marketing Officer",
+  ];
 
   Future<void> signIn() async {
-    if (mobileController.text.isEmpty || passwordController.text.isEmpty) {
+    if (mobileController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        _selectedUserType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
+        const SnackBar(
+            content: Text("Please fill all fields and select a user type")),
       );
       return;
     }
@@ -32,6 +41,7 @@ class _SignInScreenState extends State<SignInScreen> {
     User user = User(
       mobileNumber: mobileController.text,
       password: passwordController.text,
+      userType: _selectedUserType!,
     );
 
     try {
@@ -54,11 +64,11 @@ class _SignInScreenState extends State<SignInScreen> {
               showWelcomeDialog(context, userId);
             } else if (userType == 'Marketing Officer') {
               Navigator.pushNamed(context, "/marketingOfficerDashboard");
-            } else if (userType == 'Super Admin') {
-              Navigator.pushNamed(context, "/adminDashboard");
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Unknown user role: $userType")),
+                const SnackBar(
+                    content: Text(
+                        "Access restricted to Farmers and Marketing Officers only")),
               );
             }
           }
@@ -119,6 +129,42 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(height: 20),
                   _buildTextField(mobileController, "Mobile Number"),
                   _buildPasswordField(passwordController, "Password"),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: _selectedUserType,
+                    decoration: InputDecoration(
+                      labelText: "Select User Type",
+                      labelStyle: GoogleFonts.poppins(
+                        fontSize: 15,
+                        color: const Color.fromRGBO(87, 164, 91, 0.8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    items: _userTypes.map((String userType) {
+                      return DropdownMenuItem<String>(
+                        value: userType,
+                        child: Text(userType,
+                            style: GoogleFonts.poppins(fontSize: 15)),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedUserType = newValue;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: isWide ? 400 : double.infinity,
@@ -178,7 +224,8 @@ class _SignInScreenState extends State<SignInScreen> {
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+          labelStyle: GoogleFonts.poppins(
+              fontSize: 15, color: const Color.fromRGBO(87, 164, 91, 0.8)),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -205,7 +252,8 @@ class _SignInScreenState extends State<SignInScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+          labelStyle: GoogleFonts.poppins(
+              fontSize: 15, color: const Color.fromRGBO(87, 164, 91, 0.8)),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {
