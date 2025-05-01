@@ -33,7 +33,7 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
       }
 
       final response =
-          await _dio.get("http://192.168.8.125:5000/api/efetch/$userId");
+          await _dio.get("https://dearoagro-backend.onrender.com/api/efetch/$userId");
 
       if (response.statusCode == 200) {
         setState(() {

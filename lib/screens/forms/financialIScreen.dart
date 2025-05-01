@@ -25,7 +25,7 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _documentController = TextEditingController();
-  final String _baseUrl = "http://192.168.8.125:5000/api";
+  final String _baseUrl = "https://dearoagro-backend.onrender.com/api";
   bool _isLoading = false;
 
   Future<void> _pickDate() async {

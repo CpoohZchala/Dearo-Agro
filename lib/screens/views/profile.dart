@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String profileImage = "";
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-  final String apiUrl = "http://192.168.8.125:5000/api/users";
+  final String apiUrl = "https://dearoagro-backend.onrender.com/api/users";
 
   @override
   void initState() {

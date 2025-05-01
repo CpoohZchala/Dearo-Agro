@@ -44,7 +44,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     try {
       // Fetch current user type
       final userResponse = await http.get(Uri.parse(
-          'http://192.168.8.125:5000/api/users/Farmer/${widget.userId}'));
+          'https://dearoagro-backend.onrender.com/api/users/Farmer/${widget.userId}'));
 
       if (userResponse.statusCode != 200) {
         print("Failed to fetch user info: ${userResponse.body}");
@@ -60,7 +60,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       final newUserType = _selectedCategory ?? currentUserType;
 
       final url = Uri.parse(
-          'http://192.168.8.125:5000/api/users/$currentUserType/${widget.userId}');
+          'https://dearoagro-backend.onrender.com/api/users/$currentUserType/${widget.userId}');
       final body = json.encode({
         if (_nameController.text.trim().isNotEmpty)
           'fullName': _nameController.text.trim(),

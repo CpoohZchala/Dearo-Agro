@@ -17,8 +17,8 @@ class CropUpdateApi {
     update.memberId = userId;
 
     final url = isUpdate
-        ? "http://192.168.8.125:5000/api/cropupdate"
-        : "http://192.168.8.125:5000/api/cropsubmit";
+        ? "https://dearoagro-backend.onrender.com/api/cropupdate"
+        : "https://dearoagro-backend.onrender.com/api/cropsubmit";
 
     final response = isUpdate
         ? await _dio.put(url, data: update.toJson())

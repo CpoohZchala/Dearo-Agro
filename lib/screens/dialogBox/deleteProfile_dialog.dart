@@ -55,7 +55,7 @@ Future<void> deleteUserProfile(BuildContext context, String userId) async {
 
     // Fetch user type dynamically
     final userResponse = await http
-        .get(Uri.parse("http://192.168.8.125:5000/api/users/Farmer/$userId"));
+        .get(Uri.parse("https://dearoagro-backend.onrender.com/api/users/Farmer/$userId"));
 
     if (userResponse.statusCode != 200) {
       print("Failed to fetch user info: ${userResponse.body}");
@@ -71,7 +71,7 @@ Future<void> deleteUserProfile(BuildContext context, String userId) async {
 
     // Delete user profile
     final response = await http.delete(
-        Uri.parse("http://192.168.8.125:5000/api/users/$userType/$userId"));
+        Uri.parse("https://dearoagro-backend.onrender.com/api/users/$userType/$userId"));
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(

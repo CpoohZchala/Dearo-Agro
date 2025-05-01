@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class AuthApi {
-  static const String baseUrl = 'http://192.168.8.125:5000/api/auth';
+  static const String baseUrl = 'https://dearoagro-backend.onrender.com/api/auth';
 
   static Future<http.Response> signUp(User user) async {
     final url = Uri.parse('$baseUrl/signup');
