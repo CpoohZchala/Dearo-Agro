@@ -32,8 +32,8 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
         return;
       }
 
-      final response =
-          await _dio.get("https://dearoagro-backend.onrender.com/api/efetch/$userId");
+      final response = await _dio
+          .get("https://dearoagro-backend.onrender.com/api/efetch/$userId");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -52,9 +52,11 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
   }
 
   Future<void> _deleteExpense(String id) async {
+    if (!mounted) return; // Ensure the widget is still mounted
+
     try {
-      final response =
-          await _dio.delete("http://192.168.8.125:5000/api/edelete/$id");
+      final response = await _dio
+          .delete("https://dearoagro-backend.onrender.com/api/edelete/$id");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -67,9 +69,11 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
         throw Exception("Failed to delete");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}")),
+        );
+      }
     }
   }
 
@@ -96,7 +100,9 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: GoogleFonts.poppins(color: const Color.fromRGBO(87, 164, 91, 0.8))),
+            child: Text("Cancel",
+                style: GoogleFonts.poppins(
+                    color: const Color.fromRGBO(87, 164, 91, 0.8))),
           ),
           TextButton(
             onPressed: () {
@@ -153,8 +159,7 @@ class _CultivationalExpenseState extends State<CultivationalExpense> {
               children: [
                 IconButton(
                   onPressed: () => _confirmDelete(expense['_id']),
-                  icon: const Icon(Icons.delete,
-                      color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                 ),
                 IconButton(
                   onPressed: () => _navigateToForm(data: expense),

@@ -5,8 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -21,7 +19,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   final List<String> _categories = [
     "Farmer",
@@ -64,8 +63,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-    double screenWidth = screenSize.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+    final padding = isWide ? 50.0 : 16.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -81,12 +81,10 @@ class _SignupScreenState extends State<SignupScreen> {
       backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          double maxWidth = constraints.maxWidth;
-          double padding = maxWidth > 600 ? 50.0 : 16.0;
-
           return SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
+              padding:
+                  EdgeInsets.symmetric(horizontal: padding, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -98,7 +96,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   Text(
                     "Sign-Up",
                     style: GoogleFonts.poppins(
-                      fontSize: maxWidth > 600 ? 26 : 22,
+                      fontSize: isWide ? 26 : 22,
                       fontWeight: FontWeight.normal,
                       color: Colors.black87,
                     ),
@@ -110,7 +108,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       value: _selectedCategory,
                       decoration: InputDecoration(
                         labelText: "Sign-up Category",
-                        labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+                        labelStyle: GoogleFonts.poppins(
+                            fontSize: 15,
+                            color: const Color.fromRGBO(87, 164, 91, 0.8)),
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -128,7 +128,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       items: _categories.map((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
-                          child: Text(category, style: GoogleFonts.poppins(fontSize: 15)),
+                          child: Text(category,
+                              style: GoogleFonts.poppins(fontSize: 15)),
                         );
                       }).toList(),
                       onChanged: (String? newValue) {
@@ -141,10 +142,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   _buildTextField(nameController, "Full Name"),
                   _buildTextField(mobileController, "Mobile Number"),
                   _buildPasswordField(passwordController, "Password"),
-                  _buildPasswordField(confirmPasswordController, "Confirm Password"),
+                  _buildPasswordField(
+                      confirmPasswordController, "Confirm Password"),
                   const SizedBox(height: 20),
                   SizedBox(
-                    width: maxWidth > 600 ? 400 : double.infinity,
+                    width: isWide ? 400 : double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
@@ -199,7 +201,8 @@ class _SignupScreenState extends State<SignupScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+          labelStyle: GoogleFonts.poppins(
+              fontSize: 15, color: const Color.fromRGBO(87, 164, 91, 0.8)),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -226,7 +229,8 @@ class _SignupScreenState extends State<SignupScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 15,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+          labelStyle: GoogleFonts.poppins(
+              fontSize: 15, color: const Color.fromRGBO(87, 164, 91, 0.8)),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

@@ -3,11 +3,11 @@ import 'package:farmeragriapp/models/general_inquiry_model';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-
+import 'package:intl/intl.dart';
 
 class GeneralInquiryList extends StatefulWidget {
   final String baseUrl;
-  
+
   const GeneralInquiryList({Key? key, required this.baseUrl}) : super(key: key);
 
   @override
@@ -117,7 +117,8 @@ class _GeneralInquiryListState extends State<GeneralInquiryList> {
                       PopupMenuItem(
                         child: const Row(
                           children: [
-                            Icon(Icons.edit, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                            Icon(Icons.edit,
+                                color: Color.fromRGBO(87, 164, 91, 0.8)),
                             SizedBox(width: 8),
                             Text('Edit'),
                           ],
@@ -153,24 +154,25 @@ class _GeneralInquiryListState extends State<GeneralInquiryList> {
                   Chip(
                     backgroundColor: Colors.grey[200],
                     label: Text(
-                      'Date: ${inquiry.date.substring(0, 10)}',
+                      'Date: ${DateFormat('yyyy-MM-dd').format(inquiry.date)}', // Format DateTime
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.black54,
                       ),
                     ),
                   ),
-                  if (inquiry.status != null)
-                    Chip(
-                      backgroundColor: _getStatusColor(inquiry.status!),
-                      label: Text(
-                        inquiry.status!.toUpperCase(),
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
+                  Chip(
+                    backgroundColor: _getStatusColor(
+                        inquiry.status), // Removed unnecessary null check
+                    label: Text(
+                      inquiry.status
+                          .toUpperCase(), // Removed unnecessary null check
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.white,
                       ),
                     ),
+                  ),
                 ],
               ),
             ],
@@ -223,68 +225,73 @@ class _GeneralInquiryListState extends State<GeneralInquiryList> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 150,
-            flexibleSpace: Stack(
-              children: [
-                ClipPath(
-                  clipper: ArcClipper(),
-                  child: Container(
-                    height: 190,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 16, 
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Text(
-                      'My General Inquiries',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.black,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: isWide ? 200 : 150,
+                flexibleSpace: Stack(
+                  children: [
+                    ClipPath(
+                      clipper: ArcClipper(),
+                      child: Container(
+                        height: isWide ? 250 : 190,
+                        color: const Color.fromRGBO(87, 164, 91, 0.8),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            pinned: true,
-            elevation: 0,
-            automaticallyImplyLeading: false, 
-          ),
-          SliverToBoxAdapter(
-            child: _isLoading && _inquiries.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: _loadInquiries,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          _buildInquiryList(),
-                        ],
+                    Positioned(
+                      top: 30,
+                      left: 16,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios,
+                            color: Colors.black),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ),
-                  ),
-          ),
-        ],
+                    Positioned(
+                      top: 40,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Text(
+                          'My General Inquiries',
+                          style: GoogleFonts.poppins(
+                            fontSize: isWide ? 24 : 20,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _isLoading && _inquiries.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : RefreshIndicator(
+                        onRefresh: _loadInquiries,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 16),
+                              _buildInquiryList(),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -315,7 +322,8 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.inquiry.title);
-    _descriptionController = TextEditingController(text: widget.inquiry.description);
+    _descriptionController =
+        TextEditingController(text: widget.inquiry.description);
   }
 
   Future<void> _updateInquiry() async {
@@ -329,8 +337,9 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
         status: widget.inquiry.status,
         imagePath: widget.inquiry.imagePath,
         documentPath: widget.inquiry.documentPath,
+        userId: widget.inquiry.userId, // Added missing userId
       );
-      
+
       await widget.api.updateInquiry(updatedInquiry);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -370,7 +379,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
                 ),
                 Positioned(
                   top: 30,
-                  left: 16,  
+                  left: 16,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
                     onPressed: () => Navigator.pop(context),
@@ -403,7 +412,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
             ),
             pinned: true,
             elevation: 0,
-             automaticallyImplyLeading: false, 
+            automaticallyImplyLeading: false,
           ),
           SliverToBoxAdapter(
             child: _isLoading
@@ -450,7 +459,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: const Color.fromRGBO(87, 164, 91, 0.8)
+                                color: const Color.fromRGBO(87, 164, 91, 0.8),
                               ),
                             ),
                           ),

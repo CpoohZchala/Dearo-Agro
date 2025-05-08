@@ -58,6 +58,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
           if (userId != null) {
             await storage.write(key: "userId", value: userId);
+            await storage.write(key: "authToken", value: token);
+            await storage.write(key: "userType", value: userType);
             print("User ID saved: $userId");
 
             if (userType == 'Farmer') {
@@ -87,8 +89,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final screenWidth = screenSize.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+    final padding = isWide ? 50.0 : 16.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,9 +107,6 @@ class _SignInScreenState extends State<SignInScreen> {
       backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth > 600;
-          final padding = isWide ? 50.0 : 16.0;
-
           return SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: padding, vertical: 16),

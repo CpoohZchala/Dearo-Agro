@@ -6,8 +6,9 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class TechnicalInquiryList extends StatefulWidget {
   final String baseUrl;
-  
-  const TechnicalInquiryList({Key? key, required this.baseUrl}) : super(key: key);
+
+  const TechnicalInquiryList({Key? key, required this.baseUrl})
+      : super(key: key);
 
   @override
   _TechnicalInquiryListState createState() => _TechnicalInquiryListState();
@@ -74,72 +75,73 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(
-            child: _isLoading && _inquiries.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: _loadInquiries,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          _buildInquiryList(),
-                        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: isWide ? 200 : 150,
+                flexibleSpace: Stack(
+                  children: [
+                    ClipPath(
+                      clipper: ArcClipper(),
+                      child: Container(
+                        height: isWide ? 250 : 190,
+                        color: const Color.fromRGBO(87, 164, 91, 0.8),
                       ),
                     ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  SliverAppBar _buildAppBar() {
-    return SliverAppBar(
-      expandedHeight: 150,
-      flexibleSpace: Stack(
-        children: [
-          ClipPath(
-            clipper: ArcClipper(),
-            child: Container(
-              height: 190,
-              color: const Color.fromRGBO(87, 164, 91, 0.8),
-            ),
-          ),
-          Positioned(
-            top: 30,
-            left: 16, 
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          Positioned(
-            top: 40,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Text(
-                'My Technical Inquiries',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
+                    Positioned(
+                      top: 30,
+                      left: 16,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios,
+                            color: Colors.black),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    Positioned(
+                      top: 40,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Text(
+                          'My Technical Inquiries',
+                          style: GoogleFonts.poppins(
+                            fontSize: isWide ? 24 : 20,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-        ],
+              SliverToBoxAdapter(
+                child: _isLoading && _inquiries.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : RefreshIndicator(
+                        onRefresh: _loadInquiries,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              _buildInquiryList(),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
-      pinned: true,
-      elevation: 0,
-      automaticallyImplyLeading: false, 
     );
   }
 
@@ -206,7 +208,8 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
                       PopupMenuItem(
                         child: const Row(
                           children: [
-                            Icon(Icons.edit, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                            Icon(Icons.edit,
+                                color: Color.fromRGBO(87, 164, 91, 0.8)),
                             SizedBox(width: 8),
                             Text('Edit'),
                           ],
@@ -308,7 +311,8 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.inquiry.title);
-    _descriptionController = TextEditingController(text: widget.inquiry.description);
+    _descriptionController =
+        TextEditingController(text: widget.inquiry.description);
   }
 
   Future<void> _updateInquiry() async {
@@ -323,7 +327,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
         imagePath: widget.inquiry.imagePath,
         documentPath: widget.inquiry.documentPath,
       );
-      
+
       await widget.api.updateInquiry(updatedInquiry);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -360,7 +364,8 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
                       children: [
                         _buildTextField(_titleController, "Title"),
                         const SizedBox(height: 16),
-                        _buildTextField(_descriptionController, "Description", maxLines: 5),
+                        _buildTextField(_descriptionController, "Description",
+                            maxLines: 5),
                         const SizedBox(height: 24),
                         _buildSaveButton(),
                       ],
@@ -386,7 +391,7 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
           ),
           Positioned(
             top: 30,
-            left: 16,  
+            left: 16,
             child: IconButton(
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
               onPressed: () => Navigator.pop(context),
@@ -419,11 +424,12 @@ class _EditInquiryScreenState extends State<EditInquiryScreen> {
       ),
       pinned: true,
       elevation: 0,
-      automaticallyImplyLeading: false, 
+      automaticallyImplyLeading: false,
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1}) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,

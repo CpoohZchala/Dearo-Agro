@@ -47,7 +47,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
 
     try {
-      // First get user type
       final userResponse = await http.get(Uri.parse(
           'http://192.168.8.125:5000/api/users/Farmer/${widget.userId}'));
 
