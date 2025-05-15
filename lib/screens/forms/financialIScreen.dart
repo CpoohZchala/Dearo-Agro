@@ -198,7 +198,7 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
             ),
             const SizedBox(height: 10),
             Image.asset(
-              "assets/images/general.png",
+              "assets/images/general_image.png",
               height: 150,
               width: 150,
             ),

@@ -2,7 +2,7 @@ import 'package:farmeragriapp/screens/views/cropCalender.dart';
 import 'package:farmeragriapp/screens/views/notifications.dart';
 import 'package:farmeragriapp/screens/views/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart' as custom_clippers;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -37,7 +37,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
       FarmerHome(),
-      const NotificationScreen(),
+      const SoilTestScreen(),
       const CropCalenderScreen(),
       ProfileScreen(
         userId: widget.userId,
@@ -71,7 +71,7 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
           },
           tabs: const [
             GButton(icon: Icons.home, text: "Home"),
-            GButton(icon: Icons.notifications, text: "Alerts"),
+            GButton(icon: Icons.notifications, text: "Test"),
             GButton(icon: Icons.calendar_month, text: "Calendar"),
             GButton(icon: Icons.account_circle, text: "Profile"),
           ],
@@ -109,7 +109,7 @@ class FarmerHome extends StatelessWidget {
             return Column(
               children: <Widget>[
                 ClipPath(
-                  clipper: ArcClipper(),
+                  clipper: custom_clippers.ArcClipper(),
                   child: Container(
                     height: isWide ? 250 : 190,
                     color: const Color.fromRGBO(87, 164, 91, 0.8),
@@ -156,7 +156,7 @@ class FarmerHome extends StatelessWidget {
                       _buildGridButton(
                           context, "Order Details", Icons.book, "/orders"),
                       _buildGridButton(
-                          context, "Inquiries", Icons.forum, "/inqueries"),
+                          context, "Inquiries", Icons.forum, "/technical"),
                     ],
                   ),
                 ),

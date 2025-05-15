@@ -25,6 +25,8 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _documentController = TextEditingController();
   final String _baseUrl = "https://dearoagro-backend.onrender.com/api";
+  final String _farmerId =
+      "12345"; // Replace with actual farmer ID from user session or state
   bool _isLoading = false;
 
   Future<void> _pickDate() async {
@@ -102,7 +104,8 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
           http.MultipartRequest('POST', Uri.parse('$_baseUrl/tinquiry'))
             ..fields['title'] = _titleController.text
             ..fields['description'] = _descriptionController.text
-            ..fields['date'] = _dateController.text;
+            ..fields['date'] = _dateController.text
+            ..fields['farmerId'] = _farmerId; // Include farmer ID
 
       if (_selectedImage != null && await _selectedImage!.exists()) {
         request.files.add(
@@ -141,6 +144,26 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
     }
   }
 
+  Future<void> _fetchInquiries() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final response =
+          await http.get(Uri.parse('$_baseUrl/tinquiries/farmer/$_farmerId'));
+      if (response.statusCode == 200) {
+        final List<dynamic> inquiries = json.decode(response.body);
+        print('Fetched inquiries: $inquiries'); // Debug log
+        // TODO: Update UI to display inquiries
+      } else {
+        throw Exception('Failed to fetch inquiries');
+      }
+    } catch (e) {
+      _showSnackBar('Error fetching inquiries: ${e.toString()}');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   void _resetForm() {
     _titleController.clear();
     _descriptionController.clear();
@@ -170,7 +193,7 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
             _buildHeader(),
             const SizedBox(height: 10),
             Image.asset(
-              "assets/images/general.png",
+              "assets/images/general_image.png",
               height: 150,
               width: 150,
             ),
@@ -207,7 +230,7 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
           top: 40,
           left: 50,
           child: Text(
-            "Technical Support Inquiry",
+            "Inquiry Submision",
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.normal,
@@ -254,7 +277,8 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        labelStyle: GoogleFonts.poppins(
+            fontSize: 14, color: const Color.fromRGBO(87, 164, 91, 0.8)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -274,7 +298,8 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
       controller: _dateController,
       decoration: InputDecoration(
         labelText: "Date",
-        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        labelStyle: GoogleFonts.poppins(
+            fontSize: 14, color: const Color.fromRGBO(87, 164, 91, 0.8)),
         suffixIcon: IconButton(
           onPressed: _pickDate,
           icon: const Icon(Icons.calendar_month,
@@ -301,7 +326,8 @@ class _TechnicalIScreenState extends State<TechnicalIScreen> {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 14,color:const Color.fromRGBO(87, 164, 91, 0.8) ),
+        labelStyle: GoogleFonts.poppins(
+            fontSize: 14, color: const Color.fromRGBO(87, 164, 91, 0.8)),
         suffixIcon: IconButton(
           onPressed: onPressed,
           icon: Icon(icon, color: const Color.fromRGBO(87, 164, 91, 0.8)),

@@ -3,12 +3,12 @@ import 'package:farmeragriapp/models/financial_inquiry_model.dart';
 import 'package:http/http.dart' as http;
 
 class FinancialInquiryApi {
-  final String baseUrl;
+  static const String baseUrl = 'https://dearoagro-backend.onrender.com';
 
-  FinancialInquiryApi(this.baseUrl);
+  FinancialInquiryApi();
 
   Future<List<FinancialInquiry>> getInquiries() async {
-    final response = await http.get(Uri.parse('$baseUrl/finquiries'));
+    final response = await http.get(Uri.parse('$baseUrl/api/finquiries'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) => FinancialInquiry.fromJson(json)).toList();

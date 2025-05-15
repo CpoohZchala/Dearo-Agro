@@ -94,22 +94,14 @@ class _TechnicalInquiryListState extends State<TechnicalInquiryList> {
                         color: const Color.fromRGBO(87, 164, 91, 0.8),
                       ),
                     ),
-                    Positioned(
-                      top: 30,
-                      left: 16,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios,
-                            color: Colors.black),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
+                   
                     Positioned(
                       top: 40,
                       left: 0,
                       right: 0,
                       child: Center(
                         child: Text(
-                          'My Technical Inquiries',
+                          'My Inquiries',
                           style: GoogleFonts.poppins(
                             fontSize: isWide ? 24 : 20,
                             fontWeight: FontWeight.normal,

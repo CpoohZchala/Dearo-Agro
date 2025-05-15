@@ -37,7 +37,7 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
         return;
       }
 
-      final response = await _dio.get("http://192.168.8.125:5000/api/cropfetch/$userId");
+      final response = await _dio.get("https://dearoagro-backend.onrender.com/api/cropfetch/$userId");
       
       if (response.statusCode == 200) {
         setState(() {
@@ -65,7 +65,7 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
       _isLoading = true; 
     });
     
-    final response = await _dio.delete("http://192.168.8.125:5000/api/cropdelete/$id");
+    final response = await _dio.delete("https://dearoagro-backend.onrender.com/api/cropdelete/$id");
     
     if (response.statusCode == 200) {
       
