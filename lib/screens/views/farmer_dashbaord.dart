@@ -2,12 +2,13 @@ import 'package:farmeragriapp/screens/views/cropCalender.dart';
 import 'package:farmeragriapp/screens/views/notifications.dart';
 import 'package:farmeragriapp/screens/views/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart' as custom_clippers;
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
+    as custom_clippers;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 void main() {
-  runApp( const FarmerDashboardApp());
+  runApp(const FarmerDashboardApp());
 }
 
 class FarmerDashboardApp extends StatelessWidget {
@@ -44,7 +45,6 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
         userType: "Farmer",
       ),
     ];
-
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
@@ -82,13 +82,58 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
 }
 
 class FarmerHome extends StatelessWidget {
-  FarmerHome({super.key});
+  const FarmerHome({super.key});
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isWide = screenWidth > 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
+    final isDesktop = screenWidth >= 1024;
+    final arcHeight = isDesktop
+        ? 260.0
+        : isTablet
+            ? 210.0
+            : 190.0;
+    final gridCrossAxisCount = isDesktop
+        ? 4
+        : isTablet
+            ? 3
+            : 2;
+    final gridChildAspectRatio = isDesktop
+        ? 1.2
+        : isTablet
+            ? 1
+            : 0.9;
+    final gridHeight = isDesktop
+        ? 320.0
+        : isTablet
+            ? 270.0
+            : 235.0;
+    final gridFontSize = isDesktop
+        ? 16.0
+        : isTablet
+            ? 14.0
+            : 12.0;
+    final cardImageSize = isDesktop
+        ? 160.0
+        : isTablet
+            ? 140.0
+            : 110.0;
+    final cardFontSize = isDesktop
+        ? 18.0
+        : isTablet
+            ? 17.0
+            : 15.0;
+    final cardPadding = isDesktop
+        ? 28.0
+        : isTablet
+            ? 20.0
+            : 15.0;
+    final cardMargin = isDesktop
+        ? 28.0
+        : isTablet
+            ? 20.0
+            : 15.0;
 
-   
     final hour = DateTime.now().hour;
     String greeting;
     if (hour < 12) {
@@ -99,7 +144,7 @@ class FarmerHome extends StatelessWidget {
       greeting = "Good Night";
     }
 
-    final String userName = " User"; 
+    final String userName = " User";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -111,7 +156,7 @@ class FarmerHome extends StatelessWidget {
                 ClipPath(
                   clipper: custom_clippers.ArcClipper(),
                   child: Container(
-                    height: isWide ? 250 : 190,
+                    height: arcHeight,
                     color: const Color.fromRGBO(87, 164, 91, 0.8),
                     child: Center(
                       child: Column(
@@ -121,14 +166,24 @@ class FarmerHome extends StatelessWidget {
                             "Hi $userName,",
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.bold,
-                              fontSize: isWide ? 16 : 12,
+                              fontSize: isDesktop
+                                  ? 22
+                                  : isTablet
+                                      ? 18
+                                      : 16,
+                              color: Colors.white,
                             ),
                           ),
                           Text(
                             greeting,
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.normal,
-                              fontSize: isWide ? 16 : 12,
+                              fontSize: isDesktop
+                                  ? 20
+                                  : isTablet
+                                      ? 16
+                                      : 14,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -137,26 +192,27 @@ class FarmerHome extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 235,
+                  height: gridHeight,
                   child: GridView.count(
                     primary: false,
                     padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    crossAxisCount: gridCrossAxisCount,
+                    childAspectRatio: gridChildAspectRatio.toDouble(),
                     children: <Widget>[
                       _buildGridButton(context, "Cultivational Details",
-                          Icons.agriculture, "/cultivational"),
-                      _buildGridButton(
-                          context, "Crop Updates", Icons.man, "/crop_updates"),
+                          Icons.agriculture, "/cultivational", gridFontSize),
+                      _buildGridButton(context, "Crop Updates", Icons.man,
+                          "/crop_updates", gridFontSize),
                       _buildGridButton(context, "Cultivational Expenses",
-                          Icons.attach_money, "/expenses"),
+                          Icons.attach_money, "/expenses", gridFontSize),
                       _buildGridButton(context, "Stock Details",
-                          Icons.store_mall_directory, "/stock"),
-                      _buildGridButton(
-                          context, "Order Details", Icons.book, "/orders"),
-                      _buildGridButton(
-                          context, "Inquiries", Icons.forum, "/technical"),
+                          Icons.store_mall_directory, "/stock", gridFontSize),
+                      _buildGridButton(context, "Order Details", Icons.book,
+                          "/orders", gridFontSize),
+                      _buildGridButton(context, "Inquiries", Icons.forum,
+                          "/technical", gridFontSize),
                     ],
                   ),
                 ),
@@ -169,7 +225,7 @@ class FarmerHome extends StatelessWidget {
                         "Crop Care",
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                          fontSize: cardFontSize,
                           color: Colors.green,
                         ),
                       ),
@@ -186,9 +242,9 @@ class FarmerHome extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-                  margin: const EdgeInsets.all(15),
+                  margin: EdgeInsets.all(cardMargin),
                   child: Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: EdgeInsets.all(cardPadding),
                     child: Column(
                       children: [
                         Row(
@@ -197,7 +253,7 @@ class FarmerHome extends StatelessWidget {
                               child: RichText(
                                 text: TextSpan(
                                   style: GoogleFonts.poppins(
-                                    fontSize: 15,
+                                    fontSize: cardFontSize,
                                     color: Colors.black,
                                   ),
                                   children: const [
@@ -211,26 +267,36 @@ class FarmerHome extends StatelessWidget {
                             const SizedBox(width: 5),
                             Image.asset(
                               "assets/images/image1.png",
-                              height: 130,
-                              width: 130,
+                              height: cardImageSize,
+                              width: cardImageSize,
                             ),
                           ],
                         ),
                         const SizedBox(height: 5),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/prediction");
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[400],
-                            foregroundColor: Colors.black,
-                          ),
-                          child: Text(
-                            'Continue',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, "/prediction");
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[400],
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: isDesktop
+                                      ? 18
+                                      : isTablet
+                                          ? 14
+                                          : 10),
+                              textStyle: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                fontSize: cardFontSize,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            child: const Text('Continue'),
                           ),
                         ),
                       ],
@@ -245,8 +311,8 @@ class FarmerHome extends StatelessWidget {
     );
   }
 
-  Widget _buildGridButton(
-      BuildContext context, String title, IconData icon, String route) {
+  Widget _buildGridButton(BuildContext context, String title, IconData icon,
+      String route, double fontSize) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.grey[300],
@@ -255,6 +321,7 @@ class FarmerHome extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        elevation: 1,
       ),
       onPressed: () {
         Navigator.pushNamed(context, route);
@@ -262,14 +329,14 @@ class FarmerHome extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 30),
+          Icon(icon, size: fontSize + 14),
           const SizedBox(height: 8),
           Text(
             title,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.normal,
-              fontSize: 12,
+              fontSize: fontSize,
               color: Colors.black,
             ),
           ),
