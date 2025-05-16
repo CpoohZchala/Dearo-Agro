@@ -1,32 +1,32 @@
 import 'dart:convert';
-import 'package:farmeragriapp/models/general_inquiry_model';
+import 'package:farmeragriapp/models/financial_inquiry_model.dart';
 import 'package:http/http.dart' as http;
 
-class GeneralInquiryApi {
-  final String baseUrl;
+class FinancialInquiryApi {
+  static const String baseUrl = 'https://dearoagro-backend.onrender.com';
 
-  GeneralInquiryApi(this.baseUrl);
+  FinancialInquiryApi();
 
-  Future<List<GeneralInquiry>> getInquiries() async {
-    final response = await http.get(Uri.parse('$baseUrl/inquiries'));
+  Future<List<FinancialInquiry>> getInquiries() async {
+    final response = await http.get(Uri.parse('$baseUrl/api/finquiries'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => GeneralInquiry.fromJson(json)).toList();
+      return jsonList.map((json) => FinancialInquiry.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load inquiries');
     }
   }
 
   Future<void> deleteInquiry(String id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/inquiry/$id'));
+    final response = await http.delete(Uri.parse('$baseUrl/finquiry/$id'));
     if (response.statusCode != 200) {
       throw Exception('Failed to delete inquiry');
     }
   }
 
-  Future<void> updateInquiry(GeneralInquiry inquiry) async {
+  Future<void> updateInquiry(FinancialInquiry inquiry) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/inquiry/${inquiry.id}'),
+      Uri.parse('$baseUrl/finquiry/${inquiry.id}'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(inquiry.toJson()),
     );

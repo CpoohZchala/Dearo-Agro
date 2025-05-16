@@ -96,7 +96,7 @@ class _NewUpdateFormState extends State<NewUpdateForm> {
     try {
       final update = CropUpdate(
         id: widget.existingData != null ? widget.existingData['_id'] : null,
-        memberId: "", // will be set inside API class
+        memberId: "",
         addDate: _dateController.text,
         description: _descriptionController.text,
       );

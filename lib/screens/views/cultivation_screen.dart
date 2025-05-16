@@ -40,7 +40,7 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
       }
 
       final response =
-          await _dio.get("http://192.168.8.125:5000/api/fetch/$userId");
+          await _dio.get("https://dearoagro-backend.onrender.com/api/fetch/$userId");
 
       if (response.statusCode == 200) {
         setState(() {

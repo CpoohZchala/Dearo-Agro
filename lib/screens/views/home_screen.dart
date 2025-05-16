@@ -12,7 +12,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Set up a timer to hide the splash screen after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       setState(() {
@@ -45,24 +45,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Main screen with logo and "Get Started" button
   Widget _buildMainScreen() {
-    Size screenSize = MediaQuery.of(context).size;
-    double screenWidth = screenSize.width;
-    double screenHeight = screenSize.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Logo image
           Image.asset(
             'assets/images/logo.png',
-            width: screenWidth * 1.0, // Adjust logo size
+            width: screenWidth * 0.6,
           ),
           const SizedBox(height: 100),
-          
-          // "Get Started" button
           SizedBox(
-            width: screenWidth * 0.6, // Adjust button size
+            width: screenWidth * 0.6,
             height: screenHeight * 0.06,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(

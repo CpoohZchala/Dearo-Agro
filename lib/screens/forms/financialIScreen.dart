@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class FinancialIscreen extends StatefulWidget {
   const FinancialIscreen({super.key});
@@ -16,14 +18,15 @@ class FinancialIscreen extends StatefulWidget {
 class _FinancialIscreenState extends State<FinancialIscreen> {
   // ignore: unused_field
   DateTime? _selectedDate;
-  // ignore: unused_field
   File? _selectedImage;
-  // ignore: unused_field
   File? _selectedDocument;
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _documentController = TextEditingController();
+  final String _baseUrl = "https://dearoagro-backend.onrender.com/api";
+  bool _isLoading = false;
 
   Future<void> _pickDate() async {
     DateTime? pickedDate = await showDatePicker(
@@ -43,7 +46,8 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -60,6 +64,91 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
         _documentController.text = result.files.single.name;
       });
     }
+  }
+
+  Future<void> _submitInquiry() async {
+    if (_titleController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _dateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      var request =
+          http.MultipartRequest('POST', Uri.parse('$_baseUrl/inquiry'));
+
+      // Add text fields
+      request.fields['title'] = _titleController.text;
+      request.fields['description'] = _descriptionController.text;
+      request.fields['date'] = _dateController.text;
+
+      // Add image file if selected
+      if (_selectedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'imagePath',
+            _selectedImage!.path,
+            filename: path.basename(_selectedImage!.path),
+          ),
+        );
+      }
+
+      // Add document file if selected
+      if (_selectedDocument != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'documentPath',
+            _selectedDocument!.path,
+            filename: path.basename(_selectedDocument!.path),
+          ),
+        );
+      }
+
+      var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Inquiry submitted successfully')),
+        );
+        _resetForm();
+      } else {
+        final errorData = json.decode(responseBody);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${errorData['message'] ?? 'Unknown error'}'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _resetForm() {
+    _titleController.clear();
+    _descriptionController.clear();
+    _dateController.clear();
+    _imageController.clear();
+    _documentController.clear();
+    setState(() {
+      _selectedImage = null;
+      _selectedDocument = null;
+      _selectedDate = null;
+    });
   }
 
   @override
@@ -79,7 +168,7 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                   ),
                 ),
                 Positioned(
-                  top: 40,
+                  top: 30,
                   left: 10,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -87,18 +176,29 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                   ),
                 ),
                 Positioned(
-                  top: 50,
+                  top: 40,
                   left: 50,
                   child: Text(
                     "Financial Support Inquiry",
-                    style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.black),
+                    style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black),
                   ),
                 ),
+                Positioned(
+                    top: 30,
+                    right: 20,
+                    child: IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/myFinancial");
+                        },
+                        icon: const Icon(Icons.collections_bookmark))),
               ],
             ),
             const SizedBox(height: 10),
             Image.asset(
-              "assets/images/general.png",
+              "assets/images/general_image.png",
               height: 150,
               width: 150,
             ),
@@ -108,12 +208,21 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
               child: Column(
                 children: [
                   TextFormField(
+                    controller: _titleController,
                     decoration: InputDecoration(
                       labelText: "Title",
                       labelStyle: GoogleFonts.poppins(
-                        fontSize: 14,
+                          fontSize: 14,
+                          color: const Color.fromRGBO(87, 164, 91, 0.8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -122,8 +231,18 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: "Description",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14,),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      labelStyle: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromRGBO(87, 164, 91, 0.8)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -131,12 +250,23 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                     controller: _dateController,
                     decoration: InputDecoration(
                       labelText: "Date",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14,),
+                      labelStyle: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromRGBO(87, 164, 91, 0.8)),
                       suffixIcon: IconButton(
                         onPressed: _pickDate,
-                        icon: const Icon(Icons.calendar_month, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                        icon: const Icon(Icons.calendar_month,
+                            color: Color.fromRGBO(87, 164, 91, 0.8)),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
                     ),
                     readOnly: true,
                   ),
@@ -145,12 +275,23 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                     controller: _imageController,
                     decoration: InputDecoration(
                       labelText: "Upload Image (optional)",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14,),
+                      labelStyle: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromRGBO(87, 164, 91, 0.8)),
                       suffixIcon: IconButton(
                         onPressed: _pickImage,
-                        icon: const Icon(Icons.image, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                        icon: const Icon(Icons.image,
+                            color: Color.fromRGBO(87, 164, 91, 0.8)),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
                     ),
                     readOnly: true,
                   ),
@@ -159,12 +300,23 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                     controller: _documentController,
                     decoration: InputDecoration(
                       labelText: "Upload Document (optional)",
-                      labelStyle: GoogleFonts.poppins(fontSize: 14,),
+                      labelStyle: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromRGBO(87, 164, 91, 0.8)),
                       suffixIcon: IconButton(
                         onPressed: _pickDocument,
-                        icon: const Icon(Icons.attach_file, color: Color.fromRGBO(87, 164, 91, 0.8)),
+                        icon: const Icon(Icons.attach_file,
+                            color: Color.fromRGBO(87, 164, 91, 0.8)),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(87, 164, 91, 0.8),
+                          width: 2,
+                        ),
+                      ),
                     ),
                     readOnly: true,
                   ),
@@ -172,12 +324,18 @@ class _FinancialIscreenState extends State<FinancialIscreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
+                      minimumSize: const Size(double.infinity, 50),
                     ),
-                    onPressed: () {},
-                    child: Text(
-                      "Submit",
-                      style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                    onPressed: _isLoading ? null : _submitInquiry,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            "Submit",
+                            style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
                   ),
                 ],
               ),
