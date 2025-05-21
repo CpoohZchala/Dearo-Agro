@@ -39,8 +39,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
         return;
       }
 
-      final response =
-          await _dio.get("https://dearoagro-backend.onrender.com/api/fetch/$userId");
+      final response = await _dio
+          .get("https://dearoagro-backend.onrender.com/api/fetch/$userId");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -70,8 +70,8 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
         _data.removeWhere((item) => item['_id'] == id);
       });
 
-      final response =
-          await _dio.delete("http://192.168.8.125:5000/api/delete/$id");
+      final response = await _dio
+          .delete("https://dearoagro-backend.onrender.com/api/delete/$id");
 
       if (response.statusCode != 200) {
         // If deletion fails on server, add the item back
@@ -178,6 +178,10 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                 final city = cultivation['city'] ?? 'N/A';
                                 final startDate = _formatDate(
                                     cultivation['startDate']?.toString());
+                                final nic = cultivation['nic'] ?? 'N/A';
+                                final cropYieldSize =
+                                    cultivation['cropYieldSize']?.toString() ??
+                                        'N/A';
 
                                 return Card(
                                   margin: const EdgeInsets.symmetric(
@@ -237,6 +241,22 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                         const SizedBox(height: 8),
                                         Text(
                                           "Start Date: $startDate",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "NIC: $nic",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Crop Yield Size: $cropYieldSize Acre",
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             color: Colors.black87,
