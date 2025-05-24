@@ -132,143 +132,163 @@ class _SignInScreenState extends State<SignInScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          ClipPath(
-            clipper: ArcClipper(),
-            child: Container(
-              height: arcHeight,
-              color: const Color.fromRGBO(87, 164, 91, 0.8),
-            ),
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/background1.jpg"),
+            fit: BoxFit.cover,
           ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: padding,
-                right: padding,
-                top: arcHeight - 30,
-                bottom: 24,
-              ),
-              child: Container(
-                width: cardWidth,
-                child: Card(
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: cardPadding, vertical: cardPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/SignIn.png",
-                          width: logoSize,
-                          height: logoSize,
+        ),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: padding,
+                  right: padding,
+                  top: arcHeight - 30,
+                  bottom: 24,
+                ),
+                child: Container(
+                  width: cardWidth,
+                  child: Card(
+                    color: Colors.transparent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 51, 162, 56)
+                                .withOpacity(0.80), // Top color with opacity
+                            const Color.fromARGB(2, 246, 247, 246)
+                                .withOpacity(0.60), // Bottom color with opacity
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "Sign-In",
-                          style: GoogleFonts.poppins(
-                            fontSize: headerFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF57A45B),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildTextField(mobileController, "Mobile Number",
-                            isDesktop, isTablet),
-                        _buildPasswordField(passwordController, "Password",
-                            isDesktop, isTablet),
-                        const SizedBox(height: 10),
-                        DropdownButtonFormField<String>(
-                          value: _selectedUserType,
-                          decoration: InputDecoration(
-                            labelText: "Select User Type",
-                            labelStyle: GoogleFonts.poppins(
-                              fontSize: 15,
-                              color: const Color.fromRGBO(87, 164, 91, 0.8),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: cardPadding, vertical: cardPadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/SignIn.png",
+                              width: logoSize,
+                              height: logoSize,
                             ),
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(87, 164, 91, 0.8),
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          items: _userTypes.map((String userType) {
-                            return DropdownMenuItem<String>(
-                              value: userType,
-                              child: Text(userType,
-                                  style: GoogleFonts.poppins(fontSize: 15)),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedUserType = newValue;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF57A45B),
-                              padding:
-                                  EdgeInsets.symmetric(vertical: buttonPadding),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              elevation: 2,
-                            ),
-                            onPressed: signIn,
-                            child: Text(
-                              "Sign In",
+                            const SizedBox(height: 10),
+                            Text(
+                              "Sign-In",
                               style: GoogleFonts.poppins(
-                                fontSize: buttonFontSize,
+                                fontSize: headerFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: const Color.fromARGB(255, 7, 7, 7),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        RichText(
-                          text: TextSpan(
-                            text: "Don't have an account? ",
-                            style: GoogleFonts.poppins(color: Colors.black),
-                            children: [
-                              TextSpan(
-                                text: "Sign-Up",
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xFF57A45B),
-                                  fontWeight: FontWeight.bold,
+                            const SizedBox(height: 24),
+                            _buildTextField(mobileController, "Mobile Number",
+                                isDesktop, isTablet),
+                            _buildPasswordField(passwordController, "Password",
+                                isDesktop, isTablet),
+                            const SizedBox(height: 10),
+                            DropdownButtonFormField<String>(
+                              value: _selectedUserType,
+                              decoration: InputDecoration(
+                                labelText: "Select User Type",
+                                labelStyle: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: const Color.fromARGB(204, 0, 0, 0),
                                 ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.pushNamed(context, "/signUp");
-                                  },
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: Color.fromRGBO(87, 164, 91, 0.8),
+                                    width: 2,
+                                  ),
+                                ),
                               ),
-                            ],
-                          ),
+                              items: _userTypes.map((String userType) {
+                                return DropdownMenuItem<String>(
+                                  value: userType,
+                                  child: Text(userType,
+                                      style: GoogleFonts.poppins(fontSize: 15)),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedUserType = newValue;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 5, 40, 6),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: buttonPadding),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                onPressed: signIn,
+                                child: Text(
+                                  "Sign In",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            RichText(
+                              text: TextSpan(
+                                text: "Don't have an account? ",
+                                style: GoogleFonts.poppins(color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: "Sign-Up",
+                                    style: GoogleFonts.poppins(
+                                      color: const Color.fromARGB(255, 0, 0, 0),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.pushNamed(context, "/signUp");
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -288,8 +308,9 @@ class _SignInScreenState extends State<SignInScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.poppins(
-              fontSize: fontSize,
-              color: const Color.fromRGBO(87, 164, 91, 0.8)),
+            fontSize: fontSize,
+            color: const Color.fromARGB(204, 0, 0, 0),
+          ),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -324,7 +345,7 @@ class _SignInScreenState extends State<SignInScreen> {
           labelText: label,
           labelStyle: GoogleFonts.poppins(
               fontSize: fontSize,
-              color: const Color.fromRGBO(87, 164, 91, 0.8)),
+              color: const Color.fromARGB(204, 0, 0, 0),),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

@@ -32,29 +32,29 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
 
   // List of crop yield size options
   final List<String> _yieldSizeOptions = [
-    '1/4 Acre',
-    '1/2  Acre',
-    '3/4 Acre',
-    '1 Acre',
-    '2 Acre',
-    '3 Acre',
-    '4 Acre',
-    '5 Acre',
-    '6 Acre',
-    '7 Acre',
-    '8 Acre',
-    '9 Acre',
-    '10 Acre',
-    '11 Acre',
-    '12 Acre',
-    '13 Acre',
-    '14 Acre',
-    '15 Acre',
-    '16 Acre',
-    '17 Acre',
-    '18 Acre',
-    '19 Acre',
-    '20 Acre'
+    'අක්කර 1/4 ',
+    'අක්කර 1/2',
+    'අක්කර 3/4',
+    'අක්කර 1',
+    'අක්කර 2',
+    'අක්කර 3',
+    'අක්කර 4',
+    'අක්කර 5',
+    'අක්කර 6',
+    'අක්කර 7',
+    'අක්කර 8',
+    'අක්කර 9',
+    'අක්කර 10',
+    'අක්කර 11',
+    'අක්කර 12',
+    'අක්කර 13',
+    'අක්කර 14',
+    'අක්කර 15',
+    'අක්කර 16',
+    'අක්කර 17',
+    'අක්කර 18',
+    'අක්කර 19',
+    'අක්කර 20'
   ];
 
   @override
@@ -130,8 +130,9 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     if (!_validateForm()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
-                "Please fill all required fields (and select Crop Yield Size)")),
+          content: Text(
+              "Please fill all required fields (and select Crop Yield Size)"),
+        ),
       );
       return;
     }
@@ -148,8 +149,7 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
         district: _selectedDistrict!,
         city: _selectedCity!,
         nic: nicController.text,
-        cropYieldSize:
-            _parseAcreValue(_selectedYieldSize), // <-- convert to numeric value
+        cropYieldSize: _parseAcreValue(_selectedYieldSize),
         id: widget.existingData?['_id'],
       );
 

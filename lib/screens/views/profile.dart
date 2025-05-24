@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String profileImage = "";
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-  final String apiUrl = "https://dearoagro-backend.onrender.com/api/users";
+  final String apiUrl = "https://dearoagro-backend.onrender.com/api/farmers";
 
   @override
   void initState() {
@@ -42,10 +42,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> fetchUserProfile() async {
     try {
       print(
-          "Fetching user info for userId: ${widget.userId}, userType: ${widget.userType}");
+          "Fetching user info for userId: ${widget.userId}");
 
       final response = await http
-          .get(Uri.parse("$apiUrl/${widget.userType}/${widget.userId}"));
+          .get(Uri.parse("$apiUrl/${widget.userId}"));
 
       if (response.statusCode == 404) {
         setState(() {
@@ -95,16 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Update updateProfileImage to include userType
   Future<void> updateProfileImage(String profileImage) async {
     try {
-      final userResponse =
-          await http.get(Uri.parse("$apiUrl/${widget.userId}"));
-      if (userResponse.statusCode != 200) {
-        throw Exception("Failed to get user type");
-      }
-
-      final userData = jsonDecode(userResponse.body);
-      final userType = userData['userType'];
-
-      final url = Uri.parse("$apiUrl/$userType/${widget.userId}");
+      final url = Uri.parse("$apiUrl/${widget.userId}");
       final body = jsonEncode({'profileImage': profileImage});
 
       final response = await http.put(

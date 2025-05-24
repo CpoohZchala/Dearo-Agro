@@ -256,7 +256,7 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          "Crop Yield Size: $cropYieldSize Acre",
+                                          "Crop Yield Size: අක්කර $cropYieldSize",
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             color: Colors.black87,

@@ -30,6 +30,18 @@ class _SignupScreenState extends State<SignupScreen> {
   ];
 
   Future<void> signUp() async {
+    if (nameController.text.isEmpty ||
+        mobileController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty ||
+        _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Please fill all fields and select a category")),
+      );
+      return;
+    }
+
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Passwords do not match")),
@@ -106,149 +118,166 @@ class _SignupScreenState extends State<SignupScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          ClipPath(
-            clipper: ArcClipper(),
-            child: Container(
-              height: arcHeight,
-              color: const Color.fromRGBO(87, 164, 91, 0.8),
-            ),
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/background1.jpg"),
+            fit: BoxFit.cover,
           ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: padding,
-                right: padding,
-                top: arcHeight + 12, // ensure card starts below arc
-                bottom: 24,
-              ),
-              child: Container(
-                width: cardWidth,
-                child: Card(
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: cardPadding, vertical: cardPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/signup.png",
-                          width: logoSize,
-                          height: logoSize,
+        ),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: padding,
+                  right: padding,
+                  top: arcHeight + 12,
+                  bottom: 24,
+                ),
+                child: Container(
+                  width: cardWidth,
+                  child: Card(
+                    color: Colors.transparent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 51, 162, 56).withOpacity(0.80),
+                            const Color.fromARGB(2, 246, 247, 246)
+                                .withOpacity(0.60),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "Sign-Up",
-                          style: GoogleFonts.poppins(
-                            fontSize: headerFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF57A45B),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            decoration: InputDecoration(
-                              labelText: "Sign-up Category",
-                              labelStyle: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color:
-                                      const Color.fromRGBO(87, 164, 91, 0.8)),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(
-                                  color: Color.fromRGBO(87, 164, 91, 0.8),
-                                  width: 2,
-                                ),
-                              ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: cardPadding, vertical: cardPadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/signup.png",
+                              width: logoSize,
+                              height: logoSize,
                             ),
-                            items: _categories.map((String category) {
-                              return DropdownMenuItem<String>(
-                                value: category,
-                                child: Text(category,
-                                    style: GoogleFonts.poppins(fontSize: 15)),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedCategory = newValue;
-                              });
-                            },
-                          ),
-                        ),
-                        _buildTextField(
-                            nameController, "Full Name", isDesktop, isTablet),
-                        _buildTextField(mobileController, "Mobile Number",
-                            isDesktop, isTablet),
-                        _buildPasswordField(passwordController, "Password",
-                            isDesktop, isTablet),
-                        _buildPasswordField(confirmPasswordController,
-                            "Confirm Password", isDesktop, isTablet),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF57A45B),
-                              padding:
-                                  EdgeInsets.symmetric(vertical: buttonPadding),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              elevation: 2,
-                            ),
-                            onPressed: signUp,
-                            child: Text(
-                              "Sign Up",
+                            const SizedBox(height: 10),
+                            Text(
+                              "Sign-Up",
                               style: GoogleFonts.poppins(
-                                fontSize: buttonFontSize,
+                                fontSize: headerFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        RichText(
-                          text: TextSpan(
-                            text: "Do you have an account? ",
-                            style: GoogleFonts.poppins(color: Colors.black),
-                            children: [
-                              TextSpan(
-                                text: "Sign-In",
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xFF57A45B),
-                                  fontWeight: FontWeight.bold,
+                            const SizedBox(height: 24),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedCategory,
+                                decoration: InputDecoration(
+                                  labelText: "Sign-up Category",
+                                  labelStyle: GoogleFonts.poppins(
+                                      fontSize: 15, color: Colors.black),
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color.fromRGBO(87, 164, 91, 0.8),
+                                      width: 2,
+                                    ),
+                                  ),
                                 ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.pushNamed(context, "/signIn");
-                                  },
+                                items: _categories.map((String category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category,
+                                    child: Text(category,
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 15)),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedCategory = newValue;
+                                  });
+                                },
                               ),
-                            ],
-                          ),
+                            ),
+                            _buildTextField(nameController, "Full Name",
+                                isDesktop, isTablet),
+                            _buildTextField(mobileController, "Mobile Number",
+                                isDesktop, isTablet),
+                            _buildPasswordField(passwordController, "Password",
+                                isDesktop, isTablet),
+                            _buildPasswordField(confirmPasswordController,
+                                "Confirm Password", isDesktop, isTablet),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 15, 59, 18),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: buttonPadding),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                onPressed: signUp,
+                                child: Text(
+                                  "Sign Up",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            RichText(
+                              text: TextSpan(
+                                text: "Do you have an account? ",
+                                style: GoogleFonts.poppins(color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: "Sign-In",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.pushNamed(context, "/signIn");
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -266,9 +295,8 @@ class _SignupScreenState extends State<SignupScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(
-              fontSize: fontSize,
-              color: const Color.fromRGBO(87, 164, 91, 0.8)),
+          labelStyle:
+              GoogleFonts.poppins(fontSize: fontSize, color: Colors.black),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -301,9 +329,8 @@ class _SignupScreenState extends State<SignupScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(
-              fontSize: fontSize,
-              color: const Color.fromRGBO(87, 164, 91, 0.8)),
+          labelStyle:
+              GoogleFonts.poppins(fontSize: fontSize, color: Colors.black),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

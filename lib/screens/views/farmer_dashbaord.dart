@@ -49,21 +49,21 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(87, 164, 91, 0.8),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: Color.fromRGBO(18, 40, 18, 0.8),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
           boxShadow: [
-            BoxShadow(color: Colors.black26, blurRadius: 9, spreadRadius: 3),
+            BoxShadow(color: Color.fromARGB(66, 118, 117, 117), blurRadius: 9, spreadRadius: 3),
           ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: GNav(
           backgroundColor: Colors.transparent,
-          color: Colors.white,
-          activeColor: Colors.black,
+          color: Colors.yellow,
+          activeColor: Colors.white,
           tabBackgroundColor: Colors.white.withOpacity(0.2),
           gap: 10,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          iconSize: 26,
+          iconSize: 30,
           onTabChange: (index) {
             setState(() {
               _selectedIndex = index;
@@ -85,54 +85,11 @@ class FarmerHome extends StatelessWidget {
   const FarmerHome({super.key});
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 600 && screenWidth < 1024;
-    final isDesktop = screenWidth >= 1024;
-    final arcHeight = isDesktop
-        ? 260.0
-        : isTablet
-            ? 210.0
-            : 190.0;
-    final gridCrossAxisCount = isDesktop
-        ? 4
-        : isTablet
-            ? 3
-            : 2;
-    final gridChildAspectRatio = isDesktop
-        ? 1.2
-        : isTablet
-            ? 1
-            : 0.9;
-    final gridHeight = isDesktop
-        ? 320.0
-        : isTablet
-            ? 270.0
-            : 235.0;
-    final gridFontSize = isDesktop
-        ? 16.0
-        : isTablet
-            ? 14.0
-            : 12.0;
-    final cardImageSize = isDesktop
-        ? 160.0
-        : isTablet
-            ? 140.0
-            : 110.0;
-    final cardFontSize = isDesktop
-        ? 18.0
-        : isTablet
-            ? 17.0
-            : 15.0;
-    final cardPadding = isDesktop
-        ? 28.0
-        : isTablet
-            ? 20.0
-            : 15.0;
-    final cardMargin = isDesktop
-        ? 28.0
-        : isTablet
-            ? 20.0
-            : 15.0;
+    const double arcHeight = 250.0;
+    const int gridCrossAxisCount = 3;
+    const double gridChildAspectRatio = 0.6;
+    const double gridHeight = 400.0;
+    const double gridFontSize = 12.0;
 
     final hour = DateTime.now().hour;
     String greeting;
@@ -144,203 +101,160 @@ class FarmerHome extends StatelessWidget {
       greeting = "Good Night";
     }
 
-    final String userName = " User";
+    const String userName = " User";
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              children: <Widget>[
-                ClipPath(
-                  clipper: custom_clippers.ArcClipper(),
-                  child: Container(
-                    height: arcHeight,
-                    color: const Color.fromRGBO(87, 164, 91, 0.8),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 25),
-                          Text(
-                            "Hi $userName,",
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: isDesktop
-                                  ? 22
-                                  : isTablet
-                                      ? 18
-                                      : 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            greeting,
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.normal,
-                              fontSize: isDesktop
-                                  ? 20
-                                  : isTablet
-                                      ? 16
-                                      : 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+      backgroundColor: const Color(0xFFF6F8FA),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              "assets/images/background.jpg",
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Main content
+          Column(
+            children: <Widget>[
+              ClipPath(
+                clipper: custom_clippers.ArcClipper(),
+                child: Container(
+                  height: arcHeight,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromRGBO(40, 159, 46, 1),
+                        Color.fromRGBO(87, 164, 91, 0.7),
+                        Color.fromARGB(255, 31, 150, 31),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: gridHeight,
-                  child: GridView.count(
-                    primary: false,
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    crossAxisCount: gridCrossAxisCount,
-                    childAspectRatio: gridChildAspectRatio.toDouble(),
-                    children: <Widget>[
-                      _buildGridButton(context, "Cultivational Details",
-                          Icons.agriculture, "/cultivational", gridFontSize),
-                      _buildGridButton(context, "Crop Updates", Icons.man,
-                          "/crop_updates", gridFontSize),
-                      _buildGridButton(context, "Cultivational Expenses",
-                          Icons.attach_money, "/expenses", gridFontSize),
-                      _buildGridButton(context, "Stock Details",
-                          Icons.store_mall_directory, "/stock", gridFontSize),
-                      _buildGridButton(context, "Order Details", Icons.book,
-                          "/orders", gridFontSize),
-                      _buildGridButton(context, "Inquiries", Icons.forum,
-                          "/technical", gridFontSize),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Text(
-                        "Crop Care",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: cardFontSize,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    side: const BorderSide(
-                      color: Color.fromRGBO(87, 164, 91, 0.8),
-                      width: 2,
-                    ),
-                  ),
-                  margin: EdgeInsets.all(cardMargin),
-                  child: Padding(
-                    padding: EdgeInsets.all(cardPadding),
+                  child: Center(
                     child: Column(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: GoogleFonts.poppins(
-                                    fontSize: cardFontSize,
-                                    color: Colors.black,
-                                  ),
-                                  children: const [
-                                    TextSpan(text: "Diagnose and treat\n"),
-                                    TextSpan(text: "your crop's pest and\n"),
-                                    TextSpan(text: "disease"),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Image.asset(
-                              "assets/images/image1.png",
-                              height: cardImageSize,
-                              width: cardImageSize,
-                            ),
-                          ],
+                        const SizedBox(height: 25),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Hi$userName,",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 18,
+                          ),
                         ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, "/prediction");
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green[400],
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: isDesktop
-                                      ? 18
-                                      : isTablet
-                                          ? 14
-                                          : 10),
-                              textStyle: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                fontSize: cardFontSize,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text('Continue'),
+                        Text(
+                          greeting,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 16,
+                            color: Colors.white70,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+              const SizedBox(height: 18),
+              // Modern grid with glass effect
+              SizedBox(
+                height: gridHeight,
+                child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: gridCrossAxisCount,
+                  childAspectRatio: gridChildAspectRatio,
+                  children: <Widget>[
+                    _modernGridButton(context, "Cultivational Details",
+                        Icons.agriculture, "/cultivational", gridFontSize),
+                    _modernGridButton(context, "Crop Updates", Icons.eco,
+                        "/crop_updates", gridFontSize),
+                    _modernGridButton(context, "Cultivational Expenses",
+                        Icons.attach_money, "/expenses", gridFontSize),
+                    _modernGridButton(context, "Stock Details",
+                        Icons.store_mall_directory, "/stock", gridFontSize),
+                    _modernGridButton(context, "Order Details", Icons.book,
+                        "/orders", gridFontSize),
+                    _modernGridButton(context, "Inquiries", Icons.forum,
+                        "/technical", gridFontSize),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildGridButton(BuildContext context, String title, IconData icon,
+  Widget _modernGridButton(BuildContext context, String title, IconData icon,
       String route, double fontSize) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[300],
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 1,
-      ),
-      onPressed: () {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
         Navigator.pushNamed(context, route);
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: fontSize + 14),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.normal,
-              fontSize: fontSize,
-              color: Colors.black,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(7),
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromRGBO(82, 99, 82, 0.125),
+              Color.fromRGBO(117, 156, 119, 0.086),
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 26, 48, 26).withOpacity(0.09),
+              blurRadius: 8,
+              offset: const Offset(2, 4),
+            ),
+          ],
+          border: Border.all(
+            color: Colors.white,
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.08),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Icon(icon,
+                  size: fontSize + 18,
+                  color: const Color.fromRGBO(87, 164, 91, 1)),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: fontSize + 2,
+                color: const Color.fromARGB(241, 13, 14, 13),
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -37,8 +37,9 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
         return;
       }
 
-      final response = await _dio.get("https://dearoagro-backend.onrender.com/api/cropfetch/$userId");
-      
+      final response = await _dio
+          .get("https://dearoagro-backend.onrender.com/api/cropfetch/$userId");
+
       if (response.statusCode == 200) {
         setState(() {
           _cropUpdates = response.data is List ? response.data : [];
@@ -60,39 +61,48 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
   }
 
   Future<void> _deleteCropUpdate(String id) async {
-  try {
-    setState(() {
-      _isLoading = true; 
-    });
-    
-    final response = await _dio.delete("https://dearoagro-backend.onrender.com/api/cropdelete/$id");
-    
-    if (response.statusCode == 200) {
-      
+    try {
       setState(() {
-        _cropUpdates.removeWhere((update) => update['_id'] == id);
+        _isLoading = true;
+      });
+
+      final response = await _dio
+          .delete("https://dearoagro-backend.onrender.com/api/cropdelete/$id");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _cropUpdates.removeWhere((update) => update['_id'] == id);
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data["message"])),
+        );
+
+        // Optional: Refresh from server to confirm
+        await _fetchCropUpdates();
+      }
+    } catch (e) {
+      setState(() {
         _isLoading = false;
       });
-      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.data["message"])),
+        SnackBar(content: Text("Failed to delete: ${e.toString()}")),
       );
-      
-      // Optional: Refresh from server to confirm
-      await _fetchCropUpdates();
     }
-  } catch (e) {
-    setState(() {
-      _isLoading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Failed to delete: ${e.toString()}")),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
+    // Find the first update with description "රෝපණය (වගා කිරීම)"
+    final firstPlanting = _cropUpdates.firstWhere(
+      (u) => u['description'] == "රෝපණය (වගා කිරීම)",
+      orElse: () => null,
+    );
+    final plantingDays = firstPlanting != null
+        ? _daysSinceAddDate(firstPlanting['addDate'])
+        : null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
@@ -130,6 +140,19 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
               ),
             ),
           ),
+          // Show days count at the top if available
+          if (plantingDays != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: Text(
+                "පැළ වලට දින ගණන: $plantingDays",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  color: Colors.yellow[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -156,11 +179,24 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
                     : SingleChildScrollView(
                         child: Column(
                           children: [
-                            ..._cropUpdates.map((update) => _buildCropUpdateCard(
-                                  update['addDate'],
-                                  update['description'],
-                                  update['_id'],
-                                )),
+                            ..._cropUpdates.map((update) {
+                              final description = update['description'] ?? '';
+                              final addDate = update['addDate'] ?? '';
+                              final id = update['_id'];
+                              final showDays =
+                                  description == "රෝපණය (වගා කිරීම)";
+                              final days =
+                                  showDays ? _daysSinceAddDate(addDate) : null;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  
+                                  _buildCropUpdateCard(
+                                      addDate, description, id),
+                                ],
+                              );
+                            }).toList(),
                             const SizedBox(height: 20),
                             Image.asset(
                               "assets/images/image5.png",
@@ -178,6 +214,11 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
   }
 
   Widget _buildCropUpdateCard(String date, String description, String id) {
+    final update =
+        _cropUpdates.firstWhere((u) => u['_id'] == id, orElse: () => {});
+
+    final days = _daysSinceAddDate(date);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       color: Colors.white,
@@ -194,6 +235,7 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -216,6 +258,27 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
                 color: Colors.black,
               ),
             ),
+            // Show fertilizer fields if available
+            if (update['fertilizerType'] != null &&
+                update['fertilizerType'].toString().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6.0),
+                child: Text(
+                  "පොහොර වර්ගය : ${update['fertilizerType']}",
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                ),
+              ),
+            if (update['fertilizerAmount'] != null &&
+                update['fertilizerUnit'] != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  "පොහොර ප්‍රමාණය: ${update['fertilizerAmount']} ${update['fertilizerUnit']}",
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                ),
+              ),
             const SizedBox(height: 10),
             const Divider(),
             Row(
@@ -250,25 +313,28 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Confirm Delete", style: GoogleFonts.poppins(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        )),
-        content: Text("Are you sure you want to delete this crop update?", 
-          style: GoogleFonts.poppins(color: Colors.black)),
+        title: Text("Confirm Delete",
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            )),
+        content: Text("Are you sure you want to delete this crop update?",
+            style: GoogleFonts.poppins(color: Colors.black)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: GoogleFonts.poppins(
-              color: const Color.fromRGBO(87, 164, 91, 0.8),
-            )),
+            child: Text("Cancel",
+                style: GoogleFonts.poppins(
+                  color: const Color.fromRGBO(87, 164, 91, 0.8),
+                )),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteCropUpdate(id);
             },
-            child: Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
+            child:
+                Text("Delete", style: GoogleFonts.poppins(color: Colors.red)),
           ),
         ],
       ),
@@ -276,7 +342,8 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
   }
 
   Future<void> _navigateToEditScreen(String id) async {
-    final updateToEdit = _cropUpdates.firstWhere((update) => update['_id'] == id);
+    final updateToEdit =
+        _cropUpdates.firstWhere((update) => update['_id'] == id);
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -285,6 +352,17 @@ class _CropDetailsScreenState extends State<CropDetailsScreen> {
     );
     if (result == true) {
       _fetchCropUpdates();
+    }
+  }
+
+  int _daysSinceAddDate(String? addDate) {
+    if (addDate == null || addDate.isEmpty) return 0;
+    try {
+      final start = DateTime.parse(addDate);
+      final now = DateTime.now();
+      return now.difference(start).inDays;
+    } catch (e) {
+      return 0;
     }
   }
 }
