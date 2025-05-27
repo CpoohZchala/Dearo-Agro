@@ -103,6 +103,18 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
     }
   }
 
+  /// Helper to calculate days between start date and now
+  int _daysFromStart(String? startDateString) {
+    if (startDateString == null || startDateString.isEmpty) return 0;
+    try {
+      final start = DateTime.parse(startDateString);
+      final now = DateTime.now();
+      return now.difference(start).inDays;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   Future<void> _handleRefresh() async {
     setState(() => _isLoading = true);
     await _fetchData();
@@ -161,6 +173,28 @@ class _CultivationalScreenState extends State<CultivationalScreen> {
                           child: Column(
                             children: [
                               const SizedBox(height: 20),
+                              // Show only Number of Days (outside cards)
+                              ..._data.map((cultivation) {
+                                final startDateRaw =
+                                    cultivation['startDate']?.toString();
+                                final days = _daysFromStart(startDateRaw);
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 2),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "වගා භූමියට දින ගණන: $days",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 20,
+                                        color: Colors.yellow[700],
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              const SizedBox(height: 10),
                               ..._data.map((cultivation) {
                                 final id = cultivation['_id'];
                                 final memberId =

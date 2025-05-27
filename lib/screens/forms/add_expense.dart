@@ -5,7 +5,6 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 class AddExpense extends StatefulWidget {
   final dynamic existingData;
 
@@ -27,6 +26,23 @@ class _AddExpenseState extends State<AddExpense> {
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
 
+  // Add this list for dropdown options
+  final List<String> _expenseDescriptions = [
+    "බිම සකස් කිරීම",
+    "බීජ තේරීම සහ බීජ වගාව",
+    "රෝපණය (වගා කිරීම)",
+    "පොහොර යෙදීම",
+    "ජල සපයීම (පෙරලීම)",
+    "වාලි කිරීම සහ නියමිත පාලනය",
+    "වර්ධනය පරික්ෂා කිරීම",
+    "අස්වනු තක්සේරු කිරීම",
+    "අස්වනු කිරීම",
+    "අස්වනු ගබඩා කිරීම",
+    "අස්වනු බෙදාහැරීම"
+  ];
+
+  String? _selectedDescription;
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +63,11 @@ class _AddExpenseState extends State<AddExpense> {
       _expenseController.text =
           widget.existingData['expense']?.toString() ?? '';
       _parseExistingDate();
+
+      // Set dropdown if matches
+      if (_expenseDescriptions.contains(widget.existingData['description'])) {
+        _selectedDescription = widget.existingData['description'];
+      }
     }
   }
 
@@ -204,14 +225,18 @@ class _AddExpenseState extends State<AddExpense> {
                           : null,
                     ),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _descriptionController,
-                      maxLength: _maxChars,
-                      maxLines: 3,
+                    // Dropdown for description
+                    DropdownButtonFormField<String>(
+                      value: _selectedDescription,
+                      items: _expenseDescriptions
+                          .map((desc) => DropdownMenuItem(
+                                value: desc,
+                                child: Text(desc, style: GoogleFonts.poppins()),
+                              ))
+                          .toList(),
                       decoration: InputDecoration(
                         labelText: "Description about crop expense",
                         labelStyle: GoogleFonts.poppins(color: Colors.black),
-                        counterText: "",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
@@ -221,16 +246,44 @@ class _AddExpenseState extends State<AddExpense> {
                               width: 2),
                         ),
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedDescription = value;
+                          _descriptionController.text = value ?? '';
+                        });
+                      },
                       validator: (value) => value == null || value.isEmpty
-                          ? "Please enter description"
+                          ? "Please select a description"
                           : null,
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text("$_charCount/$_maxChars",
-                          style: GoogleFonts.poppins()),
-                    ),
                     const SizedBox(height: 10),
+                    // Hide the manual description field
+                    // TextFormField(
+                    //   controller: _descriptionController,
+                    //   maxLength: _maxChars,
+                    //   maxLines: 3,
+                    //   decoration: InputDecoration(
+                    //     labelText: "Description about crop expense",
+                    //     labelStyle: GoogleFonts.poppins(color: Colors.black),
+                    //     counterText: "",
+                    //     border: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(10)),
+                    //     focusedBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(10),
+                    //       borderSide: const BorderSide(
+                    //           color: Color.fromRGBO(87, 164, 91, 0.8),
+                    //           width: 2),
+                    //     ),
+                    //   ),
+                    //   validator: (value) => value == null || value.isEmpty
+                    //       ? "Please enter description"
+                    //       : null,
+                    // ),
+                    // Align(
+                    //   alignment: Alignment.bottomRight,
+                    //   child: Text("$_charCount/$_maxChars",
+                    //       style: GoogleFonts.poppins()),
+                    // ),
                     TextFormField(
                       controller: _expenseController,
                       keyboardType: TextInputType.number,
