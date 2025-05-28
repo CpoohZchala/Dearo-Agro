@@ -5,6 +5,7 @@ import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/technical_inq_crud.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
+import 'package:farmeragriapp/screens/views/buyerDashboard.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
 import 'package:farmeragriapp/screens/forms/addCultivational.dart';
@@ -17,6 +18,7 @@ import 'package:farmeragriapp/screens/forms/signUp_screen.dart';
 import 'package:farmeragriapp/screens/views/splash_screen.dart';
 // import 'package:farmeragriapp/screens/views/stock_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:farmeragriapp/screens/views/buyer_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,9 +50,19 @@ class MyApp extends StatelessWidget {
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
-        "/myTechnical": (context) => const TechnicalInquiryList(baseUrl: 'http://192.168.8.125:5000/api',),
+        "/myTechnical": (context) => const TechnicalInquiryList(
+              baseUrl: 'http://192.168.8.125:5000/api',
+            ),
+        '/buyerDashboard': (context) => BuyerDashboard(),
+        '/buyer_profile': (context) {
+          // You may want to get userId and userType from storage or provider
+          final args = ModalRoute.of(context)!.settings.arguments as Map?;
+          return BuyerProfileScreen(
+            userId: args?['userId'] ?? '',
+            userType: args?['userType'] ?? 'Buyer',
+          );
+        },
       },
     );
   }
 }
-

@@ -26,6 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final List<String> _userTypes = [
     "Farmer",
     "Marketing Officer",
+    "Buyer", // Added Buyer
   ];
 
   Future<void> signIn() async {
@@ -67,11 +68,15 @@ class _SignInScreenState extends State<SignInScreen> {
               showWelcomeDialog(context, userId);
             } else if (userType == 'Marketing Officer') {
               Navigator.pushNamed(context, "/marketingOfficerDashboard");
+            } else if (userType == 'Buyer') {
+              Navigator.pushNamed(context, "/buyerDashboard"); // Added Buyer navigation
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text(
-                        "Access restricted to Farmers and Marketing Officers only")),
+                  content: Text(
+                    "Access restricted to Farmers, Marketing Officers, and Buyers only"
+                  ),
+                ),
               );
             }
           }

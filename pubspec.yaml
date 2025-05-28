@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_custom_clippers: ^2.1.0
+  flutter_image_compress: ^2.4.0
   flutter_launcher_icons: ^0.14.3
   flutter_secure_storage: ^9.2.4
   fluttertoast: ^8.2.12

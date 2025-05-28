@@ -27,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
     "Farmer",
     "Marketing Officer",
     "Super Admin",
+    "Buyer",
   ];
 
   Future<void> signUp() async {
