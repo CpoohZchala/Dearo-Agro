@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:farmeragriapp/screens/dialogBox/deleteProfileBuyer.dart';
 import 'package:farmeragriapp/screens/dialogBox/deleteProfile_dialog.dart';
 import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
+import 'package:farmeragriapp/screens/forms/buyer_editProfile.dart';
 import 'package:farmeragriapp/screens/forms/changePassword.dart';
+import 'package:farmeragriapp/screens/forms/changePasswordBuyer.dart';
 import 'package:farmeragriapp/screens/forms/editProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
@@ -235,7 +238,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  UpdateProfileScreen(userId: widget.userId),
+                                   BuyerUpdateProfileScreen(userId: widget.userId),
                             ),
                           );
                         },
@@ -245,7 +248,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                         icon: Icons.delete,
                         title: "Delete Profile",
                         onTap: () {
-                          showDeleteProfileDialog(context, widget.userId);
+                          showDeleteDialog(context, widget.userId);
                         },
                       ),
                       const Divider(thickness: 1, color: Colors.grey),
@@ -256,7 +259,7 @@ class _BuyerProfileScreenState extends State<BuyerProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChangePasswordScreen(
+                              builder: (context) => BuyerChangePasswordScreen(
                                 userId: widget.userId,
                                 userType: widget.userType,
                               ),

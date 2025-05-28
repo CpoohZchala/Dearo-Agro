@@ -19,7 +19,6 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
       const BuyerHome(),
-      
       Center(child: Text("Orders", style: GoogleFonts.poppins(fontSize: 22))),
       Center(child: Text("Profile", style: GoogleFonts.poppins(fontSize: 22))),
     ];
@@ -53,7 +52,7 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
           tabs: const [
             GButton(icon: Icons.home, text: "Home"),
             GButton(icon: Icons.shopping_bag, text: "Orders"),
-            GButton(icon: Icons.account_circle, text: "Profile"),
+          
           ],
         ),
       ),
@@ -111,7 +110,7 @@ class _BuyerHomeState extends State<BuyerHome> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              "assets/images/background3.jpg",
+              "assets/images/background2.jpg",
               fit: BoxFit.cover,
             ),
           ),
@@ -160,25 +159,29 @@ class _BuyerHomeState extends State<BuyerHome> {
               ),
               const SizedBox(height: 18),
               SizedBox(
-                height: gridHeight,
+                height: 300,
                 child: GridView.count(
-                  primary: false,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: gridCrossAxisCount,
-                  childAspectRatio: gridChildAspectRatio,
-                  children: <Widget>[
-                    _modernGridButton(context, "Browse Products",
-                        Icons.shopping_cart, "/browse_products", gridFontSize),
-                    _modernGridButton(context, "My Orders", Icons.receipt_long,
-                        "/my_orders", gridFontSize),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  childAspectRatio: 1.15,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
                     _modernGridButton(
-                        context,
-                        "Notifications",
-                        Icons.notifications,
-                        "/buyer_notifications",
-                        gridFontSize),
+                      context,
+                      "Browse Products",
+                      Icons.shopping_cart,
+                      "/browse_products",
+                      gridFontSize,
+                    ),
+                    _modernGridButton(
+                      context,
+                      "Notifications",
+                      Icons.notifications,
+                      "/buyer_notifications",
+                      gridFontSize,
+                    ),
                     _modernGridButton(
                       context,
                       "Profile",
@@ -187,8 +190,13 @@ class _BuyerHomeState extends State<BuyerHome> {
                       gridFontSize,
                       arguments: {'userId': userId ?? '', 'userType': 'Buyer'},
                     ),
-                    _modernGridButton(context, "Support", Icons.support_agent,
-                        "/buyer_support", gridFontSize),
+                    _modernGridButton(
+                      context,
+                      "Support",
+                      Icons.support_agent,
+                      "/buyer_support",
+                      gridFontSize,
+                    ),
                   ],
                 ),
               ),
@@ -219,7 +227,7 @@ class _BuyerHomeState extends State<BuyerHome> {
           gradient: const LinearGradient(
             colors: [
               Colors.white,
-              Color.fromRGBO(117, 156, 119, 0.086),
+              Color.fromRGBO(53, 169, 51, 0.082),
               Colors.white,
             ],
             begin: Alignment.topLeft,
@@ -263,7 +271,7 @@ class _BuyerHomeState extends State<BuyerHome> {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 fontSize: fontSize + 2,
-                color: const Color.fromARGB(240, 252, 254, 252),
+                color: const Color.fromARGB(239, 9, 9, 9),
                 letterSpacing: 0.2,
               ),
             ),

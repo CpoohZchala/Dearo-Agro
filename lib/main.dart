@@ -5,6 +5,7 @@ import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
 import 'package:farmeragriapp/screens/forms/technical_inq_crud.dart';
 import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
+import 'package:farmeragriapp/screens/views/browse_products.dart';
 import 'package:farmeragriapp/screens/views/buyerDashboard.dart';
 import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
 import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
@@ -55,13 +56,13 @@ class MyApp extends StatelessWidget {
             ),
         '/buyerDashboard': (context) => BuyerDashboard(),
         '/buyer_profile': (context) {
-          // You may want to get userId and userType from storage or provider
           final args = ModalRoute.of(context)!.settings.arguments as Map?;
           return BuyerProfileScreen(
             userId: args?['userId'] ?? '',
             userType: args?['userType'] ?? 'Buyer',
           );
         },
+        '/browse_products': (context) => const BrowseProductsScreen(),
       },
     );
   }
