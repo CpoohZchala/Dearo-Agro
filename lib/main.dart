@@ -1,25 +1,25 @@
-import 'package:farmeragriapp/screens/forms/add_expense.dart';
-import 'package:farmeragriapp/screens/forms/commiunityIScreen.dart';
-import 'package:farmeragriapp/screens/forms/financialIScreen.dart';
-import 'package:farmeragriapp/screens/forms/generalIScreen.dart';
-import 'package:farmeragriapp/screens/forms/technicalIScreen.dart';
-import 'package:farmeragriapp/screens/forms/technical_inq_crud.dart';
-import 'package:farmeragriapp/screens/views/Cultivational_expense.dart';
-import 'package:farmeragriapp/screens/views/browse_products.dart';
-import 'package:farmeragriapp/screens/views/buyerDashboard.dart';
-import 'package:farmeragriapp/screens/views/crop_details_screen.dart';
-import 'package:farmeragriapp/screens/views/cultivation_screen.dart';
-import 'package:farmeragriapp/screens/forms/addCultivational.dart';
-import 'package:farmeragriapp/screens/views/inquiries_screen.dart';
-import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
+import 'package:farmeragriapp/screens/forms/farmer/add_expense.dart';
+import 'package:farmeragriapp/screens/forms/farmer/commiunityIScreen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/financialIScreen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/generalIScreen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/technicalIScreen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/technical_inq_crud.dart';
+import 'package:farmeragriapp/screens/views/farmer/Cultivational_expense.dart';
+import 'package:farmeragriapp/screens/views/buyer/browse_products.dart';
+import 'package:farmeragriapp/screens/views/buyer/buyerDashboard.dart';
+import 'package:farmeragriapp/screens/views/farmer/crop_details_screen.dart';
+import 'package:farmeragriapp/screens/views/farmer/cultivation_screen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/addCultivational.dart';
+import 'package:farmeragriapp/screens/views/farmer/inquiries_screen.dart';
+import 'package:farmeragriapp/screens/forms/farmer/newUpdateForm.dart';
 // import 'package:farmeragriapp/screens/views/orders_screen.dart';
-import 'package:farmeragriapp/screens/views/predictionscreen.dart';
+import 'package:farmeragriapp/screens/views/farmer/predictionscreen.dart';
 import 'package:farmeragriapp/screens/forms/signIn_screen.dart';
 import 'package:farmeragriapp/screens/forms/signUp_screen.dart';
-import 'package:farmeragriapp/screens/views/splash_screen.dart';
+import 'package:farmeragriapp/screens/views/farmer/splash_screen.dart';
 // import 'package:farmeragriapp/screens/views/stock_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:farmeragriapp/screens/views/buyer_profile.dart';
+import 'package:farmeragriapp/screens/views/buyer/buyer_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
           );
         },
         '/browse_products': (context) => const BrowseProductsScreen(),
+        
       },
     );
   }

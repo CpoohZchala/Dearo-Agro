@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:farmeragriapp/screens/dialogBox/deleteProfileBuyer.dart';
 import 'package:farmeragriapp/screens/dialogBox/deleteProfile_dialog.dart';
 import 'package:farmeragriapp/screens/dialogBox/logout_dialog.dart';
-import 'package:farmeragriapp/screens/forms/buyer_editProfile.dart';
-import 'package:farmeragriapp/screens/forms/changePassword.dart';
-import 'package:farmeragriapp/screens/forms/changePasswordBuyer.dart';
-import 'package:farmeragriapp/screens/forms/editProfile.dart';
+import 'package:farmeragriapp/screens/forms/buyer/buyer_editProfile.dart';
+import 'package:farmeragriapp/screens/forms/farmer/changePassword.dart';
+import 'package:farmeragriapp/screens/forms/buyer/changePasswordBuyer.dart';
+import 'package:farmeragriapp/screens/forms/farmer/editProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
     as custom_clippers;

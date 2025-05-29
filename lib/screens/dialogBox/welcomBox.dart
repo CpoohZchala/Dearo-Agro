@@ -1,4 +1,4 @@
-import 'package:farmeragriapp/screens/views/farmer_dashbaord.dart';
+import 'package:farmeragriapp/screens/views/farmer/farmer_dashbaord.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

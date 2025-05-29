@@ -1,6 +1,6 @@
-import 'package:farmeragriapp/screens/views/cropCalender.dart';
-import 'package:farmeragriapp/screens/views/notifications.dart';
-import 'package:farmeragriapp/screens/views/profile.dart';
+import 'package:farmeragriapp/screens/views/farmer/cropCalender.dart';
+import 'package:farmeragriapp/screens/views/farmer/notifications.dart';
+import 'package:farmeragriapp/screens/views/farmer/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
     as custom_clippers;

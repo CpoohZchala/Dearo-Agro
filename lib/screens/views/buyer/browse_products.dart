@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:farmeragriapp/api/product_api.dart';
+import 'package:farmeragriapp/api/cart_api.dart';
 import 'package:farmeragriapp/models/product.dart';
-import 'package:farmeragriapp/screens/views/cartScreen.dart';
+import 'package:farmeragriapp/screens/views/buyer/cartScreen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +25,8 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
   final List<Map<String, dynamic>> cart = [];
   final Map<String, int> selectedQuantities = {};
 
+  final storage = FlutterSecureStorage();
+
   void addToCart(Map<String, dynamic> product) {
     int quantity = selectedQuantities[product['id']] ?? 1;
     setState(() {
@@ -40,7 +44,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CartScreen(cart: cart),
+        builder: (context) => const CartScreen(),
       ),
     );
   }
@@ -62,6 +66,27 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
       setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load products')),
+      );
+    }
+  }
+
+  Future<void> addProductToCart(Product product) async {
+    int quantity = selectedQuantities[product.id] ?? 1;
+    final token = await storage.read(key: "authToken");
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please sign in to add to cart')),
+      );
+      return;
+    }
+    final success = await CartApi.addToCart(token, product.id, quantity);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${product.name} (x$quantity) added to cart!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add to cart')),
       );
     }
   }
@@ -191,8 +216,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
                                   ],
                                 ),
                                 ElevatedButton.icon(
-                                  onPressed: () => addToCart(
-                                      product as Map<String, dynamic>),
+                                  onPressed: () => addProductToCart(product),
                                   icon: const Icon(Icons.add_shopping_cart),
                                   label: const Text('Add to Cart'),
                                   style: ElevatedButton.styleFrom(

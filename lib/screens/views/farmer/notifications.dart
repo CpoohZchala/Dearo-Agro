@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import '../../api/soil_test_report_api.dart';
-import '../../models/soil_test_report.dart';
+import '../../../api/soil_test_report_api.dart';
+import '../../../models/soil_test_report.dart';
 import 'soil_test_report_form.dart';
 
 class SoilTestScreen extends StatefulWidget {

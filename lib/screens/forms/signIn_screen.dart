@@ -26,7 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final List<String> _userTypes = [
     "Farmer",
     "Marketing Officer",
-    "Buyer", // Added Buyer
+    "Buyer", 
   ];
 
   Future<void> signIn() async {

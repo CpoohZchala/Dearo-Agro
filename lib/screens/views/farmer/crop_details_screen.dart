@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:farmeragriapp/screens/forms/newUpdateForm.dart';
+import 'package:farmeragriapp/screens/forms/farmer/newUpdateForm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
