@@ -7,7 +7,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 class BrowseProductsScreen extends StatefulWidget {
   const BrowseProductsScreen({Key? key}) : super(key: key);
 
@@ -65,7 +64,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
     } catch (e) {
       setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load products')),
+        const SnackBar(content: Text('Failed to load products')),
       );
     }
   }
@@ -75,7 +74,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
     final token = await storage.read(key: "authToken");
     if (token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please sign in to add to cart')),
+        const SnackBar(content: Text('Please sign in to add to cart')),
       );
       return;
     }
@@ -86,7 +85,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to cart')),
+        const SnackBar(content: Text('Failed to add to cart')),
       );
     }
   }
@@ -119,7 +118,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 SingleChildScrollView(
@@ -177,7 +176,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
                                     height: imageHeight,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
-                                            Icon(Icons.broken_image),
+                                            const Icon(Icons.broken_image),
                                   ),
                                 ),
                                 const SizedBox(height: 6),

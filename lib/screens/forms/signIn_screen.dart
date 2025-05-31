@@ -26,7 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final List<String> _userTypes = [
     "Farmer",
     "Marketing Officer",
-    "Buyer", 
+    "Buyer",
   ];
 
   Future<void> signIn() async {
@@ -67,15 +67,15 @@ class _SignInScreenState extends State<SignInScreen> {
             if (userType == 'Farmer') {
               showWelcomeDialog(context, userId);
             } else if (userType == 'Marketing Officer') {
-              Navigator.pushNamed(context, "/marketingOfficerDashboard");
+              
+              Navigator.pushNamed(context, "/officerDashboard");
             } else if (userType == 'Buyer') {
-              Navigator.pushNamed(context, "/buyerDashboard"); // Added Buyer navigation
+              Navigator.pushNamed(context, "/buyerDashboard");
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
-                    "Access restricted to Farmers, Marketing Officers, and Buyers only"
-                  ),
+                      "Access restricted to Farmers, Marketing Officers, and Buyers only"),
                 ),
               );
             }
@@ -349,8 +349,9 @@ class _SignInScreenState extends State<SignInScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.poppins(
-              fontSize: fontSize,
-              color: const Color.fromARGB(204, 0, 0, 0),),
+            fontSize: fontSize,
+            color: const Color.fromARGB(204, 0, 0, 0),
+          ),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {

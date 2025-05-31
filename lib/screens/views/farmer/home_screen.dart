@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Splash Screen with background image
+ 
   Widget _buildSplashScreen() {
     return Center(
       child: Image.asset(

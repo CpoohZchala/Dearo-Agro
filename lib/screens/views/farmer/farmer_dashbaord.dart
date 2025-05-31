@@ -49,10 +49,10 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(18, 40, 18, 0.8),
+          color: Color.fromRGBO(1, 45, 9, 0.8),
           borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
           boxShadow: [
-            BoxShadow(color: Color.fromARGB(66, 118, 117, 117), blurRadius: 9, spreadRadius: 3),
+            BoxShadow(color: Color.fromARGB(66, 6, 131, 1), blurRadius: 9, spreadRadius: 3),
           ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -240,7 +240,7 @@ class FarmerHome extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Icon(icon,
                   size: fontSize + 18,
-                  color: const Color.fromRGBO(87, 164, 91, 1)),
+                  color: const Color.fromARGB(255, 238, 246, 1)),
             ),
             const SizedBox(height: 10),
             Text(
@@ -249,7 +249,7 @@ class FarmerHome extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 fontSize: fontSize + 2,
-                color: const Color.fromARGB(241, 13, 14, 13),
+                color: Colors.white,
                 letterSpacing: 0.2,
               ),
             ),
