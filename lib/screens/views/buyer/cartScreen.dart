@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:farmeragriapp/api/cart_api.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -25,16 +26,26 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> fetchCart() async {
     try {
       final token = await storage.read(key: "authToken");
+      final userId = await storage.read(key: "userId");
       print('Token: $token');
-      if (token != null) {
-        final data = await CartApi.getCart(token);
-        print('RAW CART RESPONSE: ${jsonEncode(data)}');
-        setState(() {
-          cartData = data;
-          isLoading = false;
-        });
+      print('User ID: $userId');
+      if (token != null && userId != null) {
+        final data = await CartApi.getCart(token, userId);
+        if (data != null) {
+          print('RAW CART RESPONSE: ${jsonEncode(data)}');
+          setState(() {
+            cartData = data;
+            isLoading = false;
+          });
+        } else {
+          print('Cart not found for user ID: $userId');
+          setState(() {
+            cartData = null;
+            isLoading = false;
+          });
+        }
       } else {
-        print('No token found');
+        print('No token or user ID found');
         setState(() {
           isLoading = false;
         });

@@ -6,7 +6,7 @@ class ProductApi {
   static Future<List<Product>> fetchProducts() async {
     final response = await http.get(
       Uri.parse(
-          'https://dearoagro-backend.onrender.com/api/'),
+          'https://dearoagro-backend.onrender.com/api/products'),
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

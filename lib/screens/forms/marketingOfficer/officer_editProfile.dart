@@ -9,12 +9,10 @@ class OfficerUpdateProfileScreen extends StatefulWidget {
   const OfficerUpdateProfileScreen({super.key, required this.userId});
 
   @override
-  _OfficerUpdateProfileScreenState createState() =>
-      _OfficerUpdateProfileScreenState();
+  _OfficerUpdateProfileScreenState createState() => _OfficerUpdateProfileScreenState();
 }
 
-class _OfficerUpdateProfileScreenState
-    extends State<OfficerUpdateProfileScreen> {
+class _OfficerUpdateProfileScreenState extends State<OfficerUpdateProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategory;
   final TextEditingController _nameController = TextEditingController();
@@ -29,6 +27,7 @@ class _OfficerUpdateProfileScreenState
   bool _isLoading = false;
   String _responseMessage = '';
 
+  // Modify updateProfile to include userType in the GET request
   Future<void> updateProfile() async {
     if (_nameController.text.trim().isEmpty &&
         _mobileController.text.trim().isEmpty &&
@@ -43,12 +42,29 @@ class _OfficerUpdateProfileScreenState
     });
 
     try {
+      // Fetch current user type
+      final userResponse = await http.get(Uri.parse(
+          'https://dearoagro-backend.onrender.com/api/officers/${widget.userId}'));
+
+      if (userResponse.statusCode != 200) {
+        print("Failed to fetch user info: ${userResponse.body}");
+        throw Exception("Failed to get user info");
+      }
+
+      final userData = jsonDecode(userResponse.body);
+      final currentUserType = userData['userType'];
+      if (currentUserType == null) {
+        throw Exception("User type is null or invalid");
+      }
+
+      final newUserType = _selectedCategory ?? currentUserType;
+
       final url = Uri.parse(
           'https://dearoagro-backend.onrender.com/api/officers/${widget.userId}');
       final body = json.encode({
         if (_nameController.text.trim().isNotEmpty)
           'fullName': _nameController.text.trim(),
-        if (_selectedCategory != null) 'userType': _selectedCategory,
+        if (_selectedCategory != null) 'userType': newUserType,
         if (_mobileController.text.trim().isNotEmpty)
           'mobileNumber': _mobileController.text.trim(),
       });
@@ -59,7 +75,14 @@ class _OfficerUpdateProfileScreenState
         body: body,
       );
 
+      print("API Response Code: ${response.statusCode}");
+      print("API Response Body: ${response.body}");
+
       if (response.statusCode == 200) {
+        if (currentUserType != newUserType) {
+          print("User type changed from $currentUserType to $newUserType");
+          // Handle user type change if needed
+        }
         setState(() => _responseMessage = '✅ Profile updated successfully!');
       } else {
         final errorData = jsonDecode(response.body);
@@ -67,6 +90,7 @@ class _OfficerUpdateProfileScreenState
             '❌ Update failed: ${errorData['message'] ?? 'Unknown error'}');
       }
     } catch (error) {
+      print("Error during profile update: $error");
       setState(() => _responseMessage = '❗ Error: $error');
     } finally {
       setState(() => _isLoading = false);
@@ -76,13 +100,12 @@ class _OfficerUpdateProfileScreenState
   @override
   Widget build(BuildContext context) {
     final inputStyle = GoogleFonts.poppins(fontSize: 16);
-    final labelStyle =
-        GoogleFonts.poppins(fontWeight: FontWeight.w500, color: Colors.black);
+    final labelStyle = GoogleFonts.poppins(fontWeight: FontWeight.w500,color:Colors.black);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(255, 235, 59, 0.8),
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
         title: Text(
           "Edit Profile",
           style: GoogleFonts.poppins(
@@ -100,7 +123,7 @@ class _OfficerUpdateProfileScreenState
             clipper: ArcClipper(),
             child: Container(
               height: 100,
-              color: const Color.fromRGBO(255, 235, 59, 0.8),
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
             ),
           ),
           Expanded(
@@ -123,7 +146,7 @@ class _OfficerUpdateProfileScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -148,7 +171,7 @@ class _OfficerUpdateProfileScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -181,7 +204,7 @@ class _OfficerUpdateProfileScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -205,8 +228,7 @@ class _OfficerUpdateProfileScreenState
                             fontSize: 16, color: Colors.black),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromRGBO(255, 235, 59, 0.8),
+                        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 12),
                         shape: RoundedRectangleBorder(

@@ -1,7 +1,9 @@
-import 'package:farmeragriapp/api/farmer_api.dart';
-import 'package:farmeragriapp/models/farmer_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart'
+    as custom_clippers;
+import 'package:farmeragriapp/api/farmer_api.dart';
+import 'package:farmeragriapp/models/farmer_model.dart';
 
 class UpdateFarmerScreen extends StatefulWidget {
   const UpdateFarmerScreen({Key? key}) : super(key: key);
@@ -58,70 +60,138 @@ class _UpdateFarmerScreenState extends State<UpdateFarmerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final farmer = ModalRoute.of(context)!.settings.arguments as Farmer;
+    const double arcHeight = 250.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Update Farmer",
-          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color.fromARGB(255, 2, 17, 72),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
+      backgroundColor: const Color(0xFFF6F8FA),
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              "assets/images/background5.png",
+              fit: BoxFit.cover,
+            ),
+          ),
+          Column(
             children: [
-              TextFormField(
-                controller: fullNameController,
-                decoration: InputDecoration(
-                  labelText: "Full Name",
-                  labelStyle: GoogleFonts.poppins(fontSize: 16),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter the full name";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: mobileNumberController,
-                decoration: InputDecoration(
-                  labelText: "Mobile Number",
-                  labelStyle: GoogleFonts.poppins(fontSize: 16),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter the mobile number";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: () => updateFarmer(farmer.id),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 2, 17, 72),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(
-                        "Update Farmer",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ClipPath(
+                clipper: custom_clippers.ArcClipper(),
+                child: Container(
+                  height: arcHeight,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromRGBO(119, 153, 161, 1),
+                        Color.fromRGBO(2, 75, 5, 0.69),
+                        Color.fromRGBO(119, 153, 161, 1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Update Farmer",
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: fullNameController,
+                          decoration: InputDecoration(
+                            labelText: "Full Name",
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color.fromRGBO(87, 164, 91, 0.8),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter the full name";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: mobileNumberController,
+                          decoration: InputDecoration(
+                            labelText: "Mobile Number",
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color.fromRGBO(87, 164, 91, 0.8),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter the mobile number";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        isLoading
+                            ? const CircularProgressIndicator()
+                            : ElevatedButton(
+                                onPressed: () {
+                                  final farmer = ModalRoute.of(context)!.settings.arguments as Farmer;
+                                  updateFarmer(farmer.id);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromRGBO(2, 75, 5, 0.69),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 24),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Update Farmer",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

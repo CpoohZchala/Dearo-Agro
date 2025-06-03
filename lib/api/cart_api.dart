@@ -8,6 +8,7 @@ class CartApi {
   // Add item to cart
   static Future<bool> addToCart(
       String token, String productId, int quantity) async {
+    print('Authorization Token: $token');
     final response = await http.post(
       Uri.parse('$baseUrl/add'),
       headers: {
@@ -22,35 +23,34 @@ class CartApi {
   }
 
   // Get cart contents
-  static Future<Map<String, dynamic>?> getCart(String token) async {
+  static Future<Map<String, dynamic>?> getCart(
+      String token, String userId) async {
     try {
+      print('Authorization Token: $token');
       final response = await http.get(
-        Uri.parse(baseUrl),
+        Uri.parse('$baseUrl/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
-      
+
       print('GET CART STATUS: ${response.statusCode}');
       print('GET CART BODY: ${response.body}');
-      
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
-      } else if (response.statusCode == 500) {
-        // Handle server errors more gracefully
-        print('Server error details: ${response.body}');
-        return {'items': [], 'totalPrice': 0};
       }
       return null;
     } catch (e) {
       print('Network error fetching cart: $e');
       return null;
     }
-}
+  }
 
   // Remove item from cart
   static Future<bool> removeFromCart(String token, String itemId) async {
+    print('Authorization Token: $token'); // Print the token
     final response = await http.delete(
       Uri.parse('$baseUrl/remove/$itemId'),
       headers: {
@@ -63,6 +63,7 @@ class CartApi {
 
   // Clear cart
   static Future<bool> clearCart(String token) async {
+    print('Authorization Token: $token'); // Print the token
     final response = await http.delete(
       Uri.parse('$baseUrl/clear'),
       headers: {

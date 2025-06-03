@@ -12,7 +12,9 @@ class ManageFarmersScreen extends StatefulWidget {
 
 class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
   List<Farmer> farmers = [];
+  List<Farmer> filteredFarmers = [];
   bool isLoading = true;
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
       final fetchedFarmers = await FarmerApi.fetchFarmers();
       setState(() {
         farmers = fetchedFarmers;
+        filteredFarmers = fetchedFarmers;
         isLoading = false;
       });
     } catch (error) {
@@ -36,6 +39,15 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
         isLoading = false;
       });
     }
+  }
+
+  void filterFarmers(String query) {
+    setState(() {
+      filteredFarmers = farmers
+          .where((farmer) =>
+              farmer.mobileNumber.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
   }
 
   Future<void> deleteFarmer(String id) async {
@@ -95,9 +107,9 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
               'assets/images/background4.jpg',
@@ -114,8 +126,9 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFF85C88A),
-                        Color(0xFF2F7B3F),
+                        Color.fromRGBO(119, 153, 161, 1),
+                        Color.fromRGBO(2, 75, 5, 0.69),
+                        Color.fromRGBO(119, 153, 161, 1),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -135,157 +148,189 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              // Fixed Search Bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    final result = await Navigator.pushNamed(
-                      context,
-                      "/createFarmer",
-                    );
-                    if (result == true) {
-                      fetchFarmers();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2F7B3F),
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: filterFarmers,
+                  decoration: InputDecoration(
+                    hintText: "Search by mobile number",
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 4,
-                  ),
-                  icon: const Icon(Icons.person_add, color: Colors.white),
-                  label: Text(
-                    "Register Farmer",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              // Scrollable Content
               Expanded(
-                child: isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : farmers.isEmpty
-                        ? Center(
-                            child: Text(
-                              "No farmers found.",
-                              style: GoogleFonts.poppins(fontSize: 16),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: farmers.length,
-                            itemBuilder: (context, index) {
-                              final farmer = farmers[index];
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                margin: const EdgeInsets.only(bottom: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      contentPadding: const EdgeInsets.all(16),
-                                      title: Text(
-                                        farmer.fullName,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: [
+                      isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : filteredFarmers.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    "No farmers found.",
+                                    style: GoogleFonts.poppins(fontSize: 16),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: filteredFarmers.length,
+                                  itemBuilder: (context, index) {
+                                    final farmer = filteredFarmers[index];
+                                    return AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut,
+                                      margin: const EdgeInsets.only(bottom: 16),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            const Color.fromARGB(
+                                                    255, 30, 32, 30)
+                                                .withOpacity(0.8),
+                                            const Color.fromARGB(
+                                                    255, 136, 211, 151)
+                                                .withOpacity(0.8),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
-                                      ),
-                                      subtitle: Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 6.0),
-                                        child: Text(
-                                          "Mobile: ${farmer.mobileNumber}",
-                                          style:
-                                              GoogleFonts.poppins(fontSize: 14),
-                                        ),
-                                      ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.edit,
-                                                color: Colors.orangeAccent),
-                                            onPressed: () async {
-                                              final result =
-                                                  await Navigator.pushNamed(
-                                                context,
-                                                "/updateFarmer",
-                                                arguments: farmer,
-                                              );
-                                              if (result == true) {
-                                                fetchFarmers();
-                                              }
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete,
-                                                color: Colors.redAccent),
-                                            onPressed: () {
-                                              showDeleteFarmerDialog(
-                                                  context, farmer.id);
-                                            },
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 8),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            Navigator.pushNamed(
-                                              context,
-                                              "/uploadSoilTestReport",
-                                              arguments: farmer.id,
-                                            );
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xFF2F7B3F),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            contentPadding:
+                                                const EdgeInsets.all(16),
+                                            title: Text(
+                                              farmer.fullName,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            subtitle: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 6.0),
+                                              child: Text(
+                                                "Mobile: ${farmer.mobileNumber}",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            trailing: PopupMenuButton<String>(
+                                              icon: const Icon(Icons.more_vert,
+                                                  color: Colors.black),
+                                              onSelected: (value) async {
+                                                if (value == 'edit') {
+                                                  final result =
+                                                      await Navigator.pushNamed(
+                                                    context,
+                                                    "/updateFarmer",
+                                                    arguments: farmer,
+                                                  );
+                                                  if (result == true) {
+                                                    fetchFarmers();
+                                                  }
+                                                } else if (value == 'delete') {
+                                                  showDeleteFarmerDialog(
+                                                      context, farmer.id);
+                                                }
+                                              },
+                                              itemBuilder: (context) => [
+                                                const PopupMenuItem(
+                                                  value: 'edit',
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.edit,
+                                                          color: Colors.yellow),
+                                                      SizedBox(width: 8),
+                                                      Text('Edit'),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const PopupMenuItem(
+                                                  value: 'delete',
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.delete,
+                                                          color:
+                                                              Colors.redAccent),
+                                                      SizedBox(width: 8),
+                                                      Text('Delete'),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          icon: const Icon(Icons.file_upload,
-                                              color: Colors.white),
-                                          label: Text(
-                                            "Add Soil Test Report",
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
+                                        ],
                                       ),
-                                    )
-                                  ],
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
+                    ],
+                  ),
+                ),
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.pushNamed(
+                    context,
+                    "/createFarmer",
+                  );
+                  if (result == true) {
+                    fetchFarmers();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.yellow,
+                  minimumSize: const Size(150, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                ),
+                icon: const Icon(Icons.person_add, color: Colors.black),
+                label: Text(
+                  "Farmer",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),

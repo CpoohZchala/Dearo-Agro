@@ -117,13 +117,7 @@ class _OfficerHomeState extends State<OfficerHome> {
                       "/manageFarmers",
                       gridFontSize,
                     ),
-                    _modernGridButton(
-                      context,
-                      "Notifications",
-                      Icons.notifications,
-                      "/officer_notifications",
-                      gridFontSize,
-                    ),
+                   
                     _modernGridButton(
                       context,
                       "Profile",
@@ -135,13 +129,7 @@ class _OfficerHomeState extends State<OfficerHome> {
                         'userType': 'Officer'
                       },
                     ),
-                    _modernGridButton(
-                      context,
-                      "Support",
-                      Icons.support_agent,
-                      "/officer_support",
-                      gridFontSize,
-                    ),
+                   
                   ],
                 ),
               ),

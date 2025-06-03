@@ -29,7 +29,7 @@ class _OfficerDashboardState extends State<OfficerDashboard> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Color.fromRGBO(19, 73, 2, 0.8),
+          color: Color.fromRGBO(4, 16, 0, 0.8),
           borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
           boxShadow: [
             BoxShadow(

@@ -6,8 +6,10 @@ import 'package:http/http.dart' as http;
 
 class OfficerChangePasswordScreen extends StatefulWidget {
   final String userId;
+  final String userType;
 
-  const OfficerChangePasswordScreen({required this.userId, Key? key})
+  const OfficerChangePasswordScreen(
+      {required this.userId, required this.userType, Key? key})
       : super(key: key);
 
   @override
@@ -98,7 +100,7 @@ class _OfficerChangePasswordScreenState
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(255, 235, 59, 0.8),
+        backgroundColor: const Color.fromRGBO(87, 164, 91, 0.8),
         title: Text(
           "Password Change",
           style: GoogleFonts.poppins(
@@ -116,7 +118,7 @@ class _OfficerChangePasswordScreenState
             clipper: ArcClipper(),
             child: Container(
               height: 100,
-              color: const Color.fromRGBO(255, 235, 59, 0.8),
+              color: const Color.fromRGBO(87, 164, 91, 0.8),
             ),
           ),
           Expanded(
@@ -126,6 +128,7 @@ class _OfficerChangePasswordScreenState
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Current Password Field
                     TextFormField(
                       controller: _currentPasswordController,
                       obscureText: !_showCurrentPassword,
@@ -140,7 +143,7 @@ class _OfficerChangePasswordScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -162,7 +165,10 @@ class _OfficerChangePasswordScreenState
                           ? 'Enter current password'
                           : null,
                     ),
+
                     const SizedBox(height: 20),
+
+                    // New Password Field
                     TextFormField(
                       controller: _newPasswordController,
                       obscureText: !_showNewPassword,
@@ -177,7 +183,7 @@ class _OfficerChangePasswordScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -199,7 +205,10 @@ class _OfficerChangePasswordScreenState
                           ? 'Minimum 6 characters'
                           : null,
                     ),
+
                     const SizedBox(height: 20),
+
+                    // Confirm Password Field
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: !_showConfirmPassword,
@@ -214,7 +223,7 @@ class _OfficerChangePasswordScreenState
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color.fromRGBO(255, 235, 59, 0.8),
+                            color: const Color.fromRGBO(87, 164, 91, 0.8),
                             width: 2,
                           ),
                         ),
@@ -236,7 +245,10 @@ class _OfficerChangePasswordScreenState
                           ? 'Confirm your password'
                           : null,
                     ),
+
                     const SizedBox(height: 30),
+
+                    // Change Password Button
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton.icon(
@@ -250,7 +262,7 @@ class _OfficerChangePasswordScreenState
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color.fromRGBO(255, 235, 59, 0.8),
+                                  const Color.fromRGBO(87, 164, 91, 0.8),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 24),
                               shape: RoundedRectangleBorder(
@@ -258,7 +270,10 @@ class _OfficerChangePasswordScreenState
                               ),
                             ),
                           ),
+
                     const SizedBox(height: 15),
+
+                    // Response Message
                     if (_responseMessage.isNotEmpty)
                       Text(
                         _responseMessage,

@@ -22,6 +22,7 @@ import 'package:farmeragriapp/screens/views/farmer/splash_screen.dart';
 import 'package:farmeragriapp/screens/views/marketingOfficer/add_soilReport.dart';
 import 'package:farmeragriapp/screens/views/marketingOfficer/manageFarmersScreen.dart';
 import 'package:farmeragriapp/screens/views/marketingOfficer/officerDashboard.dart';
+import 'package:farmeragriapp/screens/views/marketingOfficer/officer_profile.dart';
 // import 'package:farmeragriapp/screens/views/stock_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:farmeragriapp/screens/views/buyer/buyer_profile.dart';
@@ -56,7 +57,8 @@ class MyApp extends StatelessWidget {
         "/commiunity": (context) => const CommiunityIscreen(),
         "/finacial": (context) => const FinancialIscreen(),
         "/technical": (context) => const TechnicalIScreen(),
-        "/myTechnical": (context) => const TechnicalInquiryList(baseUrl: 'http://192.168.8.125:5000/api'),
+        "/myTechnical": (context) => const TechnicalInquiryList(
+            baseUrl: 'http://192.168.8.125:5000/api'),
         '/buyerDashboard': (context) => BuyerDashboard(),
         '/buyer_profile': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map?;
@@ -66,13 +68,22 @@ class MyApp extends StatelessWidget {
           );
         },
         '/browse_products': (context) => const BrowseProductsScreen(),
-        '/officerDashboard': (context) => OfficerDashboard(userId: '',),
+        '/officerDashboard': (context) => OfficerDashboard(
+              userId: '',
+            ),
         '/createFarmer': (context) => const CreateFarmerScreen(),
         "/updateFarmer": (context) => const UpdateFarmerScreen(),
-        "/uploadSoilTestReport": (context) => UploadSoilTestReportScreen(farmerId: '',),
-        "/manageFarmers" : (context) => ManageFarmersScreen(),
-
-        
+        "/uploadSoilTestReport": (context) => UploadSoilTestReportScreen(
+              farmerId: '',
+            ),
+        "/manageFarmers": (context) => ManageFarmersScreen(),
+        "/officerProfile": (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map?;
+          return OfficerProfileScreen(
+            userId: args?['userId'] ?? '',
+            userType: args?['userType'] ?? 'Marketing Officer',
+          );
+        },
       },
     );
   }
