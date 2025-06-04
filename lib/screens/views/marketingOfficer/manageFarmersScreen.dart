@@ -233,12 +233,25 @@ class _ManageFarmersScreenState extends State<ManageFarmersScreen> {
                                             subtitle: Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 6.0),
-                                              child: Text(
-                                                "Mobile: ${farmer.mobileNumber}",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  color: Colors.white,
-                                                ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Mobile: ${farmer.mobileNumber}",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Branch: ${farmer.branchName ?? 'Not Assigned'}", // Display branchName
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             trailing: PopupMenuButton<String>(

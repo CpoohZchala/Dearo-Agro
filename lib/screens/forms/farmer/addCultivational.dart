@@ -149,7 +149,8 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
         district: _selectedDistrict!,
         city: _selectedCity!,
         nic: nicController.text,
-        cropYieldSize: _parseAcreValue(_selectedYieldSize),
+        cropYieldSize:
+            _parseAcreToNum(_selectedYieldSize),
         id: widget.existingData?['_id'],
       );
 
@@ -396,21 +397,28 @@ class _CultivationalAddScreenState extends State<CultivationalAddScreen> {
     );
   }
 
-  double _parseAcreValue(String? value) {
-    if (value == null) return 0;
-    final part = value.split(' ').first.trim();
-    if (part.contains('/')) {
-      // Handle fractions like "1/2"
-      final nums = part.split('/');
-      if (nums.length == 2) {
-        final numerator = double.tryParse(nums[0]);
-        final denominator = double.tryParse(nums[1]);
-        if (numerator != null && denominator != null && denominator != 0) {
+  String _parseAcreValue(String? value) {
+    if (value == null || value.isEmpty) return '';
+
+    // Add "අක්කර" prefix to the value
+    return "අක්කර ${value.trim()}";
+  }
+
+  num _parseAcreToNum(String? value) {
+    if (value == null || value.isEmpty) return 0;
+    // Remove 'අක්කර' and whitespace, then parse the number
+    final cleaned = value.replaceAll('අක්කර', '').trim();
+    // Handle fractions like '1/2'
+    if (cleaned.contains('/')) {
+      final parts = cleaned.split('/');
+      if (parts.length == 2) {
+        final numerator = num.tryParse(parts[0].trim()) ?? 0;
+        final denominator = num.tryParse(parts[1].trim()) ?? 1;
+        if (denominator != 0) {
           return numerator / denominator;
         }
       }
-      return 0;
     }
-    return double.tryParse(part) ?? 0;
+    return num.tryParse(cleaned) ?? 0;
   }
 }

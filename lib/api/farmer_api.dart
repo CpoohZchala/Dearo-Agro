@@ -64,11 +64,10 @@ class FarmerApi {
           'fullName': farmerData.fullName,
           'mobileNumber': farmerData.mobileNumber,
           'password': farmerData.password,
+          'branchName': farmerData.branchName,
         }),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode != 201) {
         final errorData = jsonDecode(response.body);

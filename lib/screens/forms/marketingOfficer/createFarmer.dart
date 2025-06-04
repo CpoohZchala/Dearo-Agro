@@ -17,8 +17,34 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController mobileNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  String? selectedBranch; 
   bool isLoading = false;
   bool isPasswordVisible = false;
+
+  final List<String> branches = [
+    "Head Office - Colombo",
+    "Badulla",
+    "Welimada",
+    "Dambulla",
+    "Mannar",
+    "Chenkalady",
+    "Muthur",
+    "Nelliady",
+    "Mahiyanganaya",
+    "Polonnaruwa",
+    "Thissamaharama",
+    "Trincomalee",
+    "Vavunathivu",
+    "Kinniya",
+    "Chunnakam",
+    "Kaluwanchikudy",
+    "Dehiattakandiya",
+    "Batticaloa",
+    "Vavuniya",
+    "Ampara",
+
+
+  ];
 
   Future<void> createFarmer() async {
     if (!_formKey.currentState!.validate()) return;
@@ -34,6 +60,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
           fullName: fullNameController.text,
           mobileNumber: mobileNumberController.text,
           password: passwordController.text,
+          branchName: selectedBranch,
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +134,8 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           controller: fullNameController,
                           decoration: InputDecoration(
                             labelText: "Full Name",
-                            labelStyle: GoogleFonts.poppins(fontSize: 16,color:Colors.black),
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -131,7 +159,8 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           controller: mobileNumberController,
                           decoration: InputDecoration(
                             labelText: "Mobile Number",
-                            labelStyle: GoogleFonts.poppins(fontSize: 16,color:Colors.black),
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -155,7 +184,8 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           controller: passwordController,
                           decoration: InputDecoration(
                             labelText: "Password",
-                            labelStyle: GoogleFonts.poppins(fontSize: 16,color:Colors.black),
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -183,6 +213,43 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please enter the password";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: selectedBranch,
+                          items: branches.map((branch) {
+                            return DropdownMenuItem(
+                              value: branch,
+                              child: Text(branch,
+                                  style: GoogleFonts.poppins(fontSize: 16)),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelText: "Select Branch",
+                            labelStyle: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color.fromRGBO(87, 164, 91, 0.8),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedBranch = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please select a branch";
                             }
                             return null;
                           },

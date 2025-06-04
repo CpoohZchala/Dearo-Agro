@@ -1,3 +1,4 @@
+import 'package:farmeragriapp/screens/views/buyer/order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -19,7 +20,7 @@ class _BuyerDashboardState extends State<BuyerDashboard> {
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
       const BuyerHome(),
-      Center(child: Text("Orders", style: GoogleFonts.poppins(fontSize: 22))),
+      const OrderScreen(),
       Center(child: Text("Profile", style: GoogleFonts.poppins(fontSize: 22))),
     ];
     return Scaffold(

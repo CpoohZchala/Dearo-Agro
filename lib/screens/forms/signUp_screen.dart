@@ -26,7 +26,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final List<String> _categories = [
     "Farmer",
     "Marketing Officer",
-    "Super Admin",
     "Buyer",
   ];
 

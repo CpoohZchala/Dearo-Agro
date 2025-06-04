@@ -109,6 +109,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green,
         title: Text('Browse Products', style: GoogleFonts.poppins()),
         actions: [
           IconButton(
@@ -183,7 +184,7 @@ class _BrowseProductsScreenState extends State<BrowseProductsScreen> {
                                 Text(product.name,
                                     style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.bold)),
-                                Text('\$${product.price}',
+                                Text('Rs.${product.price}',
                                     style: GoogleFonts.poppins(
                                         color: Colors.green)),
                                 const SizedBox(height: 6),
