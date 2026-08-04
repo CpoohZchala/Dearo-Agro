@@ -28,8 +28,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   final storage = const FlutterSecureStorage();
-  final _orderService =
-      OrderService('https://dearoagro-backend.onrender.com/api');
+  final _orderService = OrderService();
 
   List<dynamic> orders = [];
   bool isLoading = true;
@@ -49,7 +48,7 @@ class _OrderScreenState extends State<OrderScreen> {
       return;
     }
     try {
-      final data = await _orderService.fetchBuyerOrders(token);
+      final data = await OrderService.fetchBuyerOrders();
       setState(() {
         orders = data['orders'] ?? [];
         isLoading = false;

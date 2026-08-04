@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../agri_chatbot_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -26,8 +28,32 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white, // White background after splash screen
       body: _isSplashScreenVisible
-          ? _buildSplashScreen() // Show splash screen
-          : _buildMainScreen(), // Show main screen (logo & button)
+          ? _buildSplashScreen()
+          : Stack(
+        children: [
+          _buildMainScreen(),
+
+          Positioned(
+            right: 50,
+            bottom: 50,
+            child: FloatingActionButton(
+              backgroundColor: const Color(0xFF5C9B5E),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AgriChatbotScreen(),
+                  ),
+                );
+              },
+              child: const Icon(
+                Icons.smart_toy_outlined,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

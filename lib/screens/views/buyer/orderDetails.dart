@@ -18,8 +18,7 @@ class OrderDetailsScreen extends StatefulWidget {
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
-  final _orderService =
-      OrderService('https://dearoagro-backend.onrender.com/api');
+  final _orderService = OrderService();
   Map<String, dynamic>? order;
   bool isLoading = true;
 
@@ -31,8 +30,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   Future<void> _fetchOrder() async {
     try {
-      final data = await _orderService.fetchOrderDetails(
-          widget.orderId, widget.authToken);
+      final data = await OrderService.fetchBuyerOrders();
       setState(() {
         order = data;
         isLoading = false;
