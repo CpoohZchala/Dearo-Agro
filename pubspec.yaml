@@ -20,6 +20,8 @@ dependencies:
   flutter_image_compress: ^2.4.0
   flutter_launcher_icons: ^0.14.3
   flutter_localization: ^0.3.3
+  flutter_markdown_plus: ^1.0.7
+  flutter_screenutil: ^5.9.3
   flutter_secure_storage: ^9.2.4
   fluttertoast: ^8.2.12
   getwidget: ^6.0.0

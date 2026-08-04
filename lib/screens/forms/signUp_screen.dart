@@ -4,6 +4,7 @@ import 'package:farmeragriapp/models/user_model.dart';
 import 'package:farmeragriapp/screens/dialogBox/success_dialog.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
@@ -22,57 +23,159 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-      TextEditingController();
+  TextEditingController();
 
   final List<String> _categories = [
     "Farmer",
-    "Marketing Officer",
     "Buyer",
   ];
 
-  Future<void> signUp() async {
-    if (nameController.text.isEmpty ||
-        mobileController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty ||
-        _selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Please fill all fields and select a category")),
-      );
-      return;
-    }
+  void _showSnackBar(String message, {bool isError = true}) {
+    if (!mounted) return;
 
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
+    ScaffoldMessenger.of(context).clearSnackBars();
 
-    User newUser = User(
-      fullName: nameController.text,
-      mobileNumber: mobileController.text,
-      password: passwordController.text,
-      userType: _selectedCategory,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: isError
+            ? const Color.fromARGB(255, 180, 40, 40)
+            : const Color.fromARGB(255, 45, 130, 60),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
     );
+  }
 
-    final response = await AuthApi.signUp(newUser);
+  Future<void> signUp() async {
+    final fullName = nameController.text.trim();
+    final mobileNumber = mobileController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      showSuccessDialog(context);
-      nameController.clear();
-      mobileController.clear();
-      passwordController.clear();
-      confirmPasswordController.clear();
-      setState(() {
-        _selectedCategory = null;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error signing up: ${response.body}')),
+    if (_selectedCategory == null) {
+      _showSnackBar("Please select whether you are a Farmer or Buyer.");
+      return;
+    }
+
+    // Full Name validation
+    if (fullName.isEmpty) {
+      _showSnackBar("Please enter your full name.");
+      return;
+    }
+
+    final namePattern = RegExp(r"^[a-zA-Z\s.'-]+$");
+
+    if (!namePattern.hasMatch(fullName)) {
+      _showSnackBar(
+        "Full name can contain letters only. Numbers are not allowed.",
+      );
+      return;
+    }
+
+    final nameParts = fullName
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    if (nameParts.length < 2) {
+      _showSnackBar("Please enter both your first name and last name.");
+      return;
+    }
+
+    // Sri Lankan Mobile Number validation
+    if (mobileNumber.isEmpty) {
+      _showSnackBar("Please enter your mobile number.");
+      return;
+    }
+
+    final mobilePattern = RegExp(r'^07\d{8}$');
+
+    if (!mobilePattern.hasMatch(mobileNumber)) {
+      _showSnackBar(
+        "Please enter a valid mobile number. Example: 0771234567",
+      );
+      return;
+    }
+
+    if (password.isEmpty) {
+      _showSnackBar("Please create a password.");
+      return;
+    }
+
+    if (password.length < 6) {
+      _showSnackBar("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      _showSnackBar("Please confirm your password.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showSnackBar("Passwords do not match. Please check and try again.");
+      return;
+    }
+
+    try {
+      User newUser = User(
+        fullName: fullName,
+        mobileNumber: mobileNumber,
+        password: password,
+        userType: _selectedCategory,
+      );
+
+      final response = await AuthApi.signUp(newUser);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        showSuccessDialog(context);
+
+        nameController.clear();
+        mobileController.clear();
+        passwordController.clear();
+        confirmPasswordController.clear();
+
+        setState(() {
+          _selectedCategory = null;
+        });
+      } else if (response.statusCode == 409) {
+        _showSnackBar(
+          "This mobile number is already registered. Please sign in.",
+        );
+      } else if (response.statusCode >= 500) {
+        _showSnackBar(
+          "Server is busy right now. Please try again shortly.",
+        );
+      } else {
+        _showSnackBar(
+          "Signup failed. Please check your details and try again.",
+        );
+      }
+    } catch (e) {
+      _showSnackBar(
+        "Something went wrong. Please check your internet connection.",
       );
     }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    mobileController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,41 +183,49 @@ class _SignupScreenState extends State<SignupScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600 && screenWidth < 1024;
     final isDesktop = screenWidth >= 1024;
+
     final padding = isDesktop
         ? 120.0
         : isTablet
-            ? 50.0
-            : 16.0;
+        ? 50.0
+        : 16.0;
+
     final cardPadding = isDesktop
         ? 48.0
         : isTablet
-            ? 32.0
-            : 18.0;
+        ? 32.0
+        : 18.0;
+
     final headerFontSize = isDesktop
         ? 32.0
         : isTablet
-            ? 26.0
-            : 22.0;
+        ? 26.0
+        : 22.0;
+
     final arcHeight = isDesktop
         ? 220.0
         : isTablet
-            ? 180.0
-            : 150.0;
+        ? 180.0
+        : 150.0;
+
     final logoSize = isDesktop
         ? 180.0
         : isTablet
-            ? 140.0
-            : 100.0;
+        ? 140.0
+        : 100.0;
+
     final buttonFontSize = isDesktop
         ? 20.0
         : isTablet
-            ? 18.0
-            : 16.0;
+        ? 18.0
+        : 16.0;
+
     final buttonPadding = isDesktop
         ? 22.0
         : isTablet
-            ? 18.0
-            : 14.0;
+        ? 18.0
+        : 14.0;
+
     final cardWidth = isDesktop ? 500.0 : double.infinity;
 
     return Scaffold(
@@ -138,19 +249,21 @@ class _SignupScreenState extends State<SignupScreen> {
                   top: arcHeight + 12,
                   bottom: 24,
                 ),
-                child: Container(
+                child: SizedBox(
                   width: cardWidth,
                   child: Card(
                     color: Colors.transparent,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22)),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
                         gradient: LinearGradient(
                           colors: [
-                            Color.fromARGB(255, 51, 162, 56).withOpacity(0.80),
+                            const Color.fromARGB(255, 51, 162, 56)
+                                .withOpacity(0.80),
                             const Color.fromARGB(2, 246, 247, 246)
                                 .withOpacity(0.60),
                           ],
@@ -160,7 +273,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(
-                            horizontal: cardPadding, vertical: cardPadding),
+                          horizontal: cardPadding,
+                          vertical: cardPadding,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -179,6 +294,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
+
                             Padding(
                               padding: const EdgeInsets.only(bottom: 14),
                               child: DropdownButtonFormField<String>(
@@ -186,7 +302,9 @@ class _SignupScreenState extends State<SignupScreen> {
                                 decoration: InputDecoration(
                                   labelText: "Select Category",
                                   labelStyle: GoogleFonts.poppins(
-                                      fontSize: 15, color: Colors.black),
+                                    fontSize: 15,
+                                    color: Colors.black,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.grey[200],
                                   border: OutlineInputBorder(
@@ -204,9 +322,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                 items: _categories.map((String category) {
                                   return DropdownMenuItem<String>(
                                     value: category,
-                                    child: Text(category,
-                                        style:
-                                            GoogleFonts.poppins(fontSize: 15)),
+                                    child: Text(
+                                      category,
+                                      style: GoogleFonts.poppins(fontSize: 15),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
@@ -216,23 +335,53 @@ class _SignupScreenState extends State<SignupScreen> {
                                 },
                               ),
                             ),
-                            _buildTextField(nameController, "Full Name",
-                                isDesktop, isTablet),
-                            _buildTextField(mobileController, "Mobile Number",
-                                isDesktop, isTablet),
-                            _buildPasswordField(passwordController, "Password",
-                                isDesktop, isTablet),
-                            _buildPasswordField(confirmPasswordController,
-                                "Confirm Password", isDesktop, isTablet),
+
+                            _buildTextField(
+                              nameController,
+                              "Full Name",
+                              isDesktop,
+                              isTablet,
+                              textCapitalization: TextCapitalization.words,
+                            ),
+
+                            _buildTextField(
+                              mobileController,
+                              "Mobile Number",
+                              isDesktop,
+                              isTablet,
+                              keyboardType: TextInputType.phone,
+                              maxLength: 10,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                            ),
+
+                            _buildPasswordField(
+                              passwordController,
+                              "Password",
+                              isDesktop,
+                              isTablet,
+                            ),
+
+                            _buildPasswordField(
+                              confirmPasswordController,
+                              "Confirm Password",
+                              isDesktop,
+                              isTablet,
+                            ),
+
                             const SizedBox(height: 24),
+
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      const Color.fromARGB(255, 15, 59, 18),
+                                  const Color.fromARGB(255, 15, 59, 18),
                                   padding: EdgeInsets.symmetric(
-                                      vertical: buttonPadding),
+                                    vertical: buttonPadding,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -249,11 +398,15 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                               ),
                             ),
+
                             const SizedBox(height: 16),
+
                             RichText(
                               text: TextSpan(
                                 text: "Already have an account? ",
-                                style: GoogleFonts.poppins(color: Colors.black),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                ),
                                 children: [
                                   TextSpan(
                                     text: "Sign In",
@@ -283,21 +436,37 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      bool isDesktop, bool isTablet) {
+  Widget _buildTextField(
+      TextEditingController controller,
+      String label,
+      bool isDesktop,
+      bool isTablet, {
+        TextInputType keyboardType = TextInputType.text,
+        List<TextInputFormatter>? inputFormatters,
+        int? maxLength,
+        TextCapitalization textCapitalization = TextCapitalization.none,
+      }) {
     final fontSize = isDesktop
         ? 18.0
         : isTablet
-            ? 16.0
-            : 15.0;
+        ? 16.0
+        : 15.0;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: TextField(
         controller: controller,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        maxLength: maxLength,
+        textCapitalization: textCapitalization,
         decoration: InputDecoration(
+          counterText: "",
           labelText: label,
-          labelStyle:
-              GoogleFonts.poppins(fontSize: fontSize, color: Colors.black),
+          labelStyle: GoogleFonts.poppins(
+            fontSize: fontSize,
+            color: Colors.black,
+          ),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
@@ -316,13 +485,18 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildPasswordField(TextEditingController controller, String label,
-      bool isDesktop, bool isTablet) {
+  Widget _buildPasswordField(
+      TextEditingController controller,
+      String label,
+      bool isDesktop,
+      bool isTablet,
+      ) {
     final fontSize = isDesktop
         ? 18.0
         : isTablet
-            ? 16.0
-            : 15.0;
+        ? 16.0
+        : 15.0;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: TextField(
@@ -330,8 +504,10 @@ class _SignupScreenState extends State<SignupScreen> {
         obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle:
-              GoogleFonts.poppins(fontSize: fontSize, color: Colors.black),
+          labelStyle: GoogleFonts.poppins(
+            fontSize: fontSize,
+            color: Colors.black,
+          ),
           suffixIcon: IconButton(
             onPressed: () {
               setState(() {
